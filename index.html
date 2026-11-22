@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Virtual Classroom</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, sans-serif;
+      color: #182c36;
+      background: #eef4f6;
+      line-height: 1.6;
+    }
+    body { margin: 0; }
+    main { width: min(60rem, calc(100% - 2rem)); margin: 0 auto; padding: 3rem 0; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: 1.1; margin: 0; }
+    header > p { color: #435963; margin: 0.75rem 0 2rem; }
+    .subjects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    section { background: white; border: 1px solid #cddde3; border-radius: 1rem; padding: 1.25rem; }
+    h2 { line-height: 1.2; margin: 0 0 0.75rem; }
+    section p { color: #435963; margin: 0; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li + li { margin-top: 0.5rem; }
+    a { display: block; padding: 0.625rem 0.75rem; border-radius: 0.5rem; background: #edf6f8; color: #075871; overflow-wrap: anywhere; }
+    a:hover { background: #dceef3; }
+    a:focus-visible { outline: 3px solid #075871; outline-offset: 2px; }
+    @media (max-width: 38rem) {
+      main { padding: 2rem 0; }
+      .subjects { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>My Virtual Classroom</h1>
+      <p>Choose a subject and open an interactive activity.</p>
+    </header>
+    <div class="subjects">
+      <section aria-labelledby="electronics">
+        <h2 id="electronics">Electronics</h2>
+        <!-- activities:electronics -->
+      </section>
+      <section aria-labelledby="artificial-intelligence">
+        <h2 id="artificial-intelligence">Artificial Intelligence</h2>
+        <!-- activities:artificial-intelligence -->
+      </section>
+    </div>
+  </main>
+</body>
+</html>

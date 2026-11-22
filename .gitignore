@@ -1,0 +1,6 @@
+/dist/
+/.vercel/
+/testing/electronics/*
+!/testing/electronics/.gitkeep
+/testing/artificial-intelligence/*
+!/testing/artificial-intelligence/.gitkeep
