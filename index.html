@@ -3,48 +3,241 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore resistors, transistors, and artificial intelligence in My Virtual Classroom.">
   <title>My Virtual Classroom</title>
   <style>
     :root {
       color-scheme: light;
-      font-family: system-ui, sans-serif;
-      color: #182c36;
-      background: #eef4f6;
-      line-height: 1.6;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: #17253d;
+      background: #f4f6fa;
+      line-height: 1.55;
     }
+
+    * { box-sizing: border-box; }
     body { margin: 0; }
-    main { width: min(60rem, calc(100% - 2rem)); margin: 0 auto; padding: 3rem 0; }
-    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: 1.1; margin: 0; }
-    header > p { color: #435963; margin: 0.75rem 0 2rem; }
-    .subjects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-    section { background: white; border: 1px solid #cddde3; border-radius: 1rem; padding: 1.25rem; }
-    h2 { line-height: 1.2; margin: 0 0 0.75rem; }
-    section p { color: #435963; margin: 0; }
-    ul { list-style: none; padding: 0; margin: 0; }
-    li + li { margin-top: 0.5rem; }
-    a { display: block; padding: 0.625rem 0.75rem; border-radius: 0.5rem; background: #edf6f8; color: #075871; overflow-wrap: anywhere; }
-    a:hover { background: #dceef3; }
-    a:focus-visible { outline: 3px solid #075871; outline-offset: 2px; }
-    @media (max-width: 38rem) {
-      main { padding: 2rem 0; }
-      .subjects { grid-template-columns: 1fr; }
+    a { color: inherit; }
+    a:focus-visible { outline: 3px solid #2878cc; outline-offset: 5px; }
+    .wrap { width: min(70rem, calc(100% - 3rem)); margin-inline: auto; }
+
+    .masthead { background: #0e1a30; color: #f5f8ff; }
+    .masthead .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem 2rem;
+      padding-block: 1rem;
+    }
+    .brand { font-weight: 700; }
+    nav { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; }
+    nav a { color: #c4d5f2; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+
+    .hero {
+      color: #f5f8ff;
+      background-color: #142644;
+      background-image: linear-gradient(#a5c8ff14 1px, transparent 1px),
+                        linear-gradient(90deg, #a5c8ff14 1px, transparent 1px);
+      background-size: 2rem 2rem;
+    }
+    .hero .wrap {
+      min-height: 23rem;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      align-items: center;
+      gap: 2rem;
+      padding-block: 3.75rem;
+    }
+    h1, h2, h3 { line-height: 1.08; margin: 0; }
+    h1 { max-width: 11ch; font-size: clamp(2.65rem, 7vw, 5.6rem); letter-spacing: -.059em; }
+    .hero p { color: #c4d5f2; font-size: 1.125rem; max-width: 34ch; margin: 1rem 0 0; }
+
+    .board { position: relative; width: min(100%, 25rem); height: 13rem; justify-self: center; }
+    .board::before, .board::after {
+      content: "";
+      position: absolute;
+      height: 42%;
+      width: 54%;
+      border: 2px solid #82c7ff;
+    }
+    .board::before { top: 8%; left: 4%; border-right: 0; border-bottom: 0; }
+    .board::after { bottom: 8%; right: 4%; border-left: 0; border-top: 0; }
+    .board .chip { position: absolute; inset: 22% 26%; }
+    .chip {
+      display: grid;
+      place-items: center;
+      border: 2px solid #8fbbf9;
+      border-radius: .75rem;
+      color: #d5e8ff;
+      background: #172e50;
+      font: 700 1.7rem ui-monospace, monospace;
+      box-shadow: inset 0 0 0 .5rem #223d62;
+    }
+    .board .chip::before, .board .chip::after {
+      content: "";
+      position: absolute;
+      width: 2.4rem;
+      height: 62%;
+      background: repeating-linear-gradient(to bottom, #8fbbf9 0 2px, transparent 2px 24%);
+    }
+    .board .chip::before { right: 100%; }
+    .board .chip::after { left: 100%; }
+    .board .terminal {
+      position: absolute;
+      width: .75rem;
+      aspect-ratio: 1;
+      border: 2px solid #ffd496;
+      background: #142644;
+      border-radius: 50%;
+    }
+    .board .terminal:first-child { left: calc(4% - .3rem); top: 48%; }
+    .board .terminal:last-child { right: calc(4% - .3rem); bottom: 48%; }
+
+    .subjects {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
+      padding-block: 2.5rem 3rem;
+    }
+    .subjects h2 { font-size: clamp(1.3rem, 2.8vw, 1.75rem); margin-bottom: 1rem; }
+    .topics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .topics.ai-topics { grid-template-columns: 1fr; }
+    .topic { border: 1px solid #dbe2ef; background: white; border-radius: 1rem; overflow: hidden; }
+    .topic-copy { padding: 1.25rem; }
+    .topic h3 { font-size: 1.4rem; }
+    .topic p { margin: .55rem 0 0; color: #465977; }
+    .illustration {
+      display: grid;
+      place-items: center;
+      min-height: 8rem;
+      background-color: #e7eefb;
+      background-image: radial-gradient(#8097bb70 1px, transparent 1px);
+      background-size: 14px 14px;
+    }
+    .resistor {
+      position: relative;
+      z-index: 0;
+      width: 5rem;
+      height: 1.7rem;
+      border-radius: .7rem;
+      border: 1px solid #a67741;
+      background: linear-gradient(90deg, #efc98c 19%, #66402a 19% 28%, #efc98c 28% 41%,
+                  #242838 41% 50%, #efc98c 50% 62%, #a7343f 62% 71%, #efc98c 71% 84%,
+                  #98702a 84% 91%, #efc98c 91%);
+    }
+    .resistor::before, .resistor::after {
+      content: "";
+      position: absolute;
+      width: 2rem;
+      height: 3px;
+      top: calc(50% - 1.5px);
+      background: #62728c;
+    }
+    .resistor::before { right: 100%; }
+    .resistor::after { left: 100%; }
+    .transistor {
+      position: relative;
+      width: 3.75rem;
+      height: 3rem;
+      margin-bottom: 1.75rem;
+      border-radius: 1.7rem 1.7rem .35rem .35rem;
+      background: linear-gradient(115deg, #3e5472, #17253d 65%);
+    }
+    .transistor::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 1rem;
+      width: 3px;
+      height: 1.75rem;
+      background: #62728c;
+      box-shadow: .78rem 0 #62728c, 1.56rem 0 #62728c;
+    }
+    .ai-art { background-color: #e9e5fa; }
+    .ai-art .chip { width: 4.5rem; aspect-ratio: 1; }
+    .activity-list { margin-top: 1rem; color: #465977; }
+    .activity-list p, .activity-list ul { margin: 0; }
+    .activity-list ul { padding-left: 1.3rem; }
+    .activity-list a { color: #174c91; }
+    .activity-list a:hover { text-decoration-thickness: 2px; }
+
+    @media (max-width: 48rem) {
+      .subjects { grid-template-columns: 1fr; gap: 2rem; }
+      .hero .wrap { min-height: auto; padding-block: 2.5rem; }
+      .board { height: 10rem; }
+    }
+    @media (max-width: 34rem) {
+      .wrap { width: calc(100% - 2rem); }
+      .hero .wrap { grid-template-columns: 1fr; }
+      .board { max-width: 19rem; }
+      .topics { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <header class="masthead">
+    <div class="wrap">
+      <span class="brand">My Virtual Classroom</span>
+      <nav aria-label="Subjects">
+        <a href="#electronics">Electronics</a>
+        <a href="#artificial-intelligence">Artificial Intelligence</a>
+      </nav>
+    </div>
+  </header>
+
   <main>
-    <header>
-      <h1>My Virtual Classroom</h1>
-      <p>Choose a subject and open an interactive activity.</p>
-    </header>
-    <div class="subjects">
+    <section class="hero" aria-labelledby="classroom-title">
+      <div class="wrap">
+        <div>
+          <h1 id="classroom-title">My Virtual Classroom</h1>
+          <p>Explore how circuits work and how computers learn from examples.</p>
+        </div>
+        <div class="board" aria-hidden="true">
+          <span class="terminal"></span>
+          <span class="chip">V = IR</span>
+          <span class="terminal"></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap subjects">
       <section aria-labelledby="electronics">
         <h2 id="electronics">Electronics</h2>
-        <!-- activities:electronics -->
+        <div class="topics">
+          <article class="topic">
+            <div class="illustration" aria-hidden="true"><span class="resistor"></span></div>
+            <div class="topic-copy">
+              <h3>Resistor</h3>
+              <p>See how a resistor limits current in a circuit.</p>
+            </div>
+          </article>
+          <article class="topic">
+            <div class="illustration" aria-hidden="true"><span class="transistor"></span></div>
+            <div class="topic-copy">
+              <h3>Transistor</h3>
+              <p>Find out how a small signal can switch a circuit on and off.</p>
+            </div>
+          </article>
+        </div>
+        <div class="activity-list">
+          <!-- activities:electronics -->
+        </div>
       </section>
       <section aria-labelledby="artificial-intelligence">
         <h2 id="artificial-intelligence">Artificial Intelligence</h2>
-        <!-- activities:artificial-intelligence -->
+        <div class="topics ai-topics">
+          <article class="topic">
+            <div class="illustration ai-art" aria-hidden="true"><span class="chip">AI</span></div>
+            <div class="topic-copy">
+              <h3>What Is AI?</h3>
+              <p>Learn what artificial intelligence is and how an AI system can use examples to recognize patterns.</p>
+            </div>
+          </article>
+        </div>
+        <div class="activity-list">
+          <!-- activities:artificial-intelligence -->
+        </div>
       </section>
     </div>
   </main>
