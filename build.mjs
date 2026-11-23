@@ -1,45 +1,52 @@
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  SUBJECTS,
+  discoverActivities,
+  renderHomepage,
+  renderSubjectPage,
+} from './lib/catalog.mjs';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 const output = join(root, 'dist');
-const subjects = ['electronics', 'artificial-intelligence'];
 
-async function copyActivity(source, destination) {
+async function copyActivityDir(source, destination) {
   await mkdir(destination, { recursive: true });
   for (const entry of await readdir(source, { withFileTypes: true })) {
     if (entry.name.startsWith('.')) continue;
     const from = join(source, entry.name);
     const to = join(destination, entry.name);
-    if (entry.isDirectory()) await copyActivity(from, to);
+    if (entry.isDirectory()) await copyActivityDir(from, to);
     else if (entry.isFile()) await cp(from, to);
-    else throw new Error(`Unsupported file in published activity: ${from}`);
+    else throw new Error(`Unsupported file in activity: ${from}`);
   }
 }
 
 await rm(output, { recursive: true, force: true });
-await mkdir(output);
-let homepage = await readFile(join(root, 'index.html'), 'utf8');
+await mkdir(output, { recursive: true });
 
-for (const subject of subjects) {
-  const source = join(root, 'published', subject);
-  const entries = await readdir(source, { withFileTypes: true });
-  const links = [];
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name, 'en'))) {
-    if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
-    const activity = join(source, entry.name);
-    const files = await readdir(activity, { withFileTypes: true });
-    if (!files.some(file => file.name === 'index.html' && file.isFile())) continue;
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.name)) {
-      throw new Error(`Use a lowercase, hyphen-separated activity folder name: ${activity}`);
+const template = await readFile(join(root, 'index.html'), 'utf8');
+const catalogBySubject = {};
+
+for (const subject of SUBJECTS) {
+  const activities = await discoverActivities(root, subject);
+  catalogBySubject[subject] = activities;
+
+  const subjectDir = join(output, subject);
+  await mkdir(subjectDir, { recursive: true });
+
+  for (const item of activities) {
+    if (item.kind === 'file') {
+      await cp(item.sourcePath, join(subjectDir, item.fileName));
+    } else {
+      await copyActivityDir(item.sourcePath, join(subjectDir, item.slug));
     }
-    await copyActivity(activity, join(output, 'published', subject, entry.name));
-    const label = entry.name.replace(/-/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase());
-    links.push(`<li><a href="./published/${subject}/${entry.name}/">${label}</a></li>`);
   }
-  const list = links.length ? `<ul>\n${links.join('\n')}\n</ul>` : '<p>No activities published yet.</p>';
-  homepage = homepage.replace(`<!-- activities:${subject} -->`, list);
+
+  // Dedicated standalone webpage for each subject (/electronics/ and /artificial-intelligence/)
+  await writeFile(join(subjectDir, 'index.html'), renderSubjectPage(template, subject, activities));
 }
 
+const homepage = renderHomepage(template, catalogBySubject);
 await writeFile(join(output, 'index.html'), homepage);

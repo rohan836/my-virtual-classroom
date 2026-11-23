@@ -1,0 +1,2687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>/electronics studies — Interactive 3D Transistor Lab</title>
+  <meta name="description" content="A transistor acts like a tiny electronic valve controlled by electricity. Explore NPN, PNP, MOSFET, and Phototransistor cutaways, switches, automatic dark sensors, and audio amplifiers in 3D." />
+  <meta name="lab-formula" content="Ic = β · Ib" />
+
+  <!-- Google Fonts: Inter (editorial sans), Newsreader (italic serif), IBM Plex Mono (technical UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+
+  <!-- Three.js r128 for interactive 3D rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    /* =========================================================================
+       SWISS-EDITORIAL SCIENTIFIC DESIGN SYSTEM (/electronics studies — Transistor)
+       ========================================================================= */
+    :root {
+      --bg: #ffffff;
+      --ink: #111111;
+      --muted: #6e6e73;
+      --faint: #9a9aa0;
+      --border: #e5e5e5;
+      --border-strong: #d4d4d8;
+      --red: #e04836;
+      --red-soft: #fff6f5;
+      --blue: #2563eb;
+      --blue-soft: #f0f5ff;
+      --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --serif: 'Newsreader', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--mono);
+      user-select: none;
+    }
+
+    /* Full-bleed 3D canvas behind editorial overlays */
+    #viewport-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: #ffffff;
+    }
+
+    #three-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    #three-canvas.dragging {
+      cursor: grabbing;
+    }
+
+    #three-canvas.hovering-part {
+      cursor: pointer;
+    }
+
+    /* 2D projected floating 3D annotations */
+    #labels-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .scene-label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      padding: 2px 5px;
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 3px;
+      transition: opacity 0.18s ease;
+    }
+
+    .scene-label.red { color: var(--red); }
+    .scene-label.blue { color: var(--blue); }
+    .scene-label.dark { color: #333333; }
+    .scene-label.muted { color: #707076; }
+    .scene-label.alert {
+      color: #ffffff;
+      background: var(--red);
+      font-weight: 600;
+      padding: 3px 7px;
+    }
+
+    /* Top Navigation Bar (44px high, hairline bottom border) */
+    #top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      z-index: 30;
+      background: rgba(255, 255, 255, 0.98);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      padding: 0 18px;
+    }
+
+    .nav-group {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    .nav-cell {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 16px;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .nav-cell:first-child {
+      padding-left: 0;
+    }
+
+    .nav-switcher {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 100%;
+    }
+
+    .nav-link-btn {
+      background: transparent;
+      border: none;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--muted);
+      text-decoration: none;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 3px;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+
+    .nav-link-btn:hover {
+      color: var(--ink);
+      background: #f5f5f5;
+    }
+
+    /* Left Minimal Editorial Panel (~336px wide) */
+    #left-panel {
+      position: fixed;
+      top: 52px;
+      left: 24px;
+      bottom: 84px;
+      width: 336px;
+      z-index: 20;
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-right: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #dcdcdc transparent;
+      background: linear-gradient(90deg, rgba(255,255,255,0.96) 86%, rgba(255,255,255,0) 100%);
+    }
+
+    #left-panel::-webkit-scrollbar { width: 4px; }
+    #left-panel::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
+
+    .breadcrumb {
+      font-size: 10.5px;
+      color: var(--faint);
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      margin-bottom: 6px;
+    }
+
+    .editorial-headline {
+      margin: 0 0 8px 0;
+      line-height: 1.06;
+      letter-spacing: -0.025em;
+    }
+
+    .headline-line1 {
+      display: block;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 25px;
+      color: var(--ink);
+    }
+
+    .headline-line2 {
+      display: block;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 27px;
+      color: var(--ink);
+      margin-top: 1px;
+    }
+
+    .editorial-intro {
+      font-family: var(--mono);
+      font-size: 10.8px;
+      line-height: 1.48;
+      color: #3a3a40;
+      margin: 0 0 9px 0;
+    }
+
+    .hairline-rule {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2px 0 9px 0;
+    }
+
+    .notes-table {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      row-gap: 6px;
+      column-gap: 10px;
+      font-size: 10.5px;
+      line-height: 1.44;
+      margin-bottom: 10px;
+    }
+
+    .notes-key {
+      color: var(--faint);
+      font-weight: 400;
+    }
+
+    .notes-val {
+      color: #3f3f46;
+    }
+
+    /* Part Inspector Box (crisp hairline) */
+    #inspector-box {
+      border: 1px solid #dcdcdc;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 4px;
+      padding: 9px 11px;
+      margin-top: auto;
+      transition: border-color 0.2s ease;
+    }
+
+    #inspector-box.highlighted {
+      border-color: var(--red);
+    }
+
+    .inspector-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--faint);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+
+    .inspector-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 5px;
+    }
+
+    .inspector-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+
+    .inspector-desc {
+      font-size: 11px;
+      line-height: 1.5;
+      color: #3f3f46;
+      margin: 0 0 7px 0;
+    }
+
+    .inspector-tip {
+      font-size: 10.5px;
+      line-height: 1.45;
+      color: var(--muted);
+      background: #fafafa;
+      border-left: 2px solid var(--blue);
+      padding: 5px 8px;
+      border-radius: 0 3px 3px 0;
+    }
+
+    /* Top-Right Floating Telemetry Box (248px wide) */
+    #telemetry-box {
+      position: fixed;
+      top: 64px;
+      right: 24px;
+      width: 248px;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid #dcdcdc;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .telemetry-head {
+      padding: 9px 13px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .telemetry-readout {
+      padding: 12px 13px 10px 13px;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .telemetry-scope-wrap {
+      position: relative;
+      height: 76px;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+    }
+
+    #scope-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .telemetry-rows {
+      padding: 10px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 10.5px;
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .telemetry-row .k {
+      color: var(--faint);
+    }
+
+    .telemetry-row .v {
+      color: #27272a;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    /* Bottom Interactive Control Bar */
+    #bottom-bar {
+      position: fixed;
+      left: 24px;
+      right: 24px;
+      bottom: 14px;
+      z-index: 25;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .controls-stack {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: calc(100vw - 210px);
+    }
+
+    .legend-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 2px;
+      border-radius: 1px;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.94);
+      padding: 2px 0;
+    }
+
+    /* Hairline Rectangular Buttons */
+    .sci-btn {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: #222222;
+      background: #ffffff;
+      border: 1px solid #d4d4d8;
+      border-radius: 3px;
+      padding: 5px 8.5px;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    .sci-btn:hover {
+      border-color: #888888;
+      background: #fafafa;
+    }
+
+    .sci-btn.active {
+      border-color: var(--red);
+      color: var(--ink);
+      background: var(--red-soft);
+    }
+
+    .sci-btn.active-blue {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .btn-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+      margin: 0 1px;
+    }
+
+    /* Minimal Vermilion Sliders */
+    .slider-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 2px;
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .slider-val {
+      color: var(--ink);
+      min-width: 34px;
+      font-size: 10.5px;
+    }
+
+    input[type="range"].sci-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 72px;
+      height: 4px;
+      background: #e5e5e5;
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].sci-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(224, 72, 54, 0.45);
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+
+    input[type="range"].sci-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    input[type="range"].sci-slider::-moz-range-thumb {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(224, 72, 54, 0.45);
+      cursor: pointer;
+    }
+
+    /* Bottom-right muted monospace hint */
+    #hint-block {
+      pointer-events: none;
+      text-align: right;
+      font-size: 10.5px;
+      line-height: 1.55;
+      color: var(--faint);
+      white-space: nowrap;
+    }
+
+    /* Mobile / Tablet Adaptive Adjustments */
+    @media (max-width: 1024px) {
+      #left-panel {
+        width: 270px;
+        left: 14px;
+      }
+      #telemetry-box {
+        width: 215px;
+        right: 14px;
+      }
+      #bottom-bar {
+        left: 14px;
+        right: 14px;
+      }
+      .controls-stack {
+        max-width: 100%;
+      }
+      #hint-block {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #left-panel {
+        width: calc(100vw - 28px);
+        max-height: 28vh;
+        bottom: auto;
+        top: 50px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 10px 12px;
+      }
+      .notes-table { display: none; }
+      #telemetry-box {
+        top: auto;
+        bottom: 104px;
+        right: 12px;
+        width: 185px;
+      }
+      .telemetry-scope-wrap { height: 48px; }
+      .nav-cell.hide-sm { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. TOP NAVIGATION BAR -->
+  <header id="top-nav">
+    <div class="nav-group">
+      <div class="nav-cell" style="font-weight:600; color:#111;"><a href="./" style="color:inherit; text-decoration:none;" title="Back to Electronics Studies (press /)">/electronics studies</a></div>
+      <div class="nav-cell">
+        <span id="nav-fig-badge" style="color:var(--red); font-weight:500; margin-right:8px;">fig. 02</span>
+        <span id="nav-fig-sub" style="color:var(--muted);">a tiny valve for electric current</span>
+      </div>
+      <div class="nav-cell hide-sm" id="nav-equation" style="color:var(--muted);">Ic = &beta; &middot; Ib</div>
+    </div>
+
+    <div class="nav-switcher">
+      <a href="./resistor.html" class="nav-link-btn" title="Open Resistor Lab (Left Arrow)">&larr; prev: resistor</a>
+      <a href="./" class="nav-link-btn hide-sm" title="Back to Electronics Index (press /)">/electronics</a>
+    </div>
+  </header>
+
+  <!-- 2. FULL-BLEED 3D VIEWPORT & FLOATING LABELS -->
+  <div id="viewport-wrap">
+    <canvas id="three-canvas"></canvas>
+  </div>
+  <div id="labels-layer"></div>
+
+  <!-- 3. LEFT MINIMAL EDITORIAL PANEL -->
+  <aside id="left-panel">
+    <div id="editorial-breadcrumb" class="breadcrumb">/electronics studies &middot; [ fig. 02 ] transistor</div>
+
+    <h1 class="editorial-headline">
+      <span id="headline-1" class="headline-line1">A tiny valve</span>
+      <span id="headline-2" class="headline-line2">for electric current</span>
+    </h1>
+
+    <p id="editorial-intro" class="editorial-intro">
+      A transistor works like a super-fast water tap controlled by electricity instead of your hand. A tiny trickle of signal at the middle leg (Base or Gate) opens a floodgate for a much bigger current.
+    </p>
+
+    <hr class="hairline-rule" />
+
+    <div id="notes-table" class="notes-table">
+      <div class="notes-key">law</div>
+      <div class="notes-val">Ic = &beta; &middot; Ib for BJTs (tiny Base current controls large Collector current). MOSFETs use Gate voltage (Vgs &gt; Vth).</div>
+      <div class="notes-key">try</div>
+      <div class="notes-val">Toggle the Base Switch, test the Automatic Dark Sensor by dimming daylight, or compare NPN, PNP, MOSFET, and Photo types.</div>
+      <div class="notes-key">notice</div>
+      <div class="notes-val">With zero moving parts, a transistor can flip ON and OFF billions of times per second — or magnify a whisper into loud music.</div>
+      <div class="notes-key">in life</div>
+      <div class="notes-val">Microchips inside smartphones and laptops pack billions of microscopic transistors to calculate and store data.</div>
+      <div class="notes-key">found by</div>
+      <div class="notes-val">John Bardeen, Walter Brattain, and William Shockley invented the first transistor at Bell Labs in 1947.</div>
+    </div>
+
+    <!-- Interactive Part Inspector Box -->
+    <section id="inspector-box" aria-live="polite">
+      <div class="inspector-header">
+        <span>PART INSPECTOR</span>
+        <span id="inspector-hint">CLICK 3D MODEL</span>
+      </div>
+      <div class="inspector-title">
+        <span id="inspector-dot" class="inspector-dot"></span>
+        <span id="inspector-name">Click any 3D part</span>
+      </div>
+      <p id="inspector-desc" class="inspector-desc">
+        Click the transistor legs (C/B/E or G/D/S), inner silicon layers, wires, LDR light sensor, or switches to inspect them.
+      </p>
+      <div id="inspector-tip" class="inspector-tip">
+        <strong>classroom tip:</strong> Drag empty white space to spin 360&deg; and zoom in with your scroll wheel.
+      </div>
+    </section>
+  </aside>
+
+  <!-- 4. TOP-RIGHT FLOATING TELEMETRY BOX -->
+  <aside id="telemetry-box">
+    <div class="telemetry-head">
+      <span id="telemetry-title">COLLECTOR OUTPUT</span>
+      <span id="telemetry-badge" style="color:var(--red);">LIVE</span>
+    </div>
+    <div id="telemetry-readout" class="telemetry-readout">ON &middot; 18.0 mA</div>
+    <div class="telemetry-scope-wrap">
+      <canvas id="scope-canvas"></canvas>
+    </div>
+    <div id="telemetry-rows" class="telemetry-rows">
+      <!-- Populated dynamically -->
+    </div>
+  </aside>
+
+  <!-- 5. BOTTOM INTERACTIVE CONTROL BAR -->
+  <footer id="bottom-bar">
+    <div class="controls-stack">
+      <div id="legend-line" class="legend-line"></div>
+      <div id="controls-row" class="controls-row"></div>
+    </div>
+
+    <div id="hint-block">
+      <div>drag empty space &mdash; orbit</div>
+      <div>click any part &mdash; inspect</div>
+      <div>&larr; resistor lab &middot; / index</div>
+    </div>
+  </footer>
+
+  <script>
+    /* =========================================================================
+       /electronics studies — Interactive 3D Transistor Lab
+       Designed for 5th–9th grade electronics classes.
+       Pure Three.js r128 + Custom Orbital Camera + Raycast Inspector + Live Scope
+       ========================================================================= */
+
+    (function () {
+      'use strict';
+
+      /* -----------------------------------------------------------------------
+         1. COLOR CODE LOOKUP FOR HELPER CIRCUIT RESISTORS (330 Ω, 10 kΩ)
+         ----------------------------------------------------------------------- */
+      const COLOR_DIGITS = [
+        { name: 'Black',  hex: '#1c1c1e' },
+        { name: 'Brown',  hex: '#7c4322' },
+        { name: 'Red',    hex: '#d93829' },
+        { name: 'Orange', hex: '#f27922' },
+        { name: 'Yellow', hex: '#f2c922' },
+        { name: 'Green',  hex: '#258a47' },
+        { name: 'Blue',   hex: '#2563eb' },
+        { name: 'Violet', hex: '#7c3aed' },
+        { name: 'Gray',   hex: '#73737c' },
+        { name: 'White',  hex: '#f5f5f5' }
+      ];
+      const TOLERANCE_GOLD = '#cfa134';
+
+      /* -----------------------------------------------------------------------
+         2. APPLICATION STATE
+         ----------------------------------------------------------------------- */
+      const state = {
+        tr: {
+          powerOn: true,
+          type: 'npn',         // 'npn' | 'pnp' | 'mosfet' | 'photo'
+          project: 'inside',   // 'inside' | 'switch' | 'dark' | 'amp'
+          view: 'cutaway',     // 'outer' | 'cutaway'
+          baseOn: true,        // switch toggle for switch project
+          baseDrive: 0.75,     // 0.0 - 1.0 (for inside drive / light intensity)
+          daylight: 0.25,      // 0.0 (pitch dark) - 1.0 (bright sun) for dark sensor
+          ampGain: 0.75        // signal amplitude control for amplifier mode
+        },
+
+        metrics: {
+          baseCurrentUa: 0,
+          collectorCurrentMa: 0,
+          gateVoltage: 0,
+          transistorOn: false,
+          ldrKohm: 10,
+          baseVoltage: 0
+        },
+
+        scopeA: new Array(140).fill(0),
+        scopeB: new Array(140).fill(0),
+        time: 0,
+
+        selectedMesh: null,
+        hoveredMesh: null
+      };
+
+      /* -----------------------------------------------------------------------
+         3. HELPER UTILITIES
+         ----------------------------------------------------------------------- */
+      function setInspector(info) {
+        if (!info) return;
+        const box = document.getElementById('inspector-box');
+        document.getElementById('inspector-name').textContent = info.name;
+        document.getElementById('inspector-desc').textContent = info.desc;
+        document.getElementById('inspector-tip').innerHTML = '<strong>classroom tip:</strong> ' + info.tip;
+        document.getElementById('inspector-dot').style.background = info.color || '#e04836';
+        document.getElementById('inspector-hint').textContent = info.tag || 'INSPECTING';
+
+        box.classList.remove('highlighted');
+        void box.offsetWidth;
+        box.classList.add('highlighted');
+      }
+
+      function resetInspectorDefault() {
+        setInspector({
+          name: 'Click any 3D part',
+          desc: 'Click the transistor legs (C/B/E or G/D/S), inner silicon layers, wires, LDR light sensor, or switches to inspect them.',
+          tip: 'Drag empty space to orbit 360°. Toggle cutaway to peek inside solid electronic components!',
+          color: '#2563eb',
+          tag: 'READY'
+        });
+        document.getElementById('inspector-box').classList.remove('highlighted');
+      }
+
+      function updateNavEquation() {
+        const eq = state.tr.type === 'mosfet'
+          ? 'Vgs > Vth (Field Effect)'
+          : state.tr.type === 'photo'
+          ? 'Ic = S · Light'
+          : 'Ic = β · Ib';
+        document.getElementById('nav-equation').textContent = eq;
+      }
+
+      /* -----------------------------------------------------------------------
+         4. THREE.JS CORE SCENE, CAMERA & SMOOTH ORBIT CONTROLLER
+         ----------------------------------------------------------------------- */
+      const canvas = document.getElementById('three-canvas');
+      const labelsLayer = document.getElementById('labels-layer');
+
+      const isSoftwareGl = (() => {
+        const probe = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl');
+        if (!probe) return true;
+        const ext = probe.getExtension('WEBGL_debug_renderer_info');
+        const param = ext ? ext.UNMASKED_RENDERER_WEBGL : probe.RENDERER;
+        const gpu = String(probe.getParameter(param) || '');
+        const lose = probe.getExtension('WEBGL_lose_context');
+        if (lose) lose.loseContext();
+        return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
+      })();
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isSoftwareGl, powerPreference: 'high-performance' });
+      renderer.setClearColor(0xffffff, 1);
+      renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xffffff);
+
+      const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 120);
+
+      // Studio crisp scientific lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 0.72);
+      keyLight.position.set(8, 14, 10);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0xeef5ff, 0.38);
+      fillLight.position.set(-10, 6, -6);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0xfff4ee, 0.25);
+      rimLight.position.set(0, -6, -10);
+      scene.add(rimLight);
+
+      function createEditorialGrid(size = 16, divisions = 16) {
+        const group = new THREE.Group();
+        const half = size / 2;
+        const step = size / divisions;
+        const minorVerts = [];
+        const majorVerts = [];
+
+        for (let i = 0; i <= divisions; i++) {
+          const pos = -half + i * step;
+          const isMajor = (i === 0 || i === divisions || i === divisions / 2);
+          const target = isMajor ? majorVerts : minorVerts;
+          target.push(-half, 0, pos, half, 0, pos);
+          target.push(pos, 0, -half, pos, 0, half);
+        }
+
+        const minorGeo = new THREE.BufferGeometry();
+        minorGeo.setAttribute('position', new THREE.Float32BufferAttribute(minorVerts, 3));
+        const minorMat = new THREE.LineBasicMaterial({ color: 0xebedf0, transparent: true, opacity: 0.9 });
+        group.add(new THREE.LineSegments(minorGeo, minorMat));
+
+        const majorGeo = new THREE.BufferGeometry();
+        majorGeo.setAttribute('position', new THREE.Float32BufferAttribute(majorVerts, 3));
+        const majorMat = new THREE.LineBasicMaterial({ color: 0xd8dce3, transparent: true, opacity: 0.95 });
+        group.add(new THREE.LineSegments(majorGeo, majorMat));
+
+        group.position.y = -1.95;
+        return group;
+      }
+
+      const floorGrid = createEditorialGrid(18, 18);
+      scene.add(floorGrid);
+
+      const activeGroup = new THREE.Group();
+      scene.add(activeGroup);
+
+      let clickableMeshes = [];
+      let labelAnchors = [];
+      let animatedActors = {};
+
+      const orbit = {
+        theta: 0.45,
+        phi: 1.15,
+        radius: 9.6,
+        targetTheta: 0.45,
+        targetPhi: 1.15,
+        targetRadius: 9.6,
+        target: new THREE.Vector3(-0.45, 0.35, 0),
+        desiredTarget: new THREE.Vector3(-0.45, 0.35, 0),
+        isDragging: false,
+        pointerDownPos: { x: 0, y: 0 },
+        lastPointerPos: { x: 0, y: 0 },
+        movedDistance: 0
+      };
+
+      function setCameraPreset(theta, phi, radius, tx = -0.35, ty = 0, tz = 0) {
+        orbit.targetTheta = theta;
+        orbit.targetPhi = phi;
+        orbit.targetRadius = radius;
+        orbit.desiredTarget.set(tx, ty, tz);
+      }
+
+      function updateCamera() {
+        const damp = 0.12;
+        orbit.theta += (orbit.targetTheta - orbit.theta) * damp;
+        orbit.phi += (orbit.targetPhi - orbit.phi) * damp;
+        orbit.radius += (orbit.targetRadius - orbit.radius) * damp;
+        orbit.target.lerp(orbit.desiredTarget, damp);
+
+        const sinPhi = Math.sin(orbit.phi);
+        camera.position.set(
+          orbit.target.x + orbit.radius * sinPhi * Math.sin(orbit.theta),
+          orbit.target.y + orbit.radius * Math.cos(orbit.phi),
+          orbit.target.z + orbit.radius * sinPhi * Math.cos(orbit.theta)
+        );
+        camera.lookAt(orbit.target);
+      }
+
+      function handleResize() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+        resizeScopeCanvas();
+      }
+
+      /* -----------------------------------------------------------------------
+         5. 3D GEOMETRY HELPERS & CIRCUIT PROPS
+         ----------------------------------------------------------------------- */
+      function addEdgeOutline(mesh, color = 0x2a2a30, opacity = 0.25, threshold = 24) {
+        const edges = new THREE.EdgesGeometry(mesh.geometry, threshold);
+        const line = new THREE.LineSegments(
+          edges,
+          new THREE.LineBasicMaterial({ color, transparent: true, opacity })
+        );
+        mesh.add(line);
+        return line;
+      }
+
+      function registerClickable(mesh, infoObj, onClickAction = null) {
+        mesh.userData.inspectInfo = infoObj;
+        mesh.userData.onClickAction = onClickAction;
+        clickableMeshes.push(mesh);
+        return mesh;
+      }
+
+      function addLabelAnchor(text, positionVec3, className = 'dark', id = null) {
+        const el = document.createElement('div');
+        el.className = 'scene-label ' + className;
+        el.textContent = text;
+        labelsLayer.appendChild(el);
+        const obj = { el, pos: positionVec3.clone(), id };
+        labelAnchors.push(obj);
+        return obj;
+      }
+
+      function clearSceneGroup() {
+        while (activeGroup.children.length > 0) {
+          const child = activeGroup.children[0];
+          activeGroup.remove(child);
+          child.traverse((obj) => {
+            if (obj.geometry) obj.geometry.dispose();
+            if (obj.material) {
+              if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+              else obj.material.dispose();
+            }
+          });
+        }
+        clickableMeshes = [];
+        labelAnchors = [];
+        labelsLayer.innerHTML = '';
+        animatedActors = {};
+        state.selectedMesh = null;
+        state.hoveredMesh = null;
+      }
+
+      function createWire(points, colorHex, radius = 0.042, inspectInfo = null) {
+        const curve = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.08);
+        const geo = new THREE.TubeGeometry(curve, Math.max(24, points.length * 10), radius, 10, false);
+        const mat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.45, metalness: 0.15 });
+        const mesh = new THREE.Mesh(geo, mat);
+        if (inspectInfo) registerClickable(mesh, inspectInfo);
+        return { mesh, curve };
+      }
+
+      function createFlowParticles(curve, count, colorHex, radius = 0.075) {
+        const group = new THREE.Group();
+        const geo = new THREE.SphereGeometry(radius, 12, 12);
+        const mat = new THREE.MeshBasicMaterial({ color: colorHex });
+        const spheres = [];
+        for (let i = 0; i < count; i++) {
+          const m = new THREE.Mesh(geo, mat);
+          m.userData.offset = i / count;
+          group.add(m);
+          spheres.push(m);
+        }
+        return { group, spheres, curve, mat };
+      }
+
+      // Compact helper axial resistor for transistor circuit diagrams (330 Ω / 10 kΩ)
+      function buildCircuitResistor({ scale = 0.36, b1 = 1, b2 = 0, b3 = 3, label = '10 kΩ Resistor', desc = 'Limits current safely into the transistor pin.' }) {
+        const root = new THREE.Group();
+        root.scale.setScalar(scale);
+
+        const leadMat = new THREE.MeshStandardMaterial({ color: 0xcbd0d8, metalness: 0.78, roughness: 0.26 });
+        const leadL = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 2.2, 12), leadMat);
+        leadL.rotation.z = Math.PI / 2;
+        leadL.position.x = -2.75;
+        const leadR = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 2.2, 12), leadMat);
+        leadR.rotation.z = Math.PI / 2;
+        leadR.position.x = 2.75;
+        root.add(leadL, leadR);
+
+        const bodyHalfLen = 1.65;
+        const profile = [
+          new THREE.Vector2(0.08, -bodyHalfLen),
+          new THREE.Vector2(0.56, -bodyHalfLen),
+          new THREE.Vector2(0.62, -1.45),
+          new THREE.Vector2(0.62, -1.08),
+          new THREE.Vector2(0.52, -0.88),
+          new THREE.Vector2(0.52, 0.88),
+          new THREE.Vector2(0.62, 1.08),
+          new THREE.Vector2(0.62, 1.45),
+          new THREE.Vector2(0.56, bodyHalfLen),
+          new THREE.Vector2(0.08, bodyHalfLen)
+        ];
+        const bodyMesh = new THREE.Mesh(
+          new THREE.LatheGeometry(profile, 24),
+          new THREE.MeshStandardMaterial({ color: 0xe6cda6, roughness: 0.55, metalness: 0.05 })
+        );
+        bodyMesh.rotation.z = -Math.PI / 2;
+        addEdgeOutline(bodyMesh, 0x7a6242, 0.2, 26);
+        root.add(bodyMesh);
+
+        const bands = [
+          { x: -0.74, hex: COLOR_DIGITS[b1].hex },
+          { x: -0.26, hex: COLOR_DIGITS[b2].hex },
+          { x: 0.22,  hex: COLOR_DIGITS[b3].hex },
+          { x: 0.80,  hex: TOLERANCE_GOLD }
+        ];
+        bands.forEach((b) => {
+          const bm = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.532, 0.532, 0.2, 24, 1, true),
+            new THREE.MeshStandardMaterial({ color: b.hex, roughness: 0.35 })
+          );
+          bm.rotation.z = -Math.PI / 2;
+          bm.position.x = b.x;
+          root.add(bm);
+        });
+
+        registerClickable(bodyMesh, {
+          name: label,
+          desc,
+          tip: 'Resistors work alongside transistors to keep Base and LED currents at safe levels.',
+          color: '#c9a673',
+          tag: 'SUPPORT RESISTOR'
+        });
+
+        return { root };
+      }
+
+      function buildBattery(voltageText = '9V') {
+        const grp = new THREE.Group();
+        const body = new THREE.Mesh(
+          new THREE.BoxGeometry(1.15, 1.65, 0.72),
+          new THREE.MeshStandardMaterial({ color: 0x22252b, roughness: 0.5, metalness: 0.2 })
+        );
+        addEdgeOutline(body, 0x000000, 0.35);
+        grp.add(body);
+
+        const band = new THREE.Mesh(
+          new THREE.BoxGeometry(1.17, 0.48, 0.74),
+          new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.45 })
+        );
+        band.position.y = 0.58;
+        grp.add(band);
+
+        const termMat = new THREE.MeshStandardMaterial({ color: 0xcbd0d8, metalness: 0.85, roughness: 0.2 });
+        const posTerm = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.22, 16), termMat);
+        posTerm.position.set(-0.28, 0.92, 0);
+        grp.add(posTerm);
+
+        const negTerm = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.18, 6), termMat);
+        negTerm.position.set(0.28, 0.90, 0);
+        grp.add(negTerm);
+
+        const info = {
+          name: `DC Battery (${voltageText})`,
+          desc: 'The "electric pump" of the circuit! Chemical energy inside pushes electric charge out of one terminal and pulls it back into the other.',
+          tip: 'Voltage (V) is like water pressure — higher voltage pushes harder!',
+          color: '#e04836',
+          tag: 'POWER SOURCE'
+        };
+        registerClickable(body, info);
+        registerClickable(band, info);
+        return grp;
+      }
+
+      function buildToggleSwitch(isOn, labelName, onToggleCallback) {
+        const grp = new THREE.Group();
+        const base = new THREE.Mesh(
+          new THREE.BoxGeometry(1.25, 0.18, 0.68),
+          new THREE.MeshStandardMaterial({ color: 0xf0f1f4, roughness: 0.65 })
+        );
+        addEdgeOutline(base, 0x444444, 0.35);
+        grp.add(base);
+
+        const postMat = new THREE.MeshStandardMaterial({ color: 0xb8bec8, metalness: 0.8, roughness: 0.25 });
+        const postL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.32, 12), postMat);
+        postL.position.set(-0.42, 0.22, 0);
+        grp.add(postL);
+
+        const postR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.32, 12), postMat);
+        postR.position.set(0.42, 0.22, 0);
+        grp.add(postR);
+
+        const pivot = new THREE.Group();
+        pivot.position.set(-0.42, 0.32, 0);
+        const blade = new THREE.Mesh(
+          new THREE.BoxGeometry(0.92, 0.06, 0.12),
+          new THREE.MeshStandardMaterial({ color: 0xd97736, metalness: 0.72, roughness: 0.3 })
+        );
+        blade.position.x = 0.44;
+        pivot.add(blade);
+
+        const handle = new THREE.Mesh(
+          new THREE.SphereGeometry(0.13, 14, 14),
+          new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.35 })
+        );
+        handle.position.x = 0.94;
+        pivot.add(handle);
+
+        pivot.rotation.z = isOn ? 0 : 0.62;
+        grp.add(pivot);
+
+        const info = {
+          name: labelName,
+          desc: 'A mechanical switch opens or closes a gap in the wire. When CLOSED, electricity flows; when OPEN, air blocks the flow. Click directly on this 3D switch to flip it!',
+          tip: 'Click right on this switch in 3D (or use the bottom button) to toggle ON / OFF.',
+          color: '#e04836',
+          tag: 'INTERACTIVE SWITCH'
+        };
+        registerClickable(base, info, onToggleCallback);
+        registerClickable(blade, info, onToggleCallback);
+        registerClickable(handle, info, onToggleCallback);
+
+        return { grp, pivot };
+      }
+
+      function buildLED(colorHex = 0xe04836, name = 'Red LED (Light Emitting Diode)') {
+        const grp = new THREE.Group();
+        const lensMat = new THREE.MeshStandardMaterial({
+          color: colorHex,
+          roughness: 0.18,
+          metalness: 0.05,
+          transparent: true,
+          opacity: 0.68,
+          emissive: new THREE.Color(colorHex),
+          emissiveIntensity: 0.2
+        });
+        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.56, 24), lensMat);
+        cyl.position.y = 0.32;
+        grp.add(cyl);
+
+        const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), lensMat);
+        dome.position.y = 0.60;
+        grp.add(dome);
+
+        const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.09, 24), lensMat);
+        rim.position.y = 0.04;
+        addEdgeOutline(rim, 0x333333, 0.22);
+        grp.add(rim);
+
+        const innerMat = new THREE.MeshStandardMaterial({ color: 0xc2c8d2, metalness: 0.85, roughness: 0.25 });
+        const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.34, 0.06), innerMat);
+        anvil.position.set(0.10, 0.28, 0);
+        grp.add(anvil);
+
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.32, 0.06), innerMat);
+        post.position.set(-0.10, 0.26, 0);
+        grp.add(post);
+
+        const glowMat = new THREE.MeshBasicMaterial({
+          color: colorHex,
+          transparent: true,
+          opacity: 0.0,
+          depthWrite: false
+        });
+        const glow = new THREE.Mesh(new THREE.SphereGeometry(0.88, 20, 20), glowMat);
+        glow.position.y = 0.52;
+        grp.add(glow);
+
+        const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.72, 10), innerMat);
+        legL.position.set(-0.12, -0.36, 0);
+        grp.add(legL);
+
+        const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.62, 10), innerMat);
+        legR.position.set(0.12, -0.31, 0);
+        grp.add(legR);
+
+        const info = {
+          name,
+          desc: 'An LED turns electric current directly into light! Here the transistor switches this LED ON and OFF cleanly using only a tiny control signal.',
+          tip: 'Notice the longer leg (+) is the Anode and the shorter leg (−) is the Cathode.',
+          color: '#' + colorHex.toString(16).padStart(6, '0'),
+          tag: 'LIGHT OUTPUT'
+        };
+        registerClickable(cyl, info);
+        registerClickable(dome, info);
+
+        return { grp, lensMat, glowMat };
+      }
+
+      // Reusable 3D LDR (Light Dependent Resistor) with serpentine wave track
+      function buildLDR() {
+        const grp = new THREE.Group();
+        const disc = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.46, 0.46, 0.16, 24),
+          new THREE.MeshStandardMaterial({ color: 0xf4eee4, roughness: 0.6 })
+        );
+        disc.rotation.x = Math.PI / 2;
+        addEdgeOutline(disc, 0x555555, 0.3);
+        grp.add(disc);
+
+        const pts = [];
+        for (let i = 0; i <= 24; i++) {
+          const t = i / 24;
+          const x = -0.28 + t * 0.56;
+          const y = Math.sin(t * Math.PI * 5) * 0.22;
+          pts.push(new THREE.Vector3(x, y, 0.095));
+        }
+        const wave = new THREE.Mesh(
+          new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, 0.024, 6, false),
+          new THREE.MeshStandardMaterial({ color: 0xd94e28, roughness: 0.4 })
+        );
+        grp.add(wave);
+
+        const legMat = new THREE.MeshStandardMaterial({ color: 0xc2c8d2, metalness: 0.8, roughness: 0.25 });
+        const l1 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.72, 10), legMat);
+        l1.position.set(-0.18, -0.68, 0);
+        const l2 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.72, 10), legMat);
+        l2.position.set(0.18, -0.68, 0);
+        grp.add(l1, l2);
+
+        const info = {
+          name: 'LDR (Light Dependent Resistor)',
+          desc: 'A special resistor that senses light! In bright sunlight its resistance drops very low (~500 Ω). In pitch darkness its resistance shoots way up (~50 kΩ), pushing voltage into the transistor Base!',
+          tip: 'Slide the "daylight" slider to Night to watch the LDR automatically wake up the streetlight!',
+          color: '#f59e0b',
+          tag: 'LIGHT SENSOR'
+        };
+        registerClickable(disc, info);
+        registerClickable(wave, info);
+
+        return grp;
+      }
+
+      // Reusable 3D Mini Speaker for Amplifier Mode
+      function buildSpeaker() {
+        const grp = new THREE.Group();
+        const box = new THREE.Mesh(
+          new THREE.BoxGeometry(1.15, 1.35, 0.72),
+          new THREE.MeshStandardMaterial({ color: 0x26282e, roughness: 0.55 })
+        );
+        addEdgeOutline(box, 0x000000, 0.35);
+        grp.add(box);
+
+        const cone = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.42, 0.16, 0.24, 24),
+          new THREE.MeshStandardMaterial({ color: 0x454852, roughness: 0.65 })
+        );
+        cone.rotation.x = Math.PI / 2;
+        cone.position.set(0, 0.05, 0.34);
+        grp.add(cone);
+
+        const cap = new THREE.Mesh(
+          new THREE.SphereGeometry(0.15, 16, 12),
+          new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.35 })
+        );
+        cap.position.set(0, 0.05, 0.36);
+        grp.add(cap);
+
+        const info = {
+          name: 'Mini Audio Speaker (Amplified Output)',
+          desc: "The amplified red AC signal from the transistor's Collector pushes and pulls this speaker cone back and forth, turning electrical waves into loud sound waves!",
+          tip: 'Watch how the tiny blue microphone wave turns into a giant red speaker wave on the right graph!',
+          color: '#e04836',
+          tag: 'SOUND OUTPUT'
+        };
+        registerClickable(box, info);
+        registerClickable(cone, info);
+        registerClickable(cap, info);
+
+        return { grp, cone, cap };
+      }
+
+      /* -----------------------------------------------------------------------
+         6. HERO 3D TRANSISTOR MODELS (NPN, PNP, MOSFET, PHOTOTRANSISTOR)
+         ----------------------------------------------------------------------- */
+      function buildTransistorModel(type, viewMode = 'cutaway', scale = 1.0) {
+        const root = new THREE.Group();
+        root.scale.setScalar(scale);
+
+        const isCut = viewMode === 'cutaway';
+        const metalMat = new THREE.MeshStandardMaterial({ color: 0xc2c8d2, metalness: 0.82, roughness: 0.24 });
+        const blackPlastic = new THREE.MeshStandardMaterial({
+          color: 0x202228,
+          roughness: 0.48,
+          metalness: 0.1,
+          side: THREE.DoubleSide
+        });
+
+        let channelMat = null;
+        let barrierMat = null;
+        let lightRays = null;
+
+        if (type === 'npn' || type === 'pnp') {
+          const shape = new THREE.Shape();
+          const r = 0.85;
+          shape.moveTo(-r, -0.35);
+          shape.lineTo(r, -0.35);
+          shape.absarc(0, -0.35, r, 0, Math.PI, false);
+          shape.closePath();
+
+          const extrudeDepth = isCut ? 0.45 : 1.55;
+          const bodyGeo = new THREE.ExtrudeGeometry(shape, { depth: extrudeDepth, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 2 });
+          bodyGeo.rotateX(-Math.PI / 2);
+          const bodyMesh = new THREE.Mesh(bodyGeo, blackPlastic);
+          bodyMesh.position.y = isCut ? 0.65 : 0.05;
+          if (isCut) {
+            bodyMesh.rotation.x = 0;
+            bodyMesh.scale.set(1, 3.2, 0.55);
+            bodyMesh.position.set(0, 0.08, -0.35);
+          }
+          addEdgeOutline(bodyMesh, 0x000000, 0.3);
+          root.add(bodyMesh);
+
+          registerClickable(bodyMesh, {
+            name: type === 'npn' ? 'NPN BJT Package (TO-92 · BC547)' : 'PNP BJT Package (TO-92 · BC557)',
+            desc: type === 'npn'
+              ? 'Black epoxy TO-92 housing protecting a tiny silicon crystal. NPN is the most common classroom transistor — give its Base a small positive push to turn ON!'
+              : 'Black epoxy TO-92 housing for a PNP transistor — the opposite twin of NPN. Pulling its Base LOW lets current flow from Emitter to Collector.',
+            tip: 'Hold the flat face toward you to easily remember the pin order!',
+            color: '#222222',
+            tag: type.toUpperCase() + ' BJT'
+          });
+
+          const isNPN = (type === 'npn');
+          const topColor = isNPN ? 0x2563eb : 0xe04836;
+          const midColor = isNPN ? 0xe04836 : 0x2563eb;
+          const botColor = isNPN ? 0x2563eb : 0xe04836;
+
+          const topLayer = new THREE.Mesh(
+            new THREE.BoxGeometry(1.18, 0.42, 0.42),
+            new THREE.MeshStandardMaterial({ color: topColor, roughness: 0.35 })
+          );
+          topLayer.position.set(0, 1.24, 0.04);
+          addEdgeOutline(topLayer, 0x111111, 0.3);
+
+          barrierMat = new THREE.MeshStandardMaterial({
+            color: midColor,
+            roughness: 0.35,
+            emissive: new THREE.Color(midColor),
+            emissiveIntensity: 0.1
+          });
+          const midLayer = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.28, 0.42), barrierMat);
+          midLayer.position.set(0, 0.86, 0.04);
+          addEdgeOutline(midLayer, 0x111111, 0.3);
+
+          const botLayer = new THREE.Mesh(
+            new THREE.BoxGeometry(1.18, 0.42, 0.42),
+            new THREE.MeshStandardMaterial({ color: botColor, roughness: 0.35 })
+          );
+          botLayer.position.set(0, 0.48, 0.04);
+          addEdgeOutline(botLayer, 0x111111, 0.3);
+
+          if (isCut) {
+            root.add(topLayer, midLayer, botLayer);
+
+            registerClickable(topLayer, {
+              name: isNPN ? 'N-Type Collector Silicon' : 'P-Type Emitter Silicon',
+              desc: isNPN
+                ? 'Silicon doped with extra free electrons (N = Negative). Connected to the Collector pin where the main current waits to enter.'
+                : 'Silicon doped with electron "holes" (P = Positive). Connected to the Emitter pin on a PNP transistor.',
+              tip: 'Silicon is made from purified sand, then "doped" with trace elements to carry charge!',
+              color: isNPN ? '#2563eb' : '#e04836',
+              tag: 'SEMICONDUCTOR'
+            });
+
+            registerClickable(midLayer, {
+              name: isNPN ? 'P-Type Base Layer (The Gatekeeper!)' : 'N-Type Base Layer (The Gatekeeper!)',
+              desc: 'An ultra-thin middle layer that normally blocks electricity like a closed dam. A tiny Base signal lowers this barrier and opens the floodgates!',
+              tip: 'Because this layer is razor-thin, just 1 unit of Base current can unlock 100+ units of Collector current!',
+              color: isNPN ? '#e04836' : '#2563eb',
+              tag: 'CONTROL LAYER'
+            });
+
+            registerClickable(botLayer, {
+              name: isNPN ? 'N-Type Emitter Silicon' : 'P-Type Collector Silicon',
+              desc: isNPN
+                ? 'The exit region connected to the Emitter leg. Both the big Collector current and tiny Base current leave together through here.'
+                : 'The P-type Collector layer where main current exits toward ground in a PNP circuit.',
+              tip: 'Remember: Emitter current = Collector current + Base current (Ie = Ic + Ib).',
+              color: isNPN ? '#2563eb' : '#e04836',
+              tag: 'SEMICONDUCTOR'
+            });
+          }
+
+          const pinNames = isNPN
+            ? [
+                { x: -0.58, code: 'C', full: 'Collector Pin (C)', desc: 'Main power input leg. Big current flows IN here when the transistor switches ON.', color: '#e04836' },
+                { x: 0.0,   code: 'B', full: 'Base Pin (B)', desc: 'The tiny control leg! Just a 0.7V push and micro-amps of current here switches the entire transistor ON.', color: '#2563eb' },
+                { x: 0.58,  code: 'E', full: 'Emitter Pin (E)', desc: 'The exit leg connected to Ground (−). All current leaves through the Emitter.', color: '#374151' }
+              ]
+            : [
+                { x: -0.58, code: 'E', full: 'Emitter Pin (E)', desc: 'Connected to positive supply (+) in a PNP transistor. Current enters here.', color: '#e04836' },
+                { x: 0.0,   code: 'B', full: 'Base Pin (B)', desc: 'Pull this Base pin LOW (toward ground) to switch a PNP transistor ON!', color: '#2563eb' },
+                { x: 0.58,  code: 'C', full: 'Collector Pin (C)', desc: 'Main output leg that feeds current down to the load when the PNP opens.', color: '#374151' }
+              ];
+
+          pinNames.forEach((p) => {
+            const leg = new THREE.Mesh(new THREE.BoxGeometry(0.11, 1.6, 0.08), metalMat);
+            leg.position.set(p.x, -0.75, 0.02);
+            addEdgeOutline(leg, 0x333333, 0.2);
+            root.add(leg);
+            registerClickable(leg, {
+              name: p.full,
+              desc: p.desc,
+              tip: "Always double-check a transistor's datasheet pinout before building a real circuit.",
+              color: p.color,
+              tag: 'PIN ' + p.code
+            });
+          });
+
+        } else if (type === 'mosfet') {
+          const tabMat = new THREE.MeshStandardMaterial({ color: 0xcfd5df, metalness: 0.85, roughness: 0.22 });
+          const tab = new THREE.Mesh(new THREE.BoxGeometry(1.85, 1.05, 0.18), tabMat);
+          tab.position.set(0, 2.02, -0.25);
+          addEdgeOutline(tab, 0x444444, 0.25);
+          root.add(tab);
+
+          const hole = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.24, 0.24, 0.2, 20),
+            new THREE.MeshBasicMaterial({ color: 0xffffff })
+          );
+          hole.rotation.x = Math.PI / 2;
+          hole.position.set(0, 2.1, -0.25);
+          root.add(hole);
+          registerClickable(tab, {
+            name: 'Metal Heatsink Tab (TO-220)',
+            desc: 'Power MOSFETs can switch huge currents for motors and bright lights! This silver metal tab spreads out heat and bolts onto a cooling fin.',
+            tip: 'Look for this silver tab with a hole whenever you see a high-power transistor.',
+            color: '#71717a',
+            tag: 'COOLING TAB'
+          });
+
+          const bodyDepth = isCut ? 0.34 : 0.78;
+          const body = new THREE.Mesh(new THREE.BoxGeometry(1.88, 1.55, bodyDepth), blackPlastic);
+          body.position.set(0, 0.8, isCut ? -0.22 : 0.0);
+          addEdgeOutline(body, 0x000000, 0.32);
+          root.add(body);
+          registerClickable(body, {
+            name: 'N-Channel MOSFET (IRF540 · TO-220)',
+            desc: 'Unlike a BJT, a MOSFET is controlled by VOLTAGE (electric field), not continuous Gate current. It acts like an ultra-efficient electronic switch!',
+            tip: 'MOSFET stands for Metal-Oxide-Semiconductor Field-Effect Transistor.',
+            color: '#18181b',
+            tag: 'POWER MOSFET'
+          });
+
+          if (isCut) {
+            const sub = new THREE.Mesh(
+              new THREE.BoxGeometry(1.52, 0.65, 0.32),
+              new THREE.MeshStandardMaterial({ color: 0xf4a89f, roughness: 0.45 })
+            );
+            sub.position.set(0, 0.56, 0.14);
+            addEdgeOutline(sub, 0x662222, 0.25);
+            root.add(sub);
+
+            const wellMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.35 });
+            const drainWell = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.36), wellMat);
+            drainWell.position.set(-0.48, 0.96, 0.15);
+            const sourceWell = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.36), wellMat);
+            sourceWell.position.set(0.48, 0.96, 0.15);
+            root.add(drainWell, sourceWell);
+
+            const oxide = new THREE.Mesh(
+              new THREE.BoxGeometry(0.86, 0.13, 0.38),
+              new THREE.MeshStandardMaterial({ color: 0xdbeafe, roughness: 0.2, transparent: true, opacity: 0.88 })
+            );
+            oxide.position.set(0, 1.24, 0.16);
+            addEdgeOutline(oxide, 0x2563eb, 0.55);
+            root.add(oxide);
+
+            const gatePlate = new THREE.Mesh(
+              new THREE.BoxGeometry(0.76, 0.11, 0.36),
+              new THREE.MeshStandardMaterial({ color: 0x1d4ed8, metalness: 0.5, roughness: 0.3 })
+            );
+            gatePlate.position.set(0, 1.37, 0.16);
+            root.add(gatePlate);
+
+            channelMat = new THREE.MeshStandardMaterial({
+              color: 0xe04836,
+              emissive: new THREE.Color(0xe04836),
+              emissiveIntensity: 0.6,
+              transparent: true,
+              opacity: 0.85
+            });
+            const channel = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.18, 0.38), channelMat);
+            channel.position.set(0, 1.06, 0.16);
+            root.add(channel);
+
+            registerClickable(oxide, {
+              name: 'SiO₂ Insulated Oxide Gate Layer',
+              desc: 'A microscopic sheet of glass-like silicon dioxide! It completely insulates the Gate pin so almost ZERO current flows into the Gate — only an electric field reaches across.',
+              tip: 'That tiny glass layer is why MOSFETs waste almost zero control power in computer chips!',
+              color: '#2563eb',
+              tag: 'OXIDE INSULATOR'
+            });
+
+            registerClickable(channel, {
+              name: 'Induced Conducting N-Channel',
+              desc: 'When positive voltage (Vgs > 2V) charges the Gate, its electric field pulls electrons up to form this glowing bridge connecting Drain to Source!',
+              tip: 'Remove the Gate voltage and this bridge vanishes instantly, turning the switch OFF.',
+              color: '#e04836',
+              tag: 'ELECTRIC FIELD CHANNEL'
+            });
+          }
+
+          const mosPins = [
+            { x: -0.62, code: 'G', full: 'Gate Pin (G)', desc: 'Voltage control pin! Apply >2V here to create an electric field that turns the MOSFET ON with almost zero Gate current.', color: '#2563eb' },
+            { x: 0.0,   code: 'D', full: 'Drain Pin (D)', desc: 'Main power input pin (like Collector on a BJT). Heavy load current enters here.', color: '#e04836' },
+            { x: 0.62,  code: 'S', full: 'Source Pin (S)', desc: 'Main return pin connected to Ground (−) (like Emitter on a BJT).', color: '#374151' }
+          ];
+          mosPins.forEach((p) => {
+            const leg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.65, 0.09), metalMat);
+            leg.position.set(p.x, -0.78, 0.02);
+            addEdgeOutline(leg, 0x333333, 0.22);
+            root.add(leg);
+            registerClickable(leg, {
+              name: p.full,
+              desc: p.desc,
+              tip: 'G-D-S on a MOSFET plays the same role as B-C-E on a BJT!',
+              color: p.color,
+              tag: 'PIN ' + p.code
+            });
+          });
+
+        } else if (type === 'photo') {
+          const domeMat = new THREE.MeshStandardMaterial({
+            color: 0xeef6ff,
+            roughness: 0.12,
+            metalness: 0.05,
+            transparent: true,
+            opacity: isCut ? 0.22 : 0.42,
+            depthWrite: false
+          });
+          const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 1.05, 28), domeMat);
+          cyl.position.y = 0.65;
+          addEdgeOutline(cyl, 0x7a92b0, 0.22, 30);
+          root.add(cyl);
+
+          const topDome = new THREE.Mesh(new THREE.SphereGeometry(0.75, 28, 18, 0, Math.PI * 2, 0, Math.PI / 2), domeMat);
+          topDome.position.y = 1.18;
+          root.add(topDome);
+
+          const cup = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.44, 0.32, 0.22, 20),
+            new THREE.MeshStandardMaterial({ color: 0xd4a438, metalness: 0.8, roughness: 0.25 })
+          );
+          cup.position.y = 0.56;
+          root.add(cup);
+
+          barrierMat = new THREE.MeshStandardMaterial({
+            color: 0x2563eb,
+            emissive: new THREE.Color(0xf59e0b),
+            emissiveIntensity: 0.2,
+            roughness: 0.25
+          });
+          const chip = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.14, 0.46), barrierMat);
+          chip.position.y = 0.72;
+          addEdgeOutline(chip, 0x111111, 0.35);
+          root.add(chip);
+
+          registerClickable(cyl, {
+            name: 'Clear Optical Lens Dome',
+            desc: 'Instead of opaque black plastic, a phototransistor has a clear magnifying lens that focuses incoming light directly onto its tiny silicon Base!',
+            tip: 'Your TV remote receiver and automatic door sensors use infrared phototransistors.',
+            color: '#3b82f6',
+            tag: 'OPTICAL PACKAGE'
+          });
+
+          registerClickable(chip, {
+            name: 'Light-Sensitive Silicon Base Chip',
+            desc: 'There is NO Base wire! Instead, particles of light (photons) strike this exposed silicon chip and knock electrons loose to switch the transistor ON.',
+            tip: 'Brighter light = bigger internal Base signal = more current from Collector to Emitter!',
+            color: '#f59e0b',
+            tag: 'PHOTO BASE'
+          });
+
+          const photoPins = [
+            { x: -0.36, code: 'C', full: 'Collector Pin (C)', desc: 'Main current input leg. Stays blocked in the dark, opens up when light shines on the dome!', color: '#e04836' },
+            { x: 0.36,  code: 'E', full: 'Emitter Pin (E)', desc: 'Main current exit leg connected to Ground (−).', color: '#374151' }
+          ];
+          photoPins.forEach((p) => {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 1.55, 12), metalMat);
+            leg.position.set(p.x, -0.68, 0);
+            root.add(leg);
+            registerClickable(leg, {
+              name: p.full,
+              desc: p.desc,
+              tip: 'Notice it only has 2 legs — light itself acts as the invisible 3rd leg (Base)!',
+              color: p.color,
+              tag: 'PIN ' + p.code
+            });
+          });
+
+          lightRays = new THREE.Group();
+          for (let i = -1; i <= 1; i++) {
+            const rayGeo = new THREE.CylinderGeometry(0.025, 0.025, 1.75, 8);
+            const rayMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.75 });
+            const ray = new THREE.Mesh(rayGeo, rayMat);
+            ray.position.set(i * 0.42 - 0.5, 2.35, 0);
+            ray.rotation.z = -0.35;
+            lightRays.add(ray);
+          }
+          root.add(lightRays);
+        }
+
+        return { root, channelMat, barrierMat, lightRays };
+      }
+
+      /* -----------------------------------------------------------------------
+         7. TRANSISTOR SCENE BUILDER (4 Interactive Projects)
+         ----------------------------------------------------------------------- */
+      function buildTransistorScene() {
+        clearSceneGroup();
+        const type = state.tr.type;
+        const proj = state.tr.project;
+
+        if (proj === 'inside') {
+          setCameraPreset(0.45, 1.15, 9.6, -0.45, 0.35, 0);
+          floorGrid.position.y = -1.95;
+
+          const trModel = buildTransistorModel(type, state.tr.view, 1.18);
+          activeGroup.add(trModel.root);
+
+          const mainPts = type === 'photo'
+            ? [
+                new THREE.Vector3(-0.42, -1.85, 0.12),
+                new THREE.Vector3(-0.42, 0.85, 0.12),
+                new THREE.Vector3(0.0, 0.92, 0.15),
+                new THREE.Vector3(0.42, 0.85, 0.12),
+                new THREE.Vector3(0.42, -1.85, 0.12)
+              ]
+            : type === 'mosfet'
+            ? [
+                new THREE.Vector3(0.0, -1.85, 0.16),
+                new THREE.Vector3(-0.52, 1.18, 0.24),
+                new THREE.Vector3(0.0, 1.24, 0.26),
+                new THREE.Vector3(0.55, 1.18, 0.24),
+                new THREE.Vector3(0.73, -1.85, 0.16)
+              ]
+            : [
+                new THREE.Vector3(-0.68, -1.85, 0.12),
+                new THREE.Vector3(-0.68, 1.45, 0.18),
+                new THREE.Vector3(0.0, 1.02, 0.24),
+                new THREE.Vector3(0.68, 0.56, 0.18),
+                new THREE.Vector3(0.68, -1.85, 0.12)
+              ];
+          const mainCurve = new THREE.CatmullRomCurve3(mainPts);
+          const mainFlow = createFlowParticles(mainCurve, 14, 0xe04836, 0.088);
+          activeGroup.add(mainFlow.group);
+
+          let baseFlow = null;
+          if (type !== 'photo') {
+            const basePts = type === 'mosfet'
+              ? [new THREE.Vector3(-0.73, -1.85, 0.18), new THREE.Vector3(-0.73, 1.55, 0.22), new THREE.Vector3(0.0, 1.62, 0.24)]
+              : [new THREE.Vector3(0.0, -1.85, 0.18), new THREE.Vector3(0.0, 1.02, 0.26), new THREE.Vector3(0.68, 0.56, 0.22), new THREE.Vector3(0.68, -1.85, 0.18)];
+            baseFlow = createFlowParticles(new THREE.CatmullRomCurve3(basePts), 6, 0x2563eb, 0.062);
+            activeGroup.add(baseFlow.group);
+          }
+
+          if (type === 'npn') {
+            addLabelAnchor('C · collector', new THREE.Vector3(-0.85, -1.95, 0.2), 'red');
+            addLabelAnchor('B · base (control)', new THREE.Vector3(0.0, -2.2, 0.2), 'blue');
+            addLabelAnchor('E · emitter', new THREE.Vector3(0.85, -1.95, 0.2), 'dark');
+            if (state.tr.view === 'cutaway') {
+              addLabelAnchor('N-type silicon', new THREE.Vector3(1.28, 1.48, 0.1), 'blue');
+              addLabelAnchor('P-type gatekeeper', new THREE.Vector3(1.38, 1.02, 0.1), 'red');
+            }
+          } else if (type === 'pnp') {
+            addLabelAnchor('E · emitter (+)', new THREE.Vector3(-0.85, -1.95, 0.2), 'red');
+            addLabelAnchor('B · base (pull low)', new THREE.Vector3(0.0, -2.2, 0.2), 'blue');
+            addLabelAnchor('C · collector', new THREE.Vector3(0.85, -1.95, 0.2), 'dark');
+            if (state.tr.view === 'cutaway') {
+              addLabelAnchor('P-type silicon', new THREE.Vector3(1.28, 1.48, 0.1), 'red');
+              addLabelAnchor('N-type base', new THREE.Vector3(1.32, 1.02, 0.1), 'blue');
+            }
+          } else if (type === 'mosfet') {
+            addLabelAnchor('G · gate (voltage)', new THREE.Vector3(-0.88, -2.05, 0.2), 'blue');
+            addLabelAnchor('D · drain', new THREE.Vector3(0.0, -2.25, 0.2), 'red');
+            addLabelAnchor('S · source', new THREE.Vector3(0.88, -2.05, 0.2), 'dark');
+            addLabelAnchor('heatsink tab', new THREE.Vector3(1.45, 2.45, -0.1), 'muted');
+            if (state.tr.view === 'cutaway') {
+              addLabelAnchor('SiO₂ glass oxide', new THREE.Vector3(1.48, 1.48, 0.2), 'blue');
+              addLabelAnchor('N-channel bridge', new THREE.Vector3(1.48, 1.15, 0.2), 'red');
+            }
+          } else {
+            addLabelAnchor('incoming light rays', new THREE.Vector3(-1.35, 3.1, 0), 'red');
+            addLabelAnchor('C · collector', new THREE.Vector3(-0.62, -1.95, 0.2), 'red');
+            addLabelAnchor('E · emitter', new THREE.Vector3(0.62, -1.95, 0.2), 'dark');
+            addLabelAnchor('exposed base chip', new THREE.Vector3(1.35, 0.88, 0.1), 'blue');
+          }
+
+          animatedActors = {
+            kind: 'tr-inside',
+            trModel,
+            mainFlow,
+            baseFlow
+          };
+
+        } else if (proj === 'switch') {
+          setCameraPreset(0.36, 0.94, 13.0, -0.3, -0.1, 0);
+          floorGrid.position.y = -1.75;
+
+          const battery = buildBattery('9V');
+          battery.position.set(-3.9, -0.1, 0.0);
+          activeGroup.add(battery);
+
+          const baseSw = buildToggleSwitch(
+            state.tr.baseOn,
+            type === 'photo' ? 'Light Torch Switch (Base Control)' : 'Base Control Switch',
+            () => {
+              state.tr.baseOn = !state.tr.baseOn;
+              renderControls();
+            }
+          );
+          baseSw.grp.position.set(-1.7, -1.2, 1.9);
+          activeGroup.add(baseSw.grp);
+
+          const rBase = buildCircuitResistor({
+            scale: 0.36, b1: 1, b2: 0, b3: 3,
+            label: '10 kΩ Base Resistor',
+            desc: 'Limits the control current into the Base pin to a gentle trickle (micro-amps) so the transistor is never damaged.'
+          });
+          rBase.root.position.set(0.25, -1.0, 1.9);
+          activeGroup.add(rBase.root);
+
+          const trModel = buildTransistorModel(type, 'outer', 0.68);
+          trModel.root.position.set(1.85, -0.15, 0.2);
+          activeGroup.add(trModel.root);
+
+          const rColl = buildCircuitResistor({
+            scale: 0.36, b1: 3, b2: 3, b3: 1,
+            label: '330 Ω Collector Load Resistor',
+            desc: 'Protects the red LED in the main Collector loop by keeping current around a safe ~22 mA.'
+          });
+          rColl.root.position.set(0.25, 0.95, -1.65);
+          activeGroup.add(rColl.root);
+
+          const led = buildLED(0xe04836, 'Collector Load LED');
+          led.grp.position.set(2.85, 0.45, -1.65);
+          activeGroup.add(led.grp);
+
+          const mainWireInfo = {
+            name: 'Main Collector Power Wire (Red)',
+            desc: "Carries the LARGE current (around 22 mA) from the 9V Battery, through the LED, into the Transistor's Collector.",
+            tip: 'This big current cannot flow until the tiny blue Base circuit switches the transistor ON!',
+            color: '#e04836',
+            tag: 'MAIN LOAD PATH'
+          };
+          const baseWireInfo = {
+            name: 'Control Base Wire (Blue)',
+            desc: 'Carries a TINY trickle of signal (less than 1 mA!) through the 10 kΩ resistor into the Base/Gate to turn the transistor ON.',
+            tip: 'A 100× smaller current on this blue wire controls the bright red LED!',
+            color: '#2563eb',
+            tag: 'CONTROL PATH'
+          };
+          const gndWireInfo = {
+            name: 'Ground Return Wire (Dark Gray)',
+            desc: "Completes the circuit by carrying current from the Transistor's Emitter/Source back to the Battery's (−) terminal.",
+            tip: 'Both the main path and control path share this common ground return.',
+            color: '#374151',
+            tag: 'GROUND (−)'
+          };
+
+          const wMain1 = createWire([
+            new THREE.Vector3(-4.18, 0.82, 0.0),
+            new THREE.Vector3(-4.18, 0.95, -1.65),
+            new THREE.Vector3(-1.25, 0.95, -1.65)
+          ], 0xe04836, 0.045, mainWireInfo);
+
+          const wMain2 = createWire([
+            new THREE.Vector3(1.72, 0.95, -1.65),
+            new THREE.Vector3(2.73, 0.95, -1.65),
+            new THREE.Vector3(2.73, 0.1, -1.65)
+          ], 0xe04836, 0.045, mainWireInfo);
+
+          const wMain3 = createWire([
+            new THREE.Vector3(2.97, 0.12, -1.65),
+            new THREE.Vector3(2.97, -1.15, -1.65),
+            new THREE.Vector3(1.45, -1.15, 0.2),
+            new THREE.Vector3(1.45, -0.82, 0.2)
+          ], 0xe04836, 0.045, mainWireInfo);
+
+          const wBase1 = createWire([
+            new THREE.Vector3(-4.18, 0.82, 0.0),
+            new THREE.Vector3(-4.18, -1.0, 1.9),
+            new THREE.Vector3(-2.12, -1.0, 1.9)
+          ], 0x2563eb, 0.042, baseWireInfo);
+
+          const wBase2 = createWire([
+            new THREE.Vector3(-1.28, -1.0, 1.9),
+            new THREE.Vector3(-1.12, -1.0, 1.9)
+          ], 0x2563eb, 0.042, baseWireInfo);
+
+          const wBase3 = createWire([
+            new THREE.Vector3(1.65, -1.0, 1.9),
+            new THREE.Vector3(1.85, -1.0, 1.9),
+            new THREE.Vector3(1.85, -0.82, 0.2)
+          ], 0x2563eb, 0.042, baseWireInfo);
+
+          const wGnd = createWire([
+            new THREE.Vector3(2.25, -0.82, 0.2),
+            new THREE.Vector3(2.25, -1.55, 0.2),
+            new THREE.Vector3(-3.62, -1.55, 0.2),
+            new THREE.Vector3(-3.62, 0.78, 0.0)
+          ], 0x3f3f46, 0.045, gndWireInfo);
+
+          activeGroup.add(wMain1.mesh, wMain2.mesh, wMain3.mesh, wBase1.mesh, wBase2.mesh, wBase3.mesh, wGnd.mesh);
+
+          const mainFlowCurve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(-4.18, 0.82, 0.0),
+            new THREE.Vector3(-4.18, 0.95, -1.65),
+            new THREE.Vector3(2.73, 0.95, -1.65),
+            new THREE.Vector3(2.97, -1.15, -1.65),
+            new THREE.Vector3(1.45, -1.15, 0.2),
+            new THREE.Vector3(2.25, -1.55, 0.2),
+            new THREE.Vector3(-3.62, -1.55, 0.2),
+            new THREE.Vector3(-3.62, 0.78, 0.0)
+          ], true, 'catmullrom', 0.05);
+
+          const baseFlowCurve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(-4.18, 0.82, 0.0),
+            new THREE.Vector3(-4.18, -1.0, 1.9),
+            new THREE.Vector3(1.85, -1.0, 1.9),
+            new THREE.Vector3(1.85, -0.82, 0.2),
+            new THREE.Vector3(2.25, -1.55, 0.2),
+            new THREE.Vector3(-3.62, -1.55, 0.2)
+          ], false, 'catmullrom', 0.05);
+
+          const mainFlow = createFlowParticles(mainFlowCurve, 18, 0xe04836, 0.08);
+          const baseFlow = createFlowParticles(baseFlowCurve, 8, 0x2563eb, 0.055);
+          activeGroup.add(mainFlow.group, baseFlow.group);
+
+          addLabelAnchor('9V battery', new THREE.Vector3(-3.9, 1.25, 0), 'red');
+          addLabelAnchor('330 Ω', new THREE.Vector3(0.25, 1.5, -1.65), 'muted');
+          addLabelAnchor('load led', new THREE.Vector3(2.95, 1.62, -1.65), 'red');
+          addLabelAnchor(type.toUpperCase() + ' transistor', new THREE.Vector3(1.9, 1.25, 0.3), 'dark');
+          addLabelAnchor('base switch (click)', new THREE.Vector3(-1.7, -1.55, 2.35), 'blue');
+          addLabelAnchor('10 kΩ', new THREE.Vector3(0.25, -1.48, 2.15), 'muted');
+
+          animatedActors = {
+            kind: 'tr-switch',
+            trModel,
+            baseSw,
+            led,
+            mainFlow,
+            baseFlow
+          };
+
+        } else if (proj === 'dark') {
+          setCameraPreset(0.36, 0.94, 13.2, -0.25, 0.0, 0);
+          floorGrid.position.y = -1.75;
+
+          const battery = buildBattery('9V');
+          battery.position.set(-4.0, -0.1, 0.2);
+          activeGroup.add(battery);
+
+          const ldr = buildLDR();
+          ldr.position.set(-1.3, -0.1, 1.55);
+          activeGroup.add(ldr);
+
+          const sunMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+          const sun = new THREE.Mesh(new THREE.SphereGeometry(0.45, 20, 20), sunMat);
+          sun.position.set(-1.3, 2.2, 1.55);
+          activeGroup.add(sun);
+          registerClickable(sun, {
+            name: 'Daylight Source (Sun ↔ Night)',
+            desc: 'Represents daylight falling onto the LDR sensor. Slide "daylight" down to simulate sunset and watch the streetlight turn ON automatically!',
+            tip: 'Real streetlights have a tiny light-sensor dome on top of every lamp pole.',
+            color: '#f59e0b',
+            tag: 'ENVIRONMENT'
+          });
+
+          const sunRays = new THREE.Group();
+          for (let i = -1; i <= 1; i++) {
+            const ray = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.022, 0.022, 1.55, 8),
+              new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.7 })
+            );
+            ray.position.set(-1.3 + i * 0.26, 1.12, 1.55);
+            sunRays.add(ray);
+          }
+          activeGroup.add(sunRays);
+
+          const rDiv = buildCircuitResistor({
+            scale: 0.36, b1: 1, b2: 0, b3: 3,
+            label: '10 kΩ Voltage-Divider Resistor',
+            desc: 'Pairs with the LDR light sensor to raise the transistor Base voltage whenever darkness falls.'
+          });
+          rDiv.root.position.set(-1.3, 0.95, -1.55);
+          activeGroup.add(rDiv.root);
+
+          const trModel = buildTransistorModel(type, 'outer', 0.68);
+          trModel.root.position.set(1.15, -0.15, 0.2);
+          activeGroup.add(trModel.root);
+
+          const poleGroup = new THREE.Group();
+          poleGroup.position.set(3.4, -1.7, -0.9);
+          const poleMat = new THREE.MeshStandardMaterial({ color: 0x52525b, metalness: 0.65, roughness: 0.35 });
+          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 3.6, 14), poleMat);
+          pole.position.y = 1.8;
+          poleGroup.add(pole);
+
+          const arm = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.09, 0.09), poleMat);
+          arm.position.set(-0.48, 3.55, 0);
+          poleGroup.add(arm);
+
+          const lampHead = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.14, 0.36), poleMat);
+          lampHead.position.set(-0.88, 3.52, 0);
+          poleGroup.add(lampHead);
+
+          const streetLed = buildLED(0xffb703, 'Automatic Streetlight LED');
+          streetLed.grp.rotation.z = Math.PI;
+          streetLed.grp.scale.setScalar(0.82);
+          streetLed.grp.position.set(-0.88, 3.45, 0);
+          poleGroup.add(streetLed.grp);
+
+          const coneMat = new THREE.MeshBasicMaterial({
+            color: 0xffd166,
+            transparent: true,
+            opacity: 0.0,
+            depthWrite: false,
+            side: THREE.DoubleSide
+          });
+          const lightCone = new THREE.Mesh(new THREE.ConeGeometry(1.35, 3.1, 24, 1, true), coneMat);
+          lightCone.position.set(-0.88, 1.55, 0);
+          poleGroup.add(lightCone);
+          activeGroup.add(poleGroup);
+
+          const w1 = createWire([
+            new THREE.Vector3(-4.28, 0.82, 0.2),
+            new THREE.Vector3(-4.28, 0.95, -1.55),
+            new THREE.Vector3(3.32, 0.95, -1.55),
+            new THREE.Vector3(3.32, -0.8, -0.9)
+          ], 0xe04836, 0.044);
+
+          const w2 = createWire([
+            new THREE.Vector3(0.0, 0.95, -1.55),
+            new THREE.Vector3(-1.12, 0.95, -0.1),
+            new THREE.Vector3(-1.12, -0.78, 1.55),
+            new THREE.Vector3(1.15, -0.78, 0.2)
+          ], 0x2563eb, 0.042);
+
+          const w3 = createWire([
+            new THREE.Vector3(3.48, -1.45, -0.9),
+            new THREE.Vector3(0.76, -1.45, 0.2),
+            new THREE.Vector3(0.76, -0.82, 0.2)
+          ], 0xe04836, 0.044);
+
+          const w4 = createWire([
+            new THREE.Vector3(-1.48, -0.78, 1.55),
+            new THREE.Vector3(-1.48, -1.58, 1.55),
+            new THREE.Vector3(1.55, -1.58, 0.2),
+            new THREE.Vector3(1.55, -0.82, 0.2)
+          ], 0x3f3f46, 0.042);
+
+          const w5 = createWire([
+            new THREE.Vector3(-1.48, -1.58, 1.55),
+            new THREE.Vector3(-3.72, -1.58, 0.2),
+            new THREE.Vector3(-3.72, 0.78, 0.2)
+          ], 0x3f3f46, 0.044);
+
+          activeGroup.add(w1.mesh, w2.mesh, w3.mesh, w4.mesh, w5.mesh);
+
+          const lampFlowCurve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(-4.28, 0.82, 0.2),
+            new THREE.Vector3(-4.28, 0.95, -1.55),
+            new THREE.Vector3(3.32, 0.95, -1.55),
+            new THREE.Vector3(3.48, -1.45, -0.9),
+            new THREE.Vector3(1.15, -1.58, 0.2),
+            new THREE.Vector3(-3.72, -1.58, 0.2),
+            new THREE.Vector3(-3.72, 0.78, 0.2)
+          ], true, 'catmullrom', 0.05);
+
+          const mainFlow = createFlowParticles(lampFlowCurve, 18, 0xe04836, 0.075);
+          activeGroup.add(mainFlow.group);
+
+          addLabelAnchor('daylight', new THREE.Vector3(-1.3, 2.9, 1.55), 'red', 'lbl-sun');
+          addLabelAnchor('ldr sensor', new THREE.Vector3(-1.3, -1.05, 2.05), 'blue');
+          addLabelAnchor('transistor switch', new THREE.Vector3(1.15, 1.25, 0.3), 'dark');
+          addLabelAnchor('streetlight', new THREE.Vector3(2.6, 2.25, -0.9), 'red', 'lbl-lamp');
+          addLabelAnchor('9V battery', new THREE.Vector3(-4.0, 1.25, 0.2), 'muted');
+
+          animatedActors = {
+            kind: 'tr-dark',
+            trModel,
+            sun,
+            sunMat,
+            sunRays,
+            streetLed,
+            coneMat,
+            mainFlow
+          };
+
+        } else if (proj === 'amp') {
+          setCameraPreset(0.32, 0.98, 12.6, -0.3, 0.0, 0);
+          floorGrid.position.y = -1.75;
+
+          const micGroup = new THREE.Group();
+          micGroup.position.set(-3.7, -0.1, 0.8);
+          const micHead = new THREE.Mesh(
+            new THREE.SphereGeometry(0.42, 18, 18),
+            new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.4, metalness: 0.3 })
+          );
+          micHead.position.y = 0.55;
+          const micStem = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.14, 0.11, 1.15, 16),
+            new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.5 })
+          );
+          micGroup.add(micHead, micStem);
+          activeGroup.add(micGroup);
+
+          const micInfo = {
+            name: 'Microphone (Tiny AC Input Signal)',
+            desc: "Your voice creates a super-tiny electrical wiggle (only a few millivolts). Too weak to drive a speaker by itself, so we feed it into the transistor's Base!",
+            tip: 'Watch the small blue wave enter the Base on the left and leave as a huge red wave on the right!',
+            color: '#2563eb',
+            tag: 'SMALL SIGNAL IN'
+          };
+          registerClickable(micHead, micInfo);
+          registerClickable(micStem, micInfo);
+
+          const trModel = buildTransistorModel(type, 'cutaway', 0.85);
+          trModel.root.position.set(-0.2, -0.1, 0.0);
+          activeGroup.add(trModel.root);
+
+          const speaker = buildSpeaker();
+          speaker.grp.position.set(3.55, 0.0, 0.2);
+          speaker.grp.rotation.y = -0.35;
+          activeGroup.add(speaker.grp);
+
+          const inWaveGeo = new THREE.BufferGeometry();
+          const inWavePos = new Float32Array(45 * 3);
+          inWaveGeo.setAttribute('position', new THREE.BufferAttribute(inWavePos, 3));
+          const inWaveLine = new THREE.Line(inWaveGeo, new THREE.LineBasicMaterial({ color: 0x2563eb, linewidth: 2 }));
+          activeGroup.add(inWaveLine);
+
+          const outWaveGeo = new THREE.BufferGeometry();
+          const outWavePos = new Float32Array(55 * 3);
+          outWaveGeo.setAttribute('position', new THREE.BufferAttribute(outWavePos, 3));
+          const outWaveLine = new THREE.Line(outWaveGeo, new THREE.LineBasicMaterial({ color: 0xe04836, linewidth: 2 }));
+          activeGroup.add(outWaveLine);
+
+          const gnd = createWire([
+            new THREE.Vector3(-3.7, -0.95, 0.8),
+            new THREE.Vector3(-0.2, -1.45, 0.2),
+            new THREE.Vector3(3.55, -0.95, 0.2)
+          ], 0x3f3f46, 0.036);
+          activeGroup.add(gnd.mesh);
+
+          addLabelAnchor('tiny voice wave (in)', new THREE.Vector3(-3.6, 1.35, 0.8), 'blue');
+          addLabelAnchor(type.toUpperCase() + ' amplifier', new THREE.Vector3(-0.2, 2.05, 0.0), 'dark');
+          addLabelAnchor('amplified wave (out)', new THREE.Vector3(1.85, 1.35, 0.1), 'red');
+          addLabelAnchor('speaker', new THREE.Vector3(3.55, 1.2, 0.2), 'red');
+
+          animatedActors = {
+            kind: 'tr-amp',
+            trModel,
+            speaker,
+            inWaveGeo,
+            outWaveGeo
+          };
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         8. LIVE PHYSICS ENGINE & REAL-TIME OSCILLOSCOPE
+         ----------------------------------------------------------------------- */
+      const scopeCanvas = document.getElementById('scope-canvas');
+      const scopeCtx = scopeCanvas.getContext('2d');
+
+      function resizeScopeCanvas() {
+        const rect = scopeCanvas.parentElement.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        scopeCanvas.width = Math.max(100, Math.floor(rect.width * dpr));
+        scopeCanvas.height = Math.max(40, Math.floor(rect.height * dpr));
+        scopeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function stepPhysicsAndVisuals(dt) {
+        state.time += dt;
+
+        const type = state.tr.type;
+        const proj = state.tr.project;
+        const power = state.tr.powerOn;
+
+        let baseSig = 0;
+        let collectorMa = 0;
+        let baseUa = 0;
+        let gateV = 0;
+        let isTransistorOn = false;
+
+        if (proj === 'inside') {
+          baseSig = power ? state.tr.baseDrive : 0;
+          if (type === 'mosfet') {
+            gateV = baseSig * 5.0;
+            isTransistorOn = power && gateV > 2.0;
+            collectorMa = isTransistorOn ? ((gateV - 2.0) / 3.0) * 28.0 : 0;
+            baseUa = 0;
+          } else if (type === 'pnp') {
+            isTransistorOn = power && baseSig > 0.22;
+            baseUa = isTransistorOn ? baseSig * 240 : 0;
+            collectorMa = isTransistorOn ? baseSig * 24.0 : 0;
+          } else if (type === 'photo') {
+            isTransistorOn = power && baseSig > 0.15;
+            baseUa = isTransistorOn ? baseSig * 180 : 0;
+            collectorMa = isTransistorOn ? baseSig * 22.0 : 0;
+          } else {
+            isTransistorOn = power && baseSig > 0.22;
+            baseUa = isTransistorOn ? baseSig * 240 : 0;
+            collectorMa = isTransistorOn ? baseSig * 24.0 : 0;
+          }
+        } else if (proj === 'switch') {
+          baseSig = (power && state.tr.baseOn) ? 1.0 : 0.0;
+          isTransistorOn = power && state.tr.baseOn;
+          gateV = isTransistorOn ? 5.0 : 0.0;
+          baseUa = (type === 'mosfet') ? 0 : (isTransistorOn ? 220 : 0);
+          collectorMa = isTransistorOn ? 21.8 : 0;
+        } else if (proj === 'dark') {
+          const darkFactor = 1 - state.tr.daylight;
+          const ldrKohm = 0.5 + Math.pow(darkFactor, 2.2) * 49.5;
+          const vBase = power ? 9.0 * (ldrKohm / (ldrKohm + 10.0)) : 0;
+          state.metrics.ldrKohm = ldrKohm;
+          state.metrics.baseVoltage = vBase;
+          const threshold = type === 'mosfet' ? 2.2 : 0.7;
+          isTransistorOn = power && vBase > threshold;
+          baseSig = isTransistorOn ? Math.min(1, (vBase - threshold) / 3.0) : 0;
+          collectorMa = isTransistorOn ? 24.0 * Math.max(0.25, baseSig) : 0;
+          baseUa = (type === 'mosfet') ? 0 : (isTransistorOn ? 210 * baseSig : 0);
+          gateV = vBase;
+        } else if (proj === 'amp') {
+          const amp = power ? state.tr.ampGain : 0;
+          const waveIn = Math.sin(state.time * 5.2) * amp;
+          isTransistorOn = power;
+          baseSig = 0.5 + waveIn * 0.45;
+          collectorMa = power ? (14.0 + waveIn * 12.5) : 0;
+          baseUa = (type === 'mosfet') ? 0 : (power ? 140 + waveIn * 110 : 0);
+          gateV = power ? 3.2 + waveIn * 1.4 : 0;
+        }
+
+        state.metrics.transistorOn = isTransistorOn;
+        state.metrics.collectorCurrentMa = collectorMa;
+        state.metrics.baseCurrentUa = baseUa;
+        state.metrics.gateVoltage = gateV;
+
+        if (proj === 'amp') {
+          const wIn = power ? Math.sin(state.time * 5.2) * state.tr.ampGain : 0;
+          state.scopeB.push(0.5 + wIn * 0.14);
+          state.scopeA.push(0.5 + wIn * 0.44);
+        } else {
+          state.scopeA.push(Math.min(1, collectorMa / 28));
+          state.scopeB.push(type === 'mosfet' ? Math.min(1, gateV / 5.5) : Math.min(1, baseSig * 0.45));
+        }
+        if (state.scopeA.length > 140) state.scopeA.shift();
+        if (state.scopeB.length > 140) state.scopeB.shift();
+
+        const speedMain = isTransistorOn ? Math.max(0.2, (collectorMa / 24) * 1.1) : 0;
+
+        if (animatedActors.kind === 'tr-inside') {
+          const { trModel, mainFlow, baseFlow } = animatedActors;
+          if (trModel.barrierMat) {
+            trModel.barrierMat.emissiveIntensity = isTransistorOn ? 0.45 + Math.sin(state.time * 6) * 0.15 : 0.04;
+          }
+          if (trModel.channelMat) {
+            trModel.channelMat.opacity = isTransistorOn ? 0.88 : 0.08;
+            trModel.channelMat.emissiveIntensity = isTransistorOn ? 0.8 : 0.0;
+          }
+          if (trModel.lightRays) {
+            trModel.lightRays.visible = state.tr.baseDrive > 0.05;
+            trModel.lightRays.children.forEach((ray, idx) => {
+              ray.material.opacity = 0.2 + state.tr.baseDrive * 0.75;
+              ray.position.y = 2.35 - ((state.time * 1.2 + idx * 0.2) % 0.45);
+            });
+          }
+
+          mainFlow.spheres.forEach((sp) => {
+            sp.visible = isTransistorOn && collectorMa > 0.4;
+            if (sp.visible) {
+              sp.userData.offset = (sp.userData.offset + dt * speedMain * 0.42) % 1;
+              mainFlow.curve.getPointAt(sp.userData.offset, sp.position);
+            }
+          });
+
+          if (baseFlow) {
+            const showBaseFlow = isTransistorOn && type !== 'mosfet';
+            baseFlow.spheres.forEach((sp) => {
+              sp.visible = showBaseFlow;
+              if (sp.visible) {
+                const dir = type === 'pnp' ? -1 : 1;
+                sp.userData.offset = (sp.userData.offset + dt * 0.35 * dir + 1) % 1;
+                baseFlow.curve.getPointAt(sp.userData.offset, sp.position);
+              }
+            });
+          }
+
+        } else if (animatedActors.kind === 'tr-switch') {
+          const { trModel, baseSw, led, mainFlow, baseFlow } = animatedActors;
+          const targetAngle = state.tr.baseOn ? 0 : 0.62;
+          baseSw.pivot.rotation.z += (targetAngle - baseSw.pivot.rotation.z) * 0.2;
+
+          if (trModel.lightRays) trModel.lightRays.visible = state.tr.baseOn && power;
+
+          led.lensMat.emissiveIntensity = isTransistorOn ? 1.1 : 0.06;
+          led.glowMat.opacity = isTransistorOn ? 0.28 : 0.0;
+
+          mainFlow.spheres.forEach((sp) => {
+            sp.visible = isTransistorOn;
+            if (sp.visible) {
+              sp.userData.offset = (sp.userData.offset + dt * 0.28) % 1;
+              mainFlow.curve.getPointAt(sp.userData.offset, sp.position);
+            }
+          });
+          baseFlow.spheres.forEach((sp) => {
+            sp.visible = isTransistorOn && type !== 'mosfet' && type !== 'photo';
+            if (sp.visible) {
+              sp.userData.offset = (sp.userData.offset + dt * 0.22) % 1;
+              baseFlow.curve.getPointAt(sp.userData.offset, sp.position);
+            }
+          });
+
+        } else if (animatedActors.kind === 'tr-dark') {
+          const { sun, sunMat, sunRays, streetLed, coneMat, mainFlow } = animatedActors;
+          const day = state.tr.daylight;
+          const sunColor = new THREE.Color().setHSL(0.11, 0.2 + day * 0.75, 0.65 - (1 - day) * 0.15);
+          sunMat.color.copy(sunColor);
+          sun.scale.setScalar(0.65 + day * 0.55);
+
+          sunRays.visible = day > 0.12;
+          sunRays.children.forEach((r) => { r.material.opacity = day * 0.75; });
+
+          streetLed.lensMat.emissiveIntensity = isTransistorOn ? 1.35 : 0.05;
+          streetLed.glowMat.opacity = isTransistorOn ? 0.34 : 0.0;
+          coneMat.opacity = isTransistorOn ? 0.16 : 0.0;
+
+          mainFlow.spheres.forEach((sp) => {
+            sp.visible = isTransistorOn;
+            if (sp.visible) {
+              sp.userData.offset = (sp.userData.offset + dt * 0.26) % 1;
+              mainFlow.curve.getPointAt(sp.userData.offset, sp.position);
+            }
+          });
+
+          const lblSun = labelAnchors.find(l => l.id === 'lbl-sun');
+          if (lblSun) lblSun.el.textContent = day > 0.55 ? 'bright sun (day)' : day > 0.28 ? 'sunset (dusk)' : 'pitch dark (night)';
+          const lblLamp = labelAnchors.find(l => l.id === 'lbl-lamp');
+          if (lblLamp) lblLamp.el.textContent = isTransistorOn ? 'streetlight · ON' : 'streetlight · OFF';
+
+        } else if (animatedActors.kind === 'tr-amp') {
+          const { speaker, inWaveGeo, outWaveGeo } = animatedActors;
+          const amp = power ? state.tr.ampGain : 0;
+
+          const inArr = inWaveGeo.attributes.position.array;
+          for (let i = 0; i < 45; i++) {
+            const t = i / 44;
+            inArr[i * 3]     = -3.25 + t * 2.55;
+            inArr[i * 3 + 1] = 0.25 + Math.sin(t * Math.PI * 4 - state.time * 6.5) * 0.14 * amp;
+            inArr[i * 3 + 2] = 0.65 * (1 - t);
+          }
+          inWaveGeo.attributes.position.needsUpdate = true;
+
+          const outArr = outWaveGeo.attributes.position.array;
+          for (let i = 0; i < 55; i++) {
+            const t = i / 54;
+            outArr[i * 3]     = 0.48 + t * 2.65;
+            outArr[i * 3 + 1] = 0.25 + Math.sin(t * Math.PI * 4 - state.time * 6.5) * 0.68 * amp;
+            outArr[i * 3 + 2] = 0.18 * t;
+          }
+          outWaveGeo.attributes.position.needsUpdate = true;
+
+          const vib = Math.sin(state.time * 18) * 0.055 * amp;
+          speaker.cone.position.z = 0.34 + vib;
+          speaker.cap.position.z = 0.36 + vib * 1.4;
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         9. TELEMETRY PANEL & OSCILLOSCOPE DRAWING
+         ----------------------------------------------------------------------- */
+      function renderTelemetryAndScope() {
+        const titleEl = document.getElementById('telemetry-title');
+        const readoutEl = document.getElementById('telemetry-readout');
+        const rowsEl = document.getElementById('telemetry-rows');
+
+        const type = state.tr.type;
+        const proj = state.tr.project;
+        titleEl.textContent = proj === 'amp' ? 'AMPLIFIER WAVE' : proj === 'dark' ? 'STREETLIGHT SENSOR' : 'COLLECTOR OUTPUT';
+
+        const on = state.metrics.transistorOn;
+        const cMa = state.metrics.collectorCurrentMa;
+        if (proj === 'amp') {
+          readoutEl.textContent = state.tr.powerOn ? 'GAIN ×100' : 'OFF · 0 mA';
+        } else {
+          readoutEl.textContent = (on ? 'ON · ' : 'OFF · ') + cMa.toFixed(1) + ' mA';
+        }
+
+        const typeLabel = { npn: 'NPN BJT (BC547)', pnp: 'PNP BJT (BC557)', mosfet: 'N-MOSFET (IRF540)', photo: 'Phototransistor' }[type];
+        const ctrlKey = type === 'mosfet' ? 'gate Vgs' : type === 'photo' ? 'light input' : 'base Ib';
+        const ctrlVal = type === 'mosfet'
+          ? state.metrics.gateVoltage.toFixed(1) + ' V (0 µA)'
+          : type === 'photo'
+          ? Math.round((proj === 'switch' ? (state.tr.baseOn ? 100 : 0) : state.tr.baseDrive * 100)) + '% light'
+          : state.metrics.baseCurrentUa.toFixed(0) + ' µA';
+
+        const extraRow = proj === 'dark'
+          ? `<div class="telemetry-row"><span class="k">ldr ohms</span><span class="v">${state.metrics.ldrKohm.toFixed(1)} kΩ</span></div>`
+          : `<div class="telemetry-row"><span class="k">pinout</span><span class="v">${type === 'npn' ? 'C · B · E' : type === 'pnp' ? 'E · B · C' : type === 'mosfet' ? 'G · D · S' : 'C · E (Light)'}</span></div>`;
+
+        rowsEl.innerHTML = `
+          <div class="telemetry-row"><span class="k">type</span><span class="v">${typeLabel}</span></div>
+          <div class="telemetry-row"><span class="k">${ctrlKey}</span><span class="v" style="color:var(--blue)">${ctrlVal}</span></div>
+          ${extraRow}
+          <div class="telemetry-row"><span class="k">valve state</span><span class="v" style="color:${on ? 'var(--red)' : 'var(--faint)'}">${on ? 'OPEN (CONDUCTING)' : 'CLOSED (BLOCKED)'}</span></div>
+        `;
+
+        const w = scopeCanvas.parentElement.clientWidth;
+        const h = scopeCanvas.parentElement.clientHeight;
+        scopeCtx.clearRect(0, 0, w, h);
+
+        scopeCtx.strokeStyle = '#eceef2';
+        scopeCtx.lineWidth = 1;
+        scopeCtx.beginPath();
+        scopeCtx.moveTo(0, h * 0.5);
+        scopeCtx.lineTo(w, h * 0.5);
+        scopeCtx.stroke();
+
+        // Blue Trace: Base/Gate Input
+        scopeCtx.strokeStyle = '#2563eb';
+        scopeCtx.lineWidth = 1.25;
+        scopeCtx.beginPath();
+        for (let i = 0; i < state.scopeB.length; i++) {
+          const x = (i / (state.scopeB.length - 1)) * w;
+          const y = h - 8 - state.scopeB[i] * (h - 16);
+          if (i === 0) scopeCtx.moveTo(x, y);
+          else scopeCtx.lineTo(x, y);
+        }
+        scopeCtx.stroke();
+
+        // Red Trace: Collector / Amplified Output
+        scopeCtx.strokeStyle = '#e04836';
+        scopeCtx.lineWidth = 1.6;
+        scopeCtx.beginPath();
+        for (let i = 0; i < state.scopeA.length; i++) {
+          const x = (i / (state.scopeA.length - 1)) * w;
+          const y = h - 8 - state.scopeA[i] * (h - 16);
+          if (i === 0) scopeCtx.moveTo(x, y);
+          else scopeCtx.lineTo(x, y);
+        }
+        scopeCtx.stroke();
+      }
+
+      /* -----------------------------------------------------------------------
+         10. FLOATING 2D-PROJECTED 3D ANNOTATIONS
+         ----------------------------------------------------------------------- */
+      const projVec = new THREE.Vector3();
+      function updateFloatingLabels() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        for (let i = 0; i < labelAnchors.length; i++) {
+          const item = labelAnchors[i];
+          projVec.copy(item.pos).project(camera);
+          if (projVec.z > 1) {
+            item.el.style.opacity = '0';
+          } else {
+            const x = (projVec.x * 0.5 + 0.5) * w;
+            const y = (-projVec.y * 0.5 + 0.5) * h;
+            const overlapLeft = (w > 850 && x < 355 && y > 50 && y < h - 105);
+            const overlapRight = (w > 850 && x > w - 275 && y > 55 && y < 325);
+            item.el.style.opacity = (overlapLeft || overlapRight) ? '0.18' : '0.96';
+            item.el.style.left = x.toFixed(1) + 'px';
+            item.el.style.top = y.toFixed(1) + 'px';
+          }
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         11. BOTTOM CONTROLS RENDERER
+         ----------------------------------------------------------------------- */
+      function renderControls() {
+        const legend = document.getElementById('legend-line');
+        const row = document.getElementById('controls-row');
+        row.innerHTML = '';
+
+        legend.innerHTML = `
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--red)"></span>main collector/drain current</span>
+          <span class="legend-item">&middot;</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--blue)"></span>tiny base/gate control signal</span>
+          <span class="legend-item">&middot;</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#3f3f46"></span>ground (−)</span>
+        `;
+
+        const btnPwr = document.createElement('button');
+        btnPwr.className = 'sci-btn' + (state.tr.powerOn ? ' active' : '');
+        btnPwr.textContent = state.tr.powerOn ? 'power: on' : 'power: off';
+        btnPwr.onclick = () => {
+          state.tr.powerOn = !state.tr.powerOn;
+          renderControls();
+        };
+        row.appendChild(btnPwr);
+
+        if (state.tr.project === 'switch') {
+          const btnSw = document.createElement('button');
+          btnSw.className = 'sci-btn' + (state.tr.baseOn ? ' active-blue' : '');
+          btnSw.textContent = state.tr.baseOn ? 'base switch: ON' : 'base switch: OFF';
+          btnSw.onclick = () => {
+            state.tr.baseOn = !state.tr.baseOn;
+            renderControls();
+          };
+          row.appendChild(btnSw);
+        } else if (state.tr.project === 'inside') {
+          const btnView = document.createElement('button');
+          btnView.className = 'sci-btn' + (state.tr.view === 'cutaway' ? ' active-blue' : '');
+          btnView.textContent = 'view: ' + state.tr.view;
+          btnView.onclick = () => {
+            state.tr.view = state.tr.view === 'cutaway' ? 'outer' : 'cutaway';
+            buildTransistorScene();
+            renderControls();
+          };
+          row.appendChild(btnView);
+
+          const driveLabel = state.tr.type === 'mosfet' ? 'gate V' : state.tr.type === 'photo' ? 'light' : 'base signal';
+          const dWrap = document.createElement('label');
+          dWrap.className = 'slider-group';
+          dWrap.innerHTML = `<span>${driveLabel}</span><input type="range" class="sci-slider" min="0" max="1" step="0.02" value="${state.tr.baseDrive}" /><span class="slider-val">${Math.round(state.tr.baseDrive * 100)}%</span>`;
+          const dIn = dWrap.querySelector('input');
+          const dVal = dWrap.querySelector('.slider-val');
+          dIn.oninput = (e) => {
+            state.tr.baseDrive = parseFloat(e.target.value);
+            dVal.textContent = Math.round(state.tr.baseDrive * 100) + '%';
+          };
+          row.appendChild(dWrap);
+        } else if (state.tr.project === 'dark') {
+          const dayWrap = document.createElement('label');
+          dayWrap.className = 'slider-group';
+          dayWrap.innerHTML = `<span>daylight</span><input type="range" class="sci-slider" min="0" max="1" step="0.02" value="${state.tr.daylight}" /><span class="slider-val">${state.tr.daylight > 0.5 ? 'sun' : 'dark'}</span>`;
+          const sIn = dayWrap.querySelector('input');
+          const sVal = dayWrap.querySelector('.slider-val');
+          sIn.oninput = (e) => {
+            state.tr.daylight = parseFloat(e.target.value);
+            sVal.textContent = state.tr.daylight > 0.5 ? 'sun' : 'dark';
+          };
+          row.appendChild(dayWrap);
+        } else if (state.tr.project === 'amp') {
+          const aWrap = document.createElement('label');
+          aWrap.className = 'slider-group';
+          aWrap.innerHTML = `<span>mic level</span><input type="range" class="sci-slider" min="0.1" max="1" step="0.05" value="${state.tr.ampGain}" /><span class="slider-val">${Math.round(state.tr.ampGain * 100)}%</span>`;
+          const aIn = aWrap.querySelector('input');
+          const aVal = aWrap.querySelector('.slider-val');
+          aIn.oninput = (e) => {
+            state.tr.ampGain = parseFloat(e.target.value);
+            aVal.textContent = Math.round(state.tr.ampGain * 100) + '%';
+          };
+          row.appendChild(aWrap);
+        }
+
+        const div1 = document.createElement('div');
+        div1.className = 'btn-divider';
+        row.appendChild(div1);
+
+        const projects = [
+          { id: 'inside', label: '3D & inside' },
+          { id: 'switch', label: 'switch circuit' },
+          { id: 'dark',   label: 'dark sensor' },
+          { id: 'amp',    label: 'amplifier' }
+        ];
+        projects.forEach((p) => {
+          const b = document.createElement('button');
+          b.className = 'sci-btn' + (state.tr.project === p.id ? ' active' : '');
+          b.textContent = p.label;
+          b.onclick = () => {
+            state.tr.project = p.id;
+            buildTransistorScene();
+            renderControls();
+          };
+          row.appendChild(b);
+        });
+
+        const div2 = document.createElement('div');
+        div2.className = 'btn-divider';
+        row.appendChild(div2);
+
+        const types = [
+          { id: 'npn',    label: 'NPN' },
+          { id: 'pnp',    label: 'PNP' },
+          { id: 'mosfet', label: 'MOSFET' },
+          { id: 'photo',  label: 'Photo' }
+        ];
+        types.forEach((t) => {
+          const b = document.createElement('button');
+          b.className = 'sci-btn' + (state.tr.type === t.id ? ' active-blue' : '');
+          b.textContent = t.label;
+          b.onclick = () => {
+            state.tr.type = t.id;
+            updateNavEquation();
+            buildTransistorScene();
+            renderControls();
+          };
+          row.appendChild(b);
+        });
+
+        const btnReset = document.createElement('button');
+        btnReset.className = 'sci-btn';
+        btnReset.textContent = 'reset';
+        btnReset.onclick = () => {
+          state.tr.powerOn = true;
+          state.tr.baseOn = true;
+          state.tr.baseDrive = 0.75;
+          state.tr.daylight = 0.25;
+          state.tr.ampGain = 0.75;
+          buildTransistorScene();
+          renderControls();
+        };
+        row.appendChild(btnReset);
+      }
+
+      /* -----------------------------------------------------------------------
+         12. KEYBOARD & POINTER INTERACTION
+         ----------------------------------------------------------------------- */
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key === ' ') {
+          e.preventDefault();
+          state.tr.powerOn = !state.tr.powerOn;
+          renderControls();
+        } else if (e.key === 'ArrowLeft') {
+          window.location.href = './resistor.html';
+        } else if (e.key === '/') {
+          e.preventDefault();
+          window.location.href = './';
+        }
+      });
+
+      const raycaster = new THREE.Raycaster();
+      const pointerNDC = new THREE.Vector2();
+
+      function getRaycastHit(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        pointerNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointerNDC, camera);
+        const hits = raycaster.intersectObjects(clickableMeshes, false);
+        return hits.length > 0 ? hits[0].object : null;
+      }
+
+      function applyHoverHighlight(mesh) {
+        if (state.hoveredMesh && state.hoveredMesh !== mesh) {
+          if (state.hoveredMesh.material && state.hoveredMesh.material.emissive && state.hoveredMesh.userData.origEmissive !== undefined) {
+            state.hoveredMesh.material.emissive.setHex(state.hoveredMesh.userData.origEmissive);
+          }
+        }
+        state.hoveredMesh = mesh;
+        if (mesh) {
+          canvas.classList.add('hovering-part');
+          if (mesh.material && mesh.material.emissive) {
+            if (mesh.userData.origEmissive === undefined) {
+              mesh.userData.origEmissive = mesh.material.emissive.getHex();
+            }
+            mesh.material.emissive.setHex(0x3a201d);
+          }
+        } else {
+          canvas.classList.remove('hovering-part');
+        }
+      }
+
+      canvas.addEventListener('pointerdown', (e) => {
+        orbit.isDragging = true;
+        orbit.movedDistance = 0;
+        orbit.pointerDownPos = { x: e.clientX, y: e.clientY };
+        orbit.lastPointerPos = { x: e.clientX, y: e.clientY };
+        canvas.classList.add('dragging');
+        canvas.setPointerCapture(e.pointerId);
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        if (orbit.isDragging) {
+          const dx = e.clientX - orbit.lastPointerPos.x;
+          const dy = e.clientY - orbit.lastPointerPos.y;
+          orbit.movedDistance += Math.hypot(dx, dy);
+          orbit.lastPointerPos = { x: e.clientX, y: e.clientY };
+
+          orbit.targetTheta -= dx * 0.0075;
+          orbit.targetPhi = Math.max(0.22, Math.min(Math.PI - 0.22, orbit.targetPhi - dy * 0.0075));
+        } else {
+          const hit = getRaycastHit(e.clientX, e.clientY);
+          applyHoverHighlight(hit);
+        }
+      });
+
+      canvas.addEventListener('pointerup', (e) => {
+        orbit.isDragging = false;
+        canvas.classList.remove('dragging');
+        try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+
+        if (orbit.movedDistance < 6) {
+          const hit = getRaycastHit(e.clientX, e.clientY);
+          if (hit && hit.userData.inspectInfo) {
+            setInspector(hit.userData.inspectInfo);
+            if (typeof hit.userData.onClickAction === 'function') {
+              hit.userData.onClickAction();
+            }
+          }
+        }
+      });
+
+      canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        orbit.targetRadius = Math.max(5.2, Math.min(18.5, orbit.targetRadius + e.deltaY * 0.008));
+      }, { passive: false });
+
+      window.addEventListener('resize', handleResize);
+
+      /* -----------------------------------------------------------------------
+         13. MAIN ANIMATION LOOP (Software-WebGL paced when GPU is unavailable)
+         ----------------------------------------------------------------------- */
+      let lastTimestamp = 0;
+      let uiThrottle = 0;
+
+      function afterDraw(cb) {
+        const gl = renderer.getContext();
+        if (typeof gl.fenceSync === 'function') {
+          const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+          gl.flush();
+          const poll = () => {
+            const st = sync && gl.getSyncParameter(sync, gl.SYNC_STATUS);
+            if (st === gl.UNSIGNALED) {
+              window.setTimeout(poll, 5);
+            } else {
+              if (sync) gl.deleteSync(sync);
+              window.setTimeout(() => cb(performance.now()), 80);
+            }
+          };
+          window.setTimeout(poll, 5);
+        } else {
+          gl.finish();
+          window.setTimeout(() => cb(performance.now()), 80);
+        }
+      }
+
+      function animate(ts) {
+        const now = ts || performance.now();
+        const dt = Math.min(0.05, (now - lastTimestamp) / 1000 || 0.016);
+        lastTimestamp = now;
+
+        stepPhysicsAndVisuals(dt);
+        updateCamera();
+        renderer.render(scene, camera);
+        updateFloatingLabels();
+
+        uiThrottle += dt;
+        if (uiThrottle >= 0.04) {
+          uiThrottle = 0;
+          renderTelemetryAndScope();
+        }
+
+        if (isSoftwareGl) afterDraw(animate);
+        else requestAnimationFrame(animate);
+      }
+
+      window.onload = function () {
+        handleResize();
+        updateNavEquation();
+        renderControls();
+        resetInspectorDefault();
+        buildTransistorScene();
+        renderTelemetryAndScope();
+        lastTimestamp = performance.now();
+        animate(lastTimestamp);
+      };
+    })();
+  </script>
+</body>
+</html>

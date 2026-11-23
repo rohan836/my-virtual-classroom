@@ -1,13 +1,20 @@
 # My Virtual Classroom
 
-1. Create an activity folder inside `testing/electronics/` or `testing/artificial-intelligence/`. Put an `index.html` and its assets inside. Use relative paths for local assets and use lowercase, hyphen-separated folder names such as `ohms-law`.
-2. Open the activity locally and test every interaction. If it uses features such as JavaScript modules or fetch, test it through a local HTTP server.
-3. When ready, copy the entire activity folder to the matching subject under `published/`. Check that the folder contains only files you intend students to receive.
-4. Run `node build.mjs` and inspect `dist/index.html`. The build requires Node.js and has no package dependencies.
-5. Commit the published activity and push to `main`. Once Vercel is connected, each push to `main` updates the production site.
+Interactive Swiss-editorial 3D and 2D teaching labs for **Grades 5–9** (Indian Atal Tinkering Lab / ATL) students, covering **Electronics & Robotics** and **Artificial Intelligence & Python**.
 
-The homepage turns folder names such as `ohms-law` into activity labels. The corresponding student URL is `/published/electronics/ohms-law/`. Drafts stay on your PC by default, and the build reads activities from the two subject folders under `published/` only.
+## Agent & Design Configuration
+- **`AGENTS.md`** — Project structure, build/test commands, and mandatory workflow rules.
+- **`DESIGN.md`** — Exact Swiss-editorial scientific visual system (colors, typography, fixed-viewport lab layout, index layout, and prohibitions).
+- **`.agents/skills/create-virtual-lab/SKILL.md`** — Reusable step-by-step recipe for generating new Electronics and AI labs.
 
-## Vercel Hobby
+## Built Website Pages (`dist/`)
+Running `node build.mjs` compiles all labs and builds a clean, publish-ready static site with **separate web pages** for each subject:
+- `/` (`dist/index.html`) — Clean front page with dedicated Electronics and AI webpage portals
+- `/electronics/` (`dist/electronics/index.html`) — Dedicated Electronics & Robotics webpage (`/electronics/<slug>.html`)
+- `/artificial-intelligence/` (`dist/artificial-intelligence/index.html`) — Dedicated Artificial Intelligence & Python webpage (`/artificial-intelligence/<slug>.html`)
 
-In your personal Hobby scope, [import the GitHub repository](https://vercel.com/new) and keep the root directory at the repository root. The included `vercel.json` selects the build command and serves only `dist/`. Deploy and share the production `.vercel.app` URL with students.
+## Commands
+- `npm test` — Run catalog & page-separation unit tests (`node --test lib/catalog.test.mjs`)
+- `node build.mjs` (or `npm run build`) — Build static site into `dist/`
+- `node server.js` (or `npm start`) — Serve `dist/` on port `3000`
+- `npm run dev` — Build `dist/` and start the Express server on port `3000`

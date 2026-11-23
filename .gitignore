@@ -1,6 +1,4 @@
 /dist/
 /.vercel/
-/testing/electronics/*
-!/testing/electronics/.gitkeep
-/testing/artificial-intelligence/*
-!/testing/artificial-intelligence/.gitkeep
+/node_modules/
+/.playwright-cli/

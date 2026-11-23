@@ -1,0 +1,3472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>/ai studies — Fixed Rules vs. Learning from Examples (ATL Lab)</title>
+
+  <!-- Optional Google Fonts with clean offline fallbacks for school labs -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================================
+       SWISS-EDITORIAL SCIENTIFIC LAB DESIGN SYSTEM (/ai studies)
+       Pure white background, hairline borders, vermilion/cobalt/emerald accents
+       ========================================================================= */
+    :root {
+      --bg: #ffffff;
+      --ink: #111111;
+      --ink-soft: #333338;
+      --muted: #71717a;
+      --faint: #a1a1aa;
+      --border: #e4e4e7;
+      --border-strong: #d4d4d8;
+      --surface: #fafafa;
+      --red: #e0533c;
+      --red-soft: #fff5f3;
+      --blue: #2d62e8;
+      --blue-soft: #f0f5ff;
+      --green: #16a34a;
+      --green-soft: #f0fdf4;
+      --mono: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--mono);
+      user-select: none;
+    }
+
+    /* =========================================================================
+       1. TOP NAVIGATION BAR (44px, hairline border)
+       ========================================================================= */
+    #top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.97);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      font-size: 11.5px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      min-width: 0;
+    }
+
+    .nav-cell {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 15px;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .nav-cell:first-child {
+      padding-left: 0;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .nav-fig-tag {
+      color: var(--red);
+      font-weight: 500;
+      margin-right: 8px;
+    }
+
+    .nav-fig-title {
+      color: var(--muted);
+    }
+
+    .nav-formula {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+    }
+
+    .nav-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      padding: 5px 8px;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      color: var(--ink);
+      background: #f4f4f5;
+    }
+
+    .nav-tab.active {
+      color: var(--red);
+      border-color: rgba(224, 83, 60, 0.35);
+      background: var(--red-soft);
+      font-weight: 500;
+    }
+
+    .nav-arrow-btn {
+      background: transparent;
+      border: none;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      padding: 5px 7px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: color 0.14s ease, background 0.14s ease;
+    }
+
+    .nav-arrow-btn:hover {
+      color: var(--ink);
+      background: #f4f4f5;
+    }
+
+    /* =========================================================================
+       2. FULL-BLEED INTERACTIVE CANVAS STAGE
+       ========================================================================= */
+    #stage-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: var(--bg);
+    }
+
+    #main-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    #main-canvas.clickable { cursor: pointer; }
+    #main-canvas.grab { cursor: grab; }
+    #main-canvas.grabbing { cursor: grabbing; }
+    #main-canvas.crosshair { cursor: crosshair; }
+
+    /* =========================================================================
+       3. LEFT EDITORIAL COLUMN (~320px wide)
+       ========================================================================= */
+    #left-panel {
+      position: fixed;
+      top: 56px;
+      left: 22px;
+      bottom: 98px;
+      width: 320px;
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-right: 10px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.98) 88%, rgba(255,255,255,0) 100%);
+      scrollbar-width: thin;
+      scrollbar-color: #e4e4e7 transparent;
+    }
+
+    #left-panel::-webkit-scrollbar { width: 4px; }
+    #left-panel::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 2px; }
+
+    .breadcrumb {
+      font-size: 10.5px;
+      color: var(--faint);
+      margin-bottom: 8px;
+      letter-spacing: 0.01em;
+    }
+
+    .headline {
+      margin: 0 0 11px 0;
+      line-height: 1.07;
+      letter-spacing: -0.025em;
+    }
+
+    .headline-main {
+      display: block;
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 27px;
+      color: var(--ink);
+    }
+
+    .headline-sub {
+      display: block;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 29px;
+      color: var(--ink);
+      margin-top: 1px;
+    }
+
+    .intro-text {
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.62;
+      color: var(--ink-soft);
+      margin: 0 0 12px 0;
+    }
+
+    .hairline {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2px 0 12px 0;
+    }
+
+    .notes-grid {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      row-gap: 8px;
+      column-gap: 11px;
+      font-size: 10.5px;
+      line-height: 1.52;
+      margin-bottom: 14px;
+    }
+
+    .notes-k {
+      color: var(--faint);
+    }
+
+    .notes-v {
+      color: #3f3f46;
+    }
+
+    /* CLICKED PART INSPECTOR CARD */
+    #inspector-card {
+      margin-top: auto;
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.98);
+      padding: 10px 12px;
+      transition: border-color 0.2s ease;
+    }
+
+    #inspector-card.active-flash {
+      border-color: var(--red);
+    }
+
+    .insp-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      color: var(--faint);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 5px;
+      margin-bottom: 7px;
+    }
+
+    .insp-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 5px;
+    }
+
+    .insp-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+
+    .insp-desc {
+      font-size: 10.5px;
+      line-height: 1.5;
+      color: #3f3f46;
+      margin: 0 0 7px 0;
+    }
+
+    .insp-mem {
+      font-size: 10px;
+      line-height: 1.45;
+      color: #27272a;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--blue);
+      padding: 5px 7px;
+      border-radius: 2px;
+      word-break: break-word;
+    }
+
+    .insp-mem-label {
+      color: var(--blue);
+      font-weight: 600;
+      display: block;
+      font-size: 9.5px;
+      margin-bottom: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    /* =========================================================================
+       4. TOP-RIGHT LIVE TELEMETRY CARD (~250px wide)
+       ========================================================================= */
+    #telemetry-card {
+      position: fixed;
+      top: 58px;
+      right: 22px;
+      width: 250px;
+      z-index: 25;
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .tel-head {
+      padding: 8px 12px;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tel-readout {
+      padding: 10px 12px 9px 12px;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tel-graph-wrap {
+      height: 76px;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+      position: relative;
+    }
+
+    #tel-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tel-rows {
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 10px;
+    }
+
+    .tel-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tel-row .k { color: var(--faint); }
+    .tel-row .v { color: #27272a; font-weight: 500; text-align: right; }
+
+    /* =========================================================================
+       INLINE PYTHON CODE DRAWER (Fig 02 & Fig 01)
+       ========================================================================= */
+    #code-drawer {
+      position: fixed;
+      right: 22px;
+      bottom: 84px;
+      width: 390px;
+      max-width: calc(100vw - 44px);
+      z-index: 35;
+      background: rgba(255, 255, 255, 0.99);
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.07);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #code-drawer.open {
+      display: flex;
+    }
+
+    .code-drawer-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    #code-drawer-body {
+      margin: 0;
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      line-height: 1.58;
+      color: #18181b;
+      overflow-x: auto;
+      max-height: 290px;
+      overflow-y: auto;
+      user-select: text;
+    }
+
+    .py-kw { color: var(--red); font-weight: 500; }
+    .py-fn { color: var(--blue); }
+    .py-str { color: var(--green); }
+    .py-cm { color: #8c8c96; font-style: italic; }
+
+    /* =========================================================================
+       FIG. 02 PLAY ARENA FLOATING ACTION BAR (R / P / S quick buttons)
+       ========================================================================= */
+    #rps-action-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 92px;
+      transform: translateX(-50%);
+      z-index: 26;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      padding: 6px 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    }
+
+    #rps-action-bar.visible {
+      display: flex;
+    }
+
+    .rps-play-btn {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--ink);
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      padding: 7px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.12s ease;
+    }
+
+    .rps-play-btn:hover {
+      border-color: var(--red);
+      background: var(--red-soft);
+      transform: translateY(-1px);
+    }
+
+    .rps-play-btn:active {
+      transform: translateY(0);
+    }
+
+    .key-cap {
+      font-size: 9.5px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    /* =========================================================================
+       5. BOTTOM INTERACTIVE CONTROL BAR
+       ========================================================================= */
+    #bottom-bar {
+      position: fixed;
+      left: 22px;
+      right: 22px;
+      bottom: 16px;
+      z-index: 30;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      pointer-events: none;
+    }
+
+    .controls-stack {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-width: calc(100vw - 245px);
+    }
+
+    .legend-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 11px;
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .leg-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .leg-dash {
+      width: 11px;
+      height: 2px;
+      border-radius: 1px;
+      display: inline-block;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2px 0;
+    }
+
+    /* Crisp Hairline Rectangular Buttons */
+    .sci-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink);
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      padding: 6px 11px;
+      cursor: pointer;
+      transition: all 0.13s ease;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    .sci-btn:hover {
+      border-color: #71717a;
+      background: #fafafa;
+    }
+
+    .sci-btn.active {
+      border-color: var(--red);
+      color: var(--ink);
+      background: var(--red-soft);
+    }
+
+    .sci-btn.active-blue {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .sci-btn.active-green {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .v-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 2px;
+    }
+
+    /* Minimalist Red-Thumb Sliders */
+    .slider-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10.5px;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+
+    .slider-val {
+      color: var(--ink);
+      min-width: 30px;
+      font-size: 10.5px;
+    }
+
+    input[type="range"].sci-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 78px;
+      height: 4px;
+      background: #e4e4e7;
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].sci-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(224, 83, 60, 0.45);
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+
+    input[type="range"].sci-range::-webkit-slider-thumb:hover {
+      transform: scale(1.16);
+    }
+
+    input[type="range"].sci-range::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(224, 83, 60, 0.45);
+      cursor: pointer;
+    }
+
+    #bottom-hint {
+      pointer-events: none;
+      text-align: right;
+      font-size: 10px;
+      line-height: 1.55;
+      color: var(--faint);
+      white-space: nowrap;
+    }
+
+    /* =========================================================================
+       RESPONSIVE BREAKPOINTS (Projectors 1280x720, 1920x1080, Laptops, Tablets)
+       ========================================================================= */
+    @media (max-width: 1120px) {
+      #left-panel { width: 275px; left: 14px; }
+      #telemetry-card { width: 215px; right: 14px; }
+      #bottom-bar { left: 14px; right: 14px; }
+      .controls-stack { max-width: 100%; }
+      #bottom-hint { display: none; }
+      .nav-formula { display: none; }
+    }
+
+    @media (max-width: 820px) {
+      #left-panel {
+        width: calc(100vw - 24px);
+        left: 12px;
+        top: 50px;
+        bottom: auto;
+        max-height: 26vh;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 10px;
+      }
+      .notes-grid { display: none; }
+      #telemetry-card {
+        top: auto;
+        bottom: 105px;
+        right: 12px;
+        width: 185px;
+      }
+      .tel-graph-wrap { height: 48px; }
+      .nav-fig-title { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================================
+       1. TOP NAVIGATION BAR
+       ========================================================================= -->
+  <header id="top-nav">
+    <div class="nav-left">
+      <div class="nav-cell"><a href="../../" style="color:inherit; text-decoration:none;" title="Back to My Virtual Classroom (press /)">/ai studies</a></div>
+      <div class="nav-cell">
+        <span id="nav-fig-tag" class="nav-fig-tag">fig. 01</span>
+        <span id="nav-fig-title" class="nav-fig-title">fixed rules vs. learning from examples</span>
+      </div>
+      <div class="nav-cell nav-formula" id="nav-formula">if (x) &rarr; y &nbsp;vs.&nbsp; data &rarr; pattern &rarr; prediction</div>
+    </div>
+
+    <div class="nav-right">
+      <button id="btn-prev-fig" class="nav-arrow-btn" title="Previous Study (Left Arrow)">&larr; prev</button>
+      <button class="nav-tab active" data-fig="1">fig. 01</button>
+      <button class="nav-tab" data-fig="2">fig. 02</button>
+      <button class="nav-tab" data-fig="3">fig. 03</button>
+      <button id="btn-next-fig" class="nav-arrow-btn" title="Next Study (Right Arrow)">next &rarr;</button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. FULL-BLEED INTERACTIVE CANVAS STAGE
+       ========================================================================= -->
+  <main id="stage-wrap">
+    <canvas id="main-canvas"></canvas>
+  </main>
+
+  <!-- =========================================================================
+       3. LEFT EDITORIAL NOTES & CLICKED PART INSPECTOR
+       ========================================================================= -->
+  <aside id="left-panel">
+    <div id="ed-crumb" class="breadcrumb">/ai studies &middot; [ fig. 01 ] rule systems &amp; ml</div>
+
+    <h1 class="headline">
+      <span id="ed-h1" class="headline-main">Fixed rules</span>
+      <span id="ed-h2" class="headline-sub">vs. learning from examples</span>
+    </h1>
+
+    <p id="ed-intro" class="intro-text"></p>
+
+    <hr class="hairline" />
+
+    <div id="ed-notes" class="notes-grid"></div>
+
+    <!-- Dynamic Clicked Part Inspector -->
+    <section id="inspector-card" aria-live="polite">
+      <div class="insp-head">
+        <span>CLICKED PART INSPECTOR</span>
+        <span id="insp-tag">READY</span>
+      </div>
+      <div class="insp-title">
+        <span id="insp-dot" class="insp-dot"></span>
+        <span id="insp-name">Click any visual element</span>
+      </div>
+      <p id="insp-desc" class="insp-desc">
+        Click any fruit, rule line, AI brain part, neuron, wire, or pixel on the canvas to see what it does in plain language.
+      </p>
+      <div class="insp-mem">
+        <span class="insp-mem-label">INSIDE COMPUTER MEMORY:</span>
+        <span id="insp-mem-code">waiting for click...</span>
+      </div>
+    </section>
+  </aside>
+
+  <!-- =========================================================================
+       4. TOP-RIGHT LIVE TELEMETRY CARD
+       ========================================================================= -->
+  <aside id="telemetry-card">
+    <div class="tel-head">
+      <span id="tel-title">PREDICTION ACCURACY</span>
+      <span id="tel-badge" style="color:var(--red);">LIVE</span>
+    </div>
+    <div id="tel-readout" class="tel-readout">100.0%</div>
+    <div class="tel-graph-wrap">
+      <canvas id="tel-canvas"></canvas>
+    </div>
+    <div id="tel-rows" class="tel-rows"></div>
+  </aside>
+
+  <!-- =========================================================================
+       FIG. 02 QUICK PLAY BAR (Rock / Paper / Scissors)
+       ========================================================================= -->
+  <div id="rps-action-bar">
+    <span style="font-size:10px; color:var(--muted); padding:0 4px;">STUDENT PLAY:</span>
+    <button class="rps-play-btn" data-move="0">Rock <span class="key-cap">R</span></button>
+    <button class="rps-play-btn" data-move="1">Paper <span class="key-cap">P</span></button>
+    <button class="rps-play-btn" data-move="2">Scissors <span class="key-cap">S</span></button>
+  </div>
+
+  <!-- =========================================================================
+       INLINE PYTHON CODE DRAWER (Fig. 02 Curriculum Script)
+       ========================================================================= -->
+  <section id="code-drawer">
+    <div class="code-drawer-head">
+      <span id="code-drawer-title">smart_opponent.py — Rule Bot</span>
+      <button id="btn-close-code" class="sci-btn" style="padding:2px 7px; font-size:10px;">&times;</button>
+    </div>
+    <pre id="code-drawer-body"></pre>
+  </section>
+
+  <!-- =========================================================================
+       5. BOTTOM INTERACTIVE CONTROL BAR
+       ========================================================================= -->
+  <footer id="bottom-bar">
+    <div class="controls-stack">
+      <div id="legend-bar" class="legend-bar"></div>
+      <div id="controls-row" class="controls-row"></div>
+    </div>
+    <div id="bottom-hint">
+      <div id="hint-line-1">click any element &mdash; inspect</div>
+      <div>&larr; &rarr; move between studies</div>
+    </div>
+  </footer>
+
+  <script>
+    /* =========================================================================
+       /ai studies — Complete Self-Contained ATL Interactive AI Engine
+       Zero external JS dependencies. Real ML gradient descent, Markov chain,
+       online MLP backpropagation, and 3D-projected visual neural network.
+       ========================================================================= */
+    (function () {
+      'use strict';
+
+      /* -----------------------------------------------------------------------
+         1. EDITORIAL METADATA FOR ALL 3 FIGURES
+         ----------------------------------------------------------------------- */
+      const FIGURES = {
+        1: {
+          tag: 'fig. 01',
+          navTitle: 'fixed rules vs. learning from examples',
+          formula: 'if (x) → y  vs.  data → pattern → prediction',
+          crumb: '/ai studies · [ fig. 01 ] rule systems & ml',
+          h1: 'Fixed rules',
+          h2: 'vs. learning from examples',
+          intro: 'Humans used to program computers by writing strict if/else rules. In the messy real world, rules break on unusual examples — so Machine Learning lets the computer draw its own rule by studying data.',
+          notes: [
+            ['concept', 'Rule Systems obey fixed human thresholds. Classical ML studies labeled examples to discover a curved decision boundary automatically.'],
+            ['try', 'Click "drop tricky fruit" in Fixed Rules mode to see red X errors, then switch to Classical ML and press "train / learn".'],
+            ['notice', 'Turn on "x-ray: computer view". Inside memory, a sweet mango is never a picture — it is just a pair of numbers like (8.2, 8.5)!'],
+            ['in life', 'Spam filters in Gmail, fruit-sorting conveyor belts, and UPI fraud detectors all learn patterns from millions of past examples.'],
+            ['found by', 'Arthur Samuel coined "Machine Learning" in 1959 when his computer learned to beat him at Checkers.']
+          ],
+          hint1: 'click grid to add fruit · click parts to inspect'
+        },
+        2: {
+          tag: 'fig. 02',
+          navTitle: 'smart game opponent comparator',
+          formula: 'rule if/else  vs.  dict{counts}  vs.  neural weights',
+          crumb: '/ai studies · [ fig. 02 ] rock–paper–scissors lab',
+          h1: 'Three AI brains',
+          h2: 'playing rock–paper–scissors',
+          intro: 'Play against three real computer brains — a Fixed Rule Bot, a Classical ML Pattern Counter, and a Modern Neural Network — and watch inside their memory as they spot your habits.',
+          notes: [
+            ['concept', 'Rule Bots never change. Classical ML counts your favorite moves in a Python dictionary. Modern AI tunes neural weights to learn multi-step habits!'],
+            ['try', 'Play a sneaky pattern like Rock, Rock, Paper — or hit "sim: habit player" and turn on "compare all 3" to race all three brains live!'],
+            ['notice', 'Watch the top-right accuracy graph: Classical ML beats single-move habits, while Modern AI spots 2-move sequences like R→R→P!'],
+            ['in life', 'YouTube\'s "Up Next" feed, chess engines, and smart cricket strategy apps learn your patterns just like these bots.'],
+            ['found by', 'Claude Shannon built the first pattern-learning penny-matching machine at Bell Labs in 1950.']
+          ],
+          hint1: 'press R / P / S to play · click brain parts to inspect'
+        },
+        3: {
+          tag: 'fig. 03',
+          navTitle: 'inside modern ai — how pixels become meaning',
+          formula: 'pixel (0/1) × weight (w) → neuron → prediction',
+          crumb: '/ai studies · [ fig. 03 ] mini neural vision',
+          h1: 'Inside a mini brain',
+          h2: 'how modern ai sees pixels',
+          intro: 'Modern AI (Deep Learning) is not magic or a living robot. It is layers of tiny math switches called neurons, linked by adjustable numbers called weights that vote on shapes.',
+          notes: [
+            ['concept', 'Every square you draw becomes a 0 or 1. Hidden neurons check for small clues (diagonals, rings, crosses) and send votes to the final answer.'],
+            ['try', 'Draw an X, O, or + on the 5×5 grid, drag the 3D network to orbit, then slide "noise" up to see AI still recognize a messy drawing!'],
+            ['notice', 'Click any glowing red or blue wire. Red (+ weight) means "vote YES", blue (− weight) means "vote NO".'],
+            ['in life', 'Phone Face Unlock, traffic number-plate cameras, and Google Lens reading your Hindi/English notebook all work this exact way.'],
+            ['found by', 'Frank Rosenblatt built the first neural "Perceptron" in 1957; Deep Learning surged after 2012.']
+          ],
+          hint1: 'drag empty space to orbit 3D · click pixels or wires'
+        }
+      };
+
+      /* -----------------------------------------------------------------------
+         2. MASTER APPLICATION STATE
+         ----------------------------------------------------------------------- */
+      const MOVES = ['Rock', 'Paper', 'Scissors'];
+      const MOVE_SHORT = ['R', 'P', 'S'];
+      const BEATS = [1, 2, 0]; // Paper(1) beats Rock(0), Scissors(2) beats Paper(1), Rock(0) beats Scissors(2)
+
+      const state = {
+        fig: 1,
+        time: 0,
+        lastTs: 0,
+        hoverRegion: null,
+        selectedId: null,
+        hitRegions: [], // rebuilt every frame: { id, type, test(x,y), info, onClick, cursor }
+
+        /* ---------------- FIG 01: FRUIT SORTER STATE ---------------- */
+        f1: {
+          mode: 'rules',       // 'rules' | 'ml'
+          addLabel: 1,         // 1 = Mango (Red), 0 = Nimbu (Blue)
+          xray: false,
+          minSize: 6.2,        // Fixed rule threshold cm
+          minSweet: 5.5,       // Fixed rule threshold (1–10)
+          fruits: [],          // { id, size, sweet, label, tricky }
+          trickyCursor: 0,
+          // Classical ML (Logistic Regression with smooth 2nd-order features)
+          weights: [0, 1.2, 1.2, 0, 0, 0], // [b, w_x, w_y, w_xy, w_x2, w_y2]
+          training: false,
+          epoch: 0,
+          maxEpochs: 260,
+          lossHistory: [],
+          accHistory: []
+        },
+
+        /* ---------------- FIG 02: RPS COMPARATOR STATE ---------------- */
+        f2: {
+          brain: 'ml',         // 'rule' | 'ml' | 'neural'
+          compareAll: false,
+          ruleVariant: 'beatLast', // 'beatLast' | 'alwaysRock'
+          codeOpen: false,
+          simRunning: false,
+          simRemaining: 0,
+          simTimer: 0,
+          simStep: 0,
+          rounds: 0,
+          studentHistory: [],  // array of 0/1/2
+          lastStudent: null,
+          lastMoves: { rule: null, ml: null, neural: null },
+          lastOutcome: { rule: null, ml: null, neural: null }, // 'ai' | 'student' | 'tie'
+          activeRuleBranch: -1,
+          pulseProgress: 1.0,  // 0 -> 1 animation after each round
+          stats: {
+            rule:   { wins: 0, losses: 0, ties: 0, hist: [] },
+            ml:     { wins: 0, losses: 0, ties: 0, hist: [] },
+            neural: { wins: 0, losses: 0, ties: 0, hist: [] }
+          },
+          // Classical ML memory (overall + Markov after last move)
+          mlCounts: [0, 0, 0],
+          mlMarkov: [
+            [0, 0, 0], // after R
+            [0, 0, 0], // after P
+            [0, 0, 0]  // after S
+          ],
+          mlProbs: [0.33, 0.33, 0.34],
+          // Modern AI: Real 6 -> 4 -> 3 Mini Neural Network
+          nn: {
+            w1: [], b1: [], // 4 x 6
+            w2: [], b2: [], // 3 x 4
+            lastInput: [0, 0, 0, 0, 0, 0],
+            lastHidden: [0, 0, 0, 0],
+            lastOut: [0.33, 0.33, 0.34]
+          }
+        },
+
+        /* ---------------- FIG 03: PIXEL VISION NEURAL NET STATE ---------------- */
+        f3: {
+          baseGrid: new Array(25).fill(0),
+          displayGrid: new Array(25).fill(0),
+          noise: 0.0,
+          xray: false,
+          powerOn: true,
+          yaw: -0.26,
+          pitch: 0.16,
+          targetYaw: -0.26,
+          targetPitch: 0.16,
+          dragging: false,
+          dragLast: { x: 0, y: 0 },
+          dragMoved: 0,
+          painting: false,
+          paintValue: 1,
+          hiddenActs: [0, 0, 0, 0, 0, 0],
+          outProbs: [0.33, 0.33, 0.34],
+          predLabel: 'X',
+          exactRuleMatch: true,
+          confHistory: new Array(80).fill(0.95),
+          ruleHistory: new Array(80).fill(1.0)
+        }
+      };
+
+      /* -----------------------------------------------------------------------
+         3. CANVAS & LAYOUT SETUP (Crisp HiDPI Rendering)
+         ----------------------------------------------------------------------- */
+      const mainCanvas = document.getElementById('main-canvas');
+      const ctx = mainCanvas.getContext('2d');
+      const telCanvas = document.getElementById('tel-canvas');
+      const tctx = telCanvas.getContext('2d');
+
+      let W = window.innerWidth;
+      let H = window.innerHeight;
+
+      function resizeCanvases() {
+        W = window.innerWidth;
+        H = window.innerHeight;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        mainCanvas.width = Math.floor(W * dpr);
+        mainCanvas.height = Math.floor(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const trect = telCanvas.parentElement.getBoundingClientRect();
+        telCanvas.width = Math.max(100, Math.floor(trect.width * dpr));
+        telCanvas.height = Math.max(40, Math.floor(trect.height * dpr));
+        tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      // Compute clean safe stage rectangle that never collides with left/right panels
+      function getStageBounds() {
+        const leftPad = W > 1120 ? 364 : (W > 820 ? 304 : 20);
+        const rightPad = W > 1120 ? 290 : (W > 820 ? 245 : 20);
+        const topPad = W > 820 ? 64 : Math.max(210, H * 0.32);
+        const bottomPad = state.fig === 2 ? 152 : 108;
+        return {
+          x: leftPad,
+          y: topPad,
+          w: Math.max(260, W - leftPad - rightPad),
+          h: Math.max(220, H - topPad - bottomPad)
+        };
+      }
+
+      /* -----------------------------------------------------------------------
+         4. PART INSPECTOR HELPER
+         ----------------------------------------------------------------------- */
+      function inspectPart(info) {
+        if (!info) return;
+        const card = document.getElementById('inspector-card');
+        document.getElementById('insp-tag').textContent = info.tag || 'INSPECTING';
+        document.getElementById('insp-name').textContent = info.name;
+        document.getElementById('insp-desc').textContent = info.desc;
+        document.getElementById('insp-mem-code').textContent = info.mem || '—';
+        document.getElementById('insp-dot').style.background = info.color || '#e0533c';
+
+        card.classList.remove('active-flash');
+        void card.offsetWidth;
+        card.classList.add('active-flash');
+      }
+
+      function resetInspectorForFigure(fig) {
+        if (fig === 1) {
+          inspectPart({
+            tag: 'FIG. 01 READY',
+            name: 'Fruit Feature Space',
+            desc: 'Each red circle is a Mango and each blue square is a Nimbu. Click any fruit, rule line, or the blue ML curve to see what the computer stores!',
+            mem: 'dataset = [ (size, sweet, label), ... ]',
+            color: '#e0533c'
+          });
+        } else if (fig === 2) {
+          inspectPart({
+            tag: 'FIG. 02 READY',
+            name: 'AI Opponent Brain',
+            desc: 'Click Rock, Paper, or Scissors below to play! Click any flowchart box, memory bar, or neural wire to see how each bot thinks.',
+            mem: "history = []  # waiting for student's move",
+            color: '#2d62e8'
+          });
+        } else {
+          inspectPart({
+            tag: 'FIG. 03 READY',
+            name: 'Mini Visual Brain',
+            desc: 'Click cells on the 5×5 grid to draw. Click any hidden detector neuron or red/blue wire to see how numbers recognize shapes!',
+            mem: 'pixels = [0, 1, 0, ... ] (25 numbers)',
+            color: '#e0533c'
+          });
+        }
+        document.getElementById('inspector-card').classList.remove('active-flash');
+      }
+
+      /* =========================================================================
+         5. FIGURE 01 LOGIC — FIXED RULES vs. CLASSICAL ML (FRUIT SORTER)
+         ========================================================================= */
+      const INITIAL_FRUITS = [
+        // Classic Mangoes (big & sweet)
+        { size: 8.6, sweet: 8.4, label: 1 },
+        { size: 9.4, sweet: 7.6, label: 1 },
+        { size: 7.8, sweet: 8.9, label: 1 },
+        { size: 10.2, sweet: 8.1, label: 1 },
+        { size: 7.3, sweet: 7.2, label: 1 },
+        { size: 8.9, sweet: 6.7, label: 1 },
+        { size: 9.8, sweet: 9.1, label: 1 },
+        // Classic Nimbus / Lemons (small & sour)
+        { size: 3.6, sweet: 2.2, label: 0 },
+        { size: 4.5, sweet: 2.9, label: 0 },
+        { size: 5.1, sweet: 3.6, label: 0 },
+        { size: 3.9, sweet: 3.8, label: 0 },
+        { size: 4.9, sweet: 2.1, label: 0 },
+        { size: 5.6, sweet: 4.2, label: 0 },
+        { size: 3.2, sweet: 3.1, label: 0 }
+      ];
+
+      // Tricky Indian real-world fruits that break rigid thresholds!
+      const TRICKY_FRUITS = [
+        { size: 4.6, sweet: 8.7, label: 1, note: 'Tiny sweet Sindhura / baby mango!' },
+        { size: 9.1, sweet: 2.6, label: 0, note: 'Giant sour Galgal / Pahadi Nimbu!' },
+        { size: 5.3, sweet: 7.9, label: 1, note: 'Small extra-sweet Alphonso mango!' },
+        { size: 8.2, sweet: 3.3, label: 0, note: 'Oversized farm lemon — big but sour!' },
+        { size: 5.8, sweet: 6.8, label: 1, note: 'Medium-small sweet Kesar mango!' }
+      ];
+
+      function resetFig1() {
+        state.f1.fruits = INITIAL_FRUITS.map((f, idx) => ({ ...f, id: 'fr-' + idx, tricky: false }));
+        state.f1.trickyCursor = 0;
+        state.f1.minSize = 6.2;
+        state.f1.minSweet = 5.5;
+        state.f1.weights = [-0.2, 1.3, 1.3, 0, 0, 0];
+        state.f1.training = false;
+        state.f1.epoch = 0;
+        state.f1.lossHistory = [];
+        state.f1.accHistory = [];
+        // Pre-fit cleanly once on initial points
+        for (let i = 0; i < 60; i++) stepMLTrainingEpoch(false);
+        recordFig1History();
+      }
+
+      function mlFeatures(size, sweet) {
+        const x = (size - 6.8) / 3.5;
+        const y = (sweet - 5.5) / 3.5;
+        return [1, x, y, x * y, x * x * 0.4, y * y * 0.4];
+      }
+
+      function sigmoid(z) {
+        return 1 / (1 + Math.exp(-Math.max(-18, Math.min(18, z))));
+      }
+
+      function mlPredictProb(size, sweet) {
+        const phi = mlFeatures(size, sweet);
+        let z = 0;
+        for (let i = 0; i < phi.length; i++) z += state.f1.weights[i] * phi[i];
+        return sigmoid(z);
+      }
+
+      function rulePredict(size, sweet) {
+        return (size >= state.f1.minSize && sweet >= state.f1.minSweet) ? 1 : 0;
+      }
+
+      function stepMLTrainingEpoch(pushHistory = true) {
+        const data = state.f1.fruits;
+        if (!data.length) return;
+        const lr = 0.28;
+        const reg = 0.008;
+        const grad = [0, 0, 0, 0, 0, 0];
+        let loss = 0;
+
+        for (let i = 0; i < data.length; i++) {
+          const f = data[i];
+          const phi = mlFeatures(f.size, f.sweet);
+          let z = 0;
+          for (let j = 0; j < 6; j++) z += state.f1.weights[j] * phi[j];
+          const p = sigmoid(z);
+          const err = p - f.label;
+          loss += -(f.label * Math.log(p + 1e-6) + (1 - f.label) * Math.log(1 - p + 1e-6));
+          for (let j = 0; j < 6; j++) grad[j] += err * phi[j];
+        }
+
+        for (let j = 0; j < 6; j++) {
+          const penalty = j === 0 ? 0 : reg * state.f1.weights[j];
+          state.f1.weights[j] -= lr * (grad[j] / data.length + penalty);
+        }
+
+        if (pushHistory) {
+          const avgLoss = loss / data.length;
+          state.f1.lossHistory.push(Math.min(1.5, avgLoss));
+          if (state.f1.lossHistory.length > 90) state.f1.lossHistory.shift();
+          recordFig1History();
+        }
+      }
+
+      function evaluateFig1() {
+        const data = state.f1.fruits;
+        let correctRule = 0;
+        let correctML = 0;
+        for (let i = 0; i < data.length; i++) {
+          const f = data[i];
+          if (rulePredict(f.size, f.sweet) === f.label) correctRule++;
+          if ((mlPredictProb(f.size, f.sweet) >= 0.5 ? 1 : 0) === f.label) correctML++;
+        }
+        return {
+          total: data.length,
+          ruleAcc: data.length ? correctRule / data.length : 1,
+          mlAcc: data.length ? correctML / data.length : 1,
+          ruleMistakes: data.length - correctRule,
+          mlMistakes: data.length - correctML
+        };
+      }
+
+      function recordFig1History() {
+        const ev = evaluateFig1();
+        const activeAcc = state.f1.mode === 'rules' ? ev.ruleAcc : ev.mlAcc;
+        state.f1.accHistory.push(activeAcc);
+        if (state.f1.accHistory.length > 90) state.f1.accHistory.shift();
+      }
+
+      function startFig1Training() {
+        state.f1.mode = 'ml';
+        // Start from a tilted randomish line so students clearly SEE it learn & bend!
+        state.f1.weights = [0.4, 0.35, -0.3, 0, 0, 0];
+        state.f1.epoch = 0;
+        state.f1.training = true;
+        state.f1.lossHistory = [];
+        renderControls();
+        inspectPart({
+          tag: 'TRAINING LIVE',
+          name: 'Classical ML Learning from Examples',
+          desc: 'Watch the blue curve move! On every epoch (practice round), the computer checks its mistakes and gently nudges its math weights until Mangoes and Nimbus are separated.',
+          mem: 'weights = weights - learning_rate * error',
+          color: '#2d62e8'
+        });
+      }
+
+      function dropTrickyFruit() {
+        const t = TRICKY_FRUITS[state.f1.trickyCursor % TRICKY_FRUITS.length];
+        state.f1.trickyCursor++;
+        // Add tiny jitter if cycling again
+        const j = state.f1.trickyCursor > TRICKY_FRUITS.length ? (Math.random() - 0.5) * 0.45 : 0;
+        const fruit = {
+          id: 'tricky-' + Date.now() + Math.random(),
+          size: Math.max(2.4, Math.min(11.4, t.size + j)),
+          sweet: Math.max(1.4, Math.min(9.6, t.sweet + j)),
+          label: t.label,
+          tricky: true,
+          note: t.note
+        };
+        state.f1.fruits.push(fruit);
+        recordFig1History();
+        inspectPart({
+          tag: 'TRICKY EXAMPLE!',
+          name: (fruit.label === 1 ? 'Tricky Mango: ' : 'Tricky Nimbu: ') + t.note,
+          desc: state.f1.mode === 'rules'
+            ? 'Aha! Our rigid IF/ELSE rule marked it with a red X mistake! Try fixing it with sliders, or switch to Classical ML and click "train / learn".'
+            : 'New unusual data point added! Click "train / learn" to watch Classical ML automatically bend its boundary around it.',
+          mem: `fruit = { size: ${fruit.size.toFixed(1)}, sweet: ${fruit.sweet.toFixed(1)}, label: ${fruit.label} }`,
+          color: fruit.label === 1 ? '#e0533c' : '#2d62e8'
+        });
+      }
+
+      /* =========================================================================
+         6. FIGURE 02 LOGIC — SMART GAME OPPONENT COMPARATOR (RPS)
+         ========================================================================= */
+      function initMiniNeuralNet() {
+        const nn = state.f2.nn;
+        nn.w1 = [];
+        nn.b1 = [];
+        for (let h = 0; h < 4; h++) {
+          const row = [];
+          for (let i = 0; i < 6; i++) row.push((Math.random() - 0.5) * 0.7);
+          nn.w1.push(row);
+          nn.b1.push((Math.random() - 0.5) * 0.2);
+        }
+        nn.w2 = [];
+        nn.b2 = [];
+        for (let o = 0; o < 3; o++) {
+          const row = [];
+          for (let h = 0; h < 4; h++) row.push((Math.random() - 0.5) * 0.7);
+          nn.w2.push(row);
+          nn.b2.push(0);
+        }
+        nn.lastInput = [0, 0, 0, 0, 0, 0];
+        nn.lastHidden = [0, 0, 0, 0];
+        nn.lastOut = [0.33, 0.33, 0.34];
+      }
+
+      function nnGetInputVector() {
+        const hist = state.f2.studentHistory;
+        const vec = [0, 0, 0, 0, 0, 0];
+        if (hist.length >= 1) vec[hist[hist.length - 1]] = 1;       // last move (0..2)
+        if (hist.length >= 2) vec[3 + hist[hist.length - 2]] = 1;   // 2 moves ago (3..5)
+        return vec;
+      }
+
+      function nnForward(inp) {
+        const nn = state.f2.nn;
+        const hidden = [0, 0, 0, 0];
+        for (let h = 0; h < 4; h++) {
+          let sum = nn.b1[h];
+          for (let i = 0; i < 6; i++) sum += nn.w1[h][i] * inp[i];
+          hidden[h] = Math.tanh(sum);
+        }
+        const logits = [0, 0, 0];
+        let maxL = -1e9;
+        for (let o = 0; o < 3; o++) {
+          let sum = nn.b2[o];
+          for (let h = 0; h < 4; h++) sum += nn.w2[o][h] * hidden[h];
+          logits[o] = sum;
+          if (sum > maxL) maxL = sum;
+        }
+        const exps = logits.map(l => Math.exp(l - maxL));
+        const sumE = exps[0] + exps[1] + exps[2];
+        const probs = exps.map(e => e / sumE);
+        nn.lastInput = inp.slice();
+        nn.lastHidden = hidden;
+        nn.lastOut = probs;
+        return probs;
+      }
+
+      function nnTrainStep(inp, targetMove) {
+        const nn = state.f2.nn;
+        const lr = 0.32;
+        const probs = nnForward(inp);
+        const dOut = [probs[0], probs[1], probs[2]];
+        dOut[targetMove] -= 1;
+
+        const dHidden = [0, 0, 0, 0];
+        for (let h = 0; h < 4; h++) {
+          let sum = 0;
+          for (let o = 0; o < 3; o++) {
+            sum += dOut[o] * nn.w2[o][h];
+            nn.w2[o][h] -= lr * dOut[o] * nn.lastHidden[h];
+          }
+          dHidden[h] = sum * (1 - nn.lastHidden[h] * nn.lastHidden[h]);
+        }
+        for (let o = 0; o < 3; o++) nn.b2[o] -= lr * dOut[o];
+
+        for (let h = 0; h < 4; h++) {
+          nn.b1[h] -= lr * dHidden[h];
+          for (let i = 0; i < 6; i++) {
+            nn.w1[h][i] -= lr * dHidden[h] * inp[i];
+          }
+        }
+      }
+
+      function predictRuleBot() {
+        if (state.f2.ruleVariant === 'alwaysRock') {
+          state.f2.activeRuleBranch = 0;
+          return 0; // Always plays Rock
+        }
+        const hist = state.f2.studentHistory;
+        if (!hist.length) {
+          state.f2.activeRuleBranch = 0;
+          return 0;
+        }
+        const last = hist[hist.length - 1];
+        state.f2.activeRuleBranch = last; // 0: if last==R -> P, 1: if last==P -> S, 2: else -> R
+        return BEATS[last];
+      }
+
+      function predictMLBot() {
+        const hist = state.f2.studentHistory;
+        let counts = state.f2.mlCounts;
+        if (hist.length >= 1) {
+          const last = hist[hist.length - 1];
+          const row = state.f2.mlMarkov[last];
+          const rowSum = row[0] + row[1] + row[2];
+          if (rowSum >= 2) counts = row;
+        }
+        const total = counts[0] + counts[1] + counts[2];
+        if (total === 0) {
+          state.f2.mlProbs = [0.33, 0.33, 0.34];
+          return Math.floor(Math.random() * 3);
+        }
+        state.f2.mlProbs = counts.map(c => c / total);
+        let bestMove = 0;
+        if (counts[1] > counts[bestMove]) bestMove = 1;
+        if (counts[2] > counts[bestMove]) bestMove = 2;
+        return BEATS[bestMove];
+      }
+
+      function predictNeuralBot() {
+        const inp = nnGetInputVector();
+        const probs = nnForward(inp);
+        let bestMove = 0;
+        if (probs[1] > probs[bestMove]) bestMove = 1;
+        if (probs[2] > probs[bestMove]) bestMove = 2;
+        return BEATS[bestMove];
+      }
+
+      function scoreRound(aiMove, studentMove) {
+        if (aiMove === studentMove) return 'tie';
+        if (aiMove === BEATS[studentMove]) return 'ai';
+        return 'student';
+      }
+
+      function playRPSRound(studentMove) {
+        // 1. All 3 brains make their predictions BEFORE seeing studentMove!
+        const inpBefore = nnGetInputVector();
+        const mRule = predictRuleBot();
+        const mML = predictMLBot();
+        const mNN = predictNeuralBot();
+
+        state.f2.rounds++;
+        state.f2.lastStudent = studentMove;
+        state.f2.lastMoves = { rule: mRule, ml: mML, neural: mNN };
+        state.f2.pulseProgress = 0.0;
+
+        // 2. Score all 3 brains simultaneously (powers Compare All 3!)
+        ['rule', 'ml', 'neural'].forEach((k) => {
+          const mv = state.f2.lastMoves[k];
+          const res = scoreRound(mv, studentMove);
+          state.f2.lastOutcome[k] = res;
+          const st = state.f2.stats[k];
+          if (res === 'ai') st.wins++;
+          else if (res === 'student') st.losses++;
+          else st.ties++;
+          const rate = st.wins / state.f2.rounds;
+          st.hist.push(rate);
+          if (st.hist.length > 60) st.hist.shift();
+        });
+
+        // 3. NOW update ML Memory & Neural Weights using what the student actually played!
+        const prev = state.f2.studentHistory.length ? state.f2.studentHistory[state.f2.studentHistory.length - 1] : null;
+        state.f2.mlCounts[studentMove]++;
+        if (prev !== null) state.f2.mlMarkov[prev][studentMove]++;
+
+        // Train mini neural net on (prev2, prev1) -> studentMove
+        if (state.f2.studentHistory.length >= 1) {
+          nnTrainStep(inpBefore, studentMove);
+        }
+
+        state.f2.studentHistory.push(studentMove);
+
+        // Update live preview for next turn
+        nnForward(nnGetInputVector());
+        const cSum = state.f2.mlCounts[0] + state.f2.mlCounts[1] + state.f2.mlCounts[2];
+        if (cSum > 0) state.f2.mlProbs = state.f2.mlCounts.map(c => c / cSum);
+      }
+
+      function resetFig2() {
+        state.f2.simRunning = false;
+        state.f2.simRemaining = 0;
+        state.f2.simStep = 0;
+        state.f2.rounds = 0;
+        state.f2.studentHistory = [];
+        state.f2.lastStudent = null;
+        state.f2.lastMoves = { rule: null, ml: null, neural: null };
+        state.f2.lastOutcome = { rule: null, ml: null, neural: null };
+        state.f2.activeRuleBranch = -1;
+        state.f2.pulseProgress = 1.0;
+        state.f2.stats = {
+          rule:   { wins: 0, losses: 0, ties: 0, hist: [] },
+          ml:     { wins: 0, losses: 0, ties: 0, hist: [] },
+          neural: { wins: 0, losses: 0, ties: 0, hist: [] }
+        };
+        state.f2.mlCounts = [0, 0, 0];
+        state.f2.mlMarkov = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+        state.f2.mlProbs = [0.33, 0.33, 0.34];
+        initMiniNeuralNet();
+        updateCodeDrawer();
+      }
+
+      const PYTHON_SCRIPTS = {
+        rule: {
+          title: 'smart_opponent.py — 1. Rule Bot (Fixed IF/ELSE)',
+          code: `<span class="py-cm"># RULE BOT: Fixed logic written by a human. Never learns!</span>
+<span class="py-kw">def</span> <span class="py-fn">rule_bot</span>(last_move):
+    <span class="py-kw">if</span> last_move == <span class="py-str">"Rock"</span>:
+        <span class="py-kw">return</span> <span class="py-str">"Paper"</span>      <span class="py-cm"># Hardcoded rule #1</span>
+    <span class="py-kw">elif</span> last_move == <span class="py-str">"Paper"</span>:
+        <span class="py-kw">return</span> <span class="py-str">"Scissors"</span>   <span class="py-cm"># Hardcoded rule #2</span>
+    <span class="py-kw">else</span>:
+        <span class="py-kw">return</span> <span class="py-str">"Rock"</span>       <span class="py-cm"># Hardcoded fallback</span>
+
+<span class="py-cm"># Problem: Once a student notices this trick,</span>
+<span class="py-cm"># the Rule Bot loses every single round forever!</span>`
+        },
+        ml: {
+          title: 'smart_opponent.py — 2. Classical ML (Pattern Counter)',
+          code: `<span class="py-cm"># CLASSICAL ML: Counts your habits in a dictionary!</span>
+memory = {<span class="py-str">"Rock"</span>: 0, <span class="py-str">"Paper"</span>: 0, <span class="py-str">"Scissors"</span>: 0}
+beats  = {<span class="py-str">"Rock"</span>: <span class="py-str">"Paper"</span>, <span class="py-str">"Paper"</span>: <span class="py-str">"Scissors"</span>, <span class="py-str">"Scissors"</span>: <span class="py-str">"Rock"</span>}
+
+<span class="py-kw">def</span> <span class="py-fn">ml_bot_predict</span>():
+    <span class="py-cm"># Find whichever move you played most often</span>
+    likely = <span class="py-fn">max</span>(memory, key=memory.get)
+    <span class="py-kw">return</span> beats[likely]    <span class="py-cm"># Play the counter move!</span>
+
+<span class="py-kw">def</span> <span class="py-fn">learn_from_round</span>(student_move):
+    memory[student_move] += 1  <span class="py-cm"># Update memory table</span>`
+        },
+        neural: {
+          title: 'smart_opponent.py — 3. Modern AI (Mini Neural Net)',
+          code: `<span class="py-cm"># MODERN AI: Learns 2-step sequences using weights!</span>
+<span class="py-cm"># Inputs = your last 2 moves [prev2, prev1] (6 numbers)</span>
+<span class="py-kw">def</span> <span class="py-fn">neural_predict</span>(last2_moves, weights):
+    hidden = <span class="py-fn">tanh</span>(last2_moves @ weights[<span class="py-str">"W1"</span>])
+    scores = <span class="py-fn">softmax</span>(hidden @ weights[<span class="py-str">"W2"</span>])
+    likely = <span class="py-fn">argmax</span>(scores)  <span class="py-cm"># Highest probability</span>
+    <span class="py-kw">return</span> beats[likely]
+
+<span class="py-kw">def</span> <span class="py-fn">learn_weights</span>(error, lr=0.32):
+    <span class="py-cm"># Nudge red/blue wires to reduce future mistakes</span>
+    weights -= lr * gradient(error)`
+        }
+      };
+
+      function updateCodeDrawer() {
+        const drawer = document.getElementById('code-drawer');
+        const show = state.fig === 2 && state.f2.codeOpen;
+        drawer.classList.toggle('open', show);
+        if (show) {
+          const spec = PYTHON_SCRIPTS[state.f2.brain];
+          document.getElementById('code-drawer-title').textContent = spec.title;
+          document.getElementById('code-drawer-body').innerHTML = spec.code;
+        }
+      }
+
+      /* =========================================================================
+         7. FIGURE 03 LOGIC — INSIDE MODERN AI (5x5 PIXEL NEURAL VISION)
+         ========================================================================= */
+      const PIXEL_PRESETS = {
+        X: [
+          1,0,0,0,1,
+          0,1,0,1,0,
+          0,0,1,0,0,
+          0,1,0,1,0,
+          1,0,0,0,1
+        ],
+        O: [
+          0,1,1,1,0,
+          1,0,0,0,1,
+          1,0,0,0,1,
+          1,0,0,0,1,
+          0,1,1,1,0
+        ],
+        '+': [
+          0,0,1,0,0,
+          0,0,1,0,0,
+          1,1,1,1,1,
+          0,0,1,0,0,
+          0,0,1,0,0
+        ]
+      };
+
+      // 6 Interpretable Hidden Feature Detector Neurons (25 pixel weights each!)
+      const F3_DETECTORS = [
+        {
+          name: 'Diagonal \\ Detector',
+          short: 'diag \\',
+          desc: 'Looks for lit pixels running from top-left to bottom-right — a strong clue for the letter X.',
+          mask: [
+             0.85, -0.25, -0.30, -0.25, -0.10,
+            -0.25,  0.90, -0.35, -0.10, -0.25,
+            -0.30, -0.35,  0.55, -0.35, -0.30,
+            -0.25, -0.10, -0.35,  0.90, -0.25,
+            -0.10, -0.25, -0.30, -0.25,  0.85
+          ],
+          bias: -1.1
+        },
+        {
+          name: 'Diagonal / Detector',
+          short: 'diag /',
+          desc: 'Looks for lit pixels running from top-right to bottom-left — the second diagonal stroke of X.',
+          mask: [
+            -0.10, -0.25, -0.30, -0.25,  0.85,
+            -0.25, -0.10, -0.35,  0.90, -0.25,
+            -0.30, -0.35,  0.55, -0.35, -0.30,
+            -0.25,  0.90, -0.35, -0.10, -0.25,
+             0.85, -0.25, -0.30, -0.25, -0.10
+          ],
+          bias: -1.1
+        },
+        {
+          name: 'Outer Ring Detector',
+          short: 'ring O',
+          desc: 'Checks if the outer border pixels are ON while the very center is EMPTY — the signature clue of O!',
+          mask: [
+            -0.25,  0.55,  0.55,  0.55, -0.25,
+             0.55, -0.45, -0.55, -0.45,  0.55,
+             0.55, -0.55, -0.95, -0.55,  0.55,
+             0.55, -0.45, -0.55, -0.45,  0.55,
+            -0.25,  0.55,  0.55,  0.55, -0.25
+          ],
+          bias: -1.6
+        },
+        {
+          name: 'Vertical Bar | Detector',
+          short: 'bar |',
+          desc: 'Detects a straight column down the middle — half of a Plus (+) sign.',
+          mask: [
+            -0.35, -0.25,  0.85, -0.25, -0.35,
+            -0.25, -0.35,  0.90, -0.35, -0.25,
+            -0.15, -0.10,  0.65, -0.10, -0.15,
+            -0.25, -0.35,  0.90, -0.35, -0.25,
+            -0.35, -0.25,  0.85, -0.25, -0.35
+          ],
+          bias: -1.2
+        },
+        {
+          name: 'Horizontal Bar — Detector',
+          short: 'bar —',
+          desc: 'Detects a flat row across the middle — the second half of a Plus (+) sign.',
+          mask: [
+            -0.35, -0.25, -0.15, -0.25, -0.35,
+            -0.25, -0.35, -0.10, -0.35, -0.25,
+             0.85,  0.90,  0.65,  0.90,  0.85,
+            -0.25, -0.35, -0.10, -0.35, -0.25,
+            -0.35, -0.25, -0.15, -0.25, -0.35
+          ],
+          bias: -1.2
+        },
+        {
+          name: 'Center Anchor Detector',
+          short: 'center',
+          desc: 'Checks if the very center pixel (row 3, col 3) is lit. Helps separate X and + from hollow O!',
+          mask: [
+             0.15, -0.20, -0.15, -0.20,  0.15,
+            -0.20,  0.20,  0.20,  0.20, -0.20,
+            -0.15,  0.20,  0.95,  0.20, -0.15,
+            -0.20,  0.20,  0.20,  0.20, -0.20,
+             0.15, -0.20, -0.15, -0.20,  0.15
+          ],
+          bias: -0.5
+        }
+      ];
+
+      // Output weights from 6 hidden detectors -> [X, O, +]
+      const F3_OUT_W = [
+        [ 2.1,  2.1, -1.6, -0.9, -0.9,  0.5], // Output X
+        [-1.3, -1.3,  3.2, -1.0, -1.0, -1.4], // Output O
+        [-1.0, -1.0, -1.4,  2.1,  2.1,  0.6]  // Output +
+      ];
+      const F3_OUT_LABELS = ['X', 'O', '+'];
+      // Fixed shuffle order for deterministic noise slider so students see smooth progressive messiness
+      const NOISE_ORDER = [7, 17, 1, 23, 11, 13, 3, 21, 5, 19, 9, 15, 0, 24, 4, 20, 2, 22, 6, 18, 8, 16, 10, 14, 12];
+
+      function applyFig3Preset(name) {
+        if (name === 'clear') {
+          state.f3.baseGrid = new Array(25).fill(0);
+        } else {
+          state.f3.baseGrid = PIXEL_PRESETS[name].slice();
+        }
+        evaluateFig3();
+      }
+
+      function evaluateFig3() {
+        const g = state.f3.baseGrid.slice();
+        const flips = Math.round(state.f3.noise * 7); // up to 7 corrupted pixels!
+        for (let i = 0; i < flips; i++) {
+          const idx = NOISE_ORDER[i];
+          g[idx] = g[idx] ? 0 : 1;
+        }
+        state.f3.displayGrid = g;
+
+        // Forward pass through 6 hidden detectors
+        const hActs = F3_DETECTORS.map((det) => {
+          let sum = det.bias;
+          for (let i = 0; i < 25; i++) sum += g[i] * det.mask[i];
+          return sigmoid(sum * 1.4);
+        });
+        state.f3.hiddenActs = hActs;
+
+        // Forward pass to 3 outputs
+        const logits = F3_OUT_W.map((row) => {
+          let s = 0;
+          for (let h = 0; h < 6; h++) s += row[h] * hActs[h];
+          return s * 1.35;
+        });
+        const maxL = Math.max(...logits);
+        const exps = logits.map(v => Math.exp(v - maxL));
+        const sumE = exps[0] + exps[1] + exps[2];
+        const probs = exps.map(e => e / sumE);
+        state.f3.outProbs = probs;
+
+        let best = 0;
+        if (probs[1] > probs[best]) best = 1;
+        if (probs[2] > probs[best]) best = 2;
+        state.f3.predLabel = F3_OUT_LABELS[best];
+
+        // Check if a strict Fixed Rule exact template match would succeed!
+        const matchesAny = ['X', 'O', '+'].some(k => PIXEL_PRESETS[k].every((v, idx) => v === g[idx]));
+        state.f3.exactRuleMatch = matchesAny;
+      }
+
+      /* =========================================================================
+         8. CANVAS DRAWING ENGINE (All 3 Interactive Figures + Telemetry Scope)
+         ========================================================================= */
+      function drawArchitecturalBackground() {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W, H);
+
+        // Subtle architectural dot/grid texture in center stage
+        const step = 32;
+        ctx.strokeStyle = '#f2f2f5';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 0; x < W; x += step) {
+          ctx.moveTo(x + 0.5, 44);
+          ctx.lineTo(x + 0.5, H);
+        }
+        for (let y = 44; y < H; y += step) {
+          ctx.moveTo(0, y + 0.5);
+          ctx.lineTo(W, y + 0.5);
+        }
+        ctx.stroke();
+      }
+
+      /* -------------------- RENDER FIG. 01: FRUIT SORTER -------------------- */
+      function drawFig1() {
+        const b = getStageBounds();
+        // Centered square-ish scientific plot inside stage
+        const plotW = Math.min(b.w - 44, 620);
+        const plotH = Math.min(b.h - 74, 470);
+        const px = b.x + (b.w - plotW) * 0.5 + 10;
+        const py = b.y + (b.h - plotH) * 0.5 - 8;
+
+        const minX = 2, maxX = 12; // Size (cm)
+        const minY = 1, maxY = 10; // Sweetness (1–10)
+        const toSX = (s) => px + ((s - minX) / (maxX - minX)) * plotW;
+        const toSY = (sw) => py + plotH - ((sw - minY) / (maxY - minY)) * plotH;
+        const fromSX = (cx) => minX + ((cx - px) / plotW) * (maxX - minX);
+        const fromSY = (cy) => minY + ((py + plotH - cy) / plotH) * (maxY - minY);
+
+        // 1. Decision Regions Shading
+        if (state.f1.mode === 'rules') {
+          const rx = toSX(state.f1.minSize);
+          const ry = toSY(state.f1.minSweet);
+          // Nimbu region (entire plot light cobalt tint)
+          ctx.fillStyle = 'rgba(45, 98, 232, 0.05)';
+          ctx.fillRect(px, py, plotW, plotH);
+          // Mango region (top-right box: size >= minSize AND sweet >= minSweet)
+          ctx.fillStyle = 'rgba(224, 83, 60, 0.09)';
+          ctx.fillRect(rx, py, (px + plotW) - rx, ry - py);
+        } else {
+          // Classical ML smooth heatmap grid
+          const cols = 42, rows = 32;
+          const cw = plotW / cols, ch = plotH / rows;
+          for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+              const s = minX + ((i + 0.5) / cols) * (maxX - minX);
+              const sw = maxY - ((j + 0.5) / rows) * (maxY - minY);
+              const p = mlPredictProb(s, sw);
+              if (p >= 0.5) {
+                ctx.fillStyle = `rgba(224, 83, 60, ${0.03 + (p - 0.5) * 0.16})`;
+              } else {
+                ctx.fillStyle = `rgba(45, 98, 232, ${0.03 + (0.5 - p) * 0.14})`;
+              }
+              ctx.fillRect(px + i * cw, py + j * ch, cw + 0.5, ch + 0.5);
+            }
+          }
+        }
+
+        // 2. Plot Frame & Hairline Gridlines
+        ctx.strokeStyle = '#e4e4e7';
+        ctx.lineWidth = 1;
+        for (let s = 2; s <= 12; s += 2) {
+          const x = toSX(s);
+          ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x, py + plotH); ctx.stroke();
+          ctx.fillStyle = '#71717a';
+          ctx.font = '10px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(s + ' cm', x, py + plotH + 16);
+        }
+        for (let sw = 2; sw <= 10; sw += 2) {
+          const y = toSY(sw);
+          ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px + plotW, y); ctx.stroke();
+          ctx.fillStyle = '#71717a';
+          ctx.font = '10px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'right';
+          ctx.fillText(String(sw), px - 8, y + 3.5);
+        }
+
+        // Outer crisp frame
+        ctx.strokeStyle = '#a1a1aa';
+        ctx.lineWidth = 1.1;
+        ctx.strokeRect(px, py, plotW, plotH);
+
+        // Axis Titles (clickable!)
+        ctx.fillStyle = '#111111';
+        ctx.font = '500 11px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('FEATURE X₁ · FRUIT SIZE (cm) →', px + plotW / 2, py + plotH + 34);
+
+        ctx.save();
+        ctx.translate(px - 32, py + plotH / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('FEATURE X₂ · SWEETNESS (1–10) →', 0, 0);
+        ctx.restore();
+
+        // Register clickable axes
+        state.hitRegions.push({
+          id: 'f1-axis-x',
+          cursor: 'pointer',
+          test: (mx, my) => mx >= px && mx <= px + plotW && my >= py + plotH && my <= py + plotH + 40,
+          info: {
+            tag: 'FEATURE X₁',
+            name: 'X-Axis: Fruit Size (cm)',
+            desc: 'A "Feature" is any measurable clue we give the computer. Here, a ruler measures each fruit\'s width in centimeters.',
+            mem: 'feature_1 = size_cm  # e.g., 8.4',
+            color: '#111111'
+          }
+        });
+        state.hitRegions.push({
+          id: 'f1-axis-y',
+          cursor: 'pointer',
+          test: (mx, my) => mx >= px - 46 && mx <= px && my >= py && my <= py + plotH,
+          info: {
+            tag: 'FEATURE X₂',
+            name: 'Y-Axis: Sweetness Score (1–10)',
+            desc: 'Our second measurable clue: 1 means super sour (Nimbu) and 10 means super sweet (ripe Mango).',
+            mem: 'feature_2 = sweetness  # 1.0 to 10.0',
+            color: '#111111'
+          }
+        });
+
+        // 3. Draw Decision Boundary (Fixed Dashed Red Lines vs Smooth Cobalt ML Curve)
+        if (state.f1.mode === 'rules') {
+          const rx = toSX(state.f1.minSize);
+          const ry = toSY(state.f1.minSweet);
+
+          ctx.save();
+          ctx.strokeStyle = '#e0533c';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 4]);
+          // L-shaped mango box boundary
+          ctx.beginPath();
+          ctx.moveTo(rx, py);
+          ctx.lineTo(rx, ry);
+          ctx.lineTo(px + plotW, ry);
+          ctx.stroke();
+
+          // Faint extension lines
+          ctx.strokeStyle = 'rgba(224, 83, 60, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(rx, ry); ctx.lineTo(rx, py + plotH);
+          ctx.moveTo(px, ry); ctx.lineTo(rx, ry);
+          ctx.stroke();
+          ctx.restore();
+
+          // Labels right on rule lines
+          ctx.fillStyle = '#e0533c';
+          ctx.font = '500 10px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(`size >= ${state.f1.minSize.toFixed(1)}`, rx + 6, py + 15);
+          ctx.textAlign = 'right';
+          ctx.fillText(`sweet >= ${state.f1.minSweet.toFixed(1)}`, px + plotW - 6, ry - 6);
+
+          // Live 3-line Python IF/ELSE card floating cleanly at top-left of plot
+          const codeX = px + 10, codeY = py + 10;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
+          ctx.strokeStyle = '#e4e4e7';
+          ctx.lineWidth = 1;
+          ctx.fillRect(codeX, codeY, 248, 52);
+          ctx.strokeRect(codeX, codeY, 248, 52);
+          ctx.font = '10px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#e0533c';
+          ctx.fillText(`if size >= ${state.f1.minSize.toFixed(1)} and sweet >= ${state.f1.minSweet.toFixed(1)}:`, codeX + 8, codeY + 16);
+          ctx.fillStyle = '#111111';
+          ctx.fillText(`    return "Mango"   # red zone`, codeX + 8, codeY + 31);
+          ctx.fillStyle = '#2d62e8';
+          ctx.fillText(`else: return "Nimbu" # blue zone`, codeX + 8, codeY + 45);
+
+          // Clickable hit region on the Fixed Rule boundary
+          state.hitRegions.push({
+            id: 'f1-rule-line',
+            cursor: 'pointer',
+            test: (mx, my) => (Math.abs(mx - rx) < 10 && my >= py && my <= ry + 8) || (Math.abs(my - ry) < 10 && mx >= rx - 8 && mx <= px + plotW),
+            info: {
+              tag: 'HARDCODED IF RULE',
+              name: 'Fixed Human Rule Boundary',
+              desc: 'A strict box drawn by a human programmer. It cannot bend! If a tiny sweet mango lands left of this line, the Rule Bot stubbornly calls it a Nimbu.',
+              mem: `if (size >= ${state.f1.minSize.toFixed(1)} and sweet >= ${state.f1.minSweet.toFixed(1)}): Mango`,
+              color: '#e0533c'
+            }
+          });
+        } else {
+          // Trace 0.5 contour of Classical ML model using Marching Squares segments!
+          const segs = [];
+          const gc = 46, gr = 36;
+          for (let i = 0; i < gc; i++) {
+            for (let j = 0; j < gr; j++) {
+              const s0 = minX + (i / gc) * (maxX - minX);
+              const s1 = minX + ((i + 1) / gc) * (maxX - minX);
+              const w0 = maxY - (j / gr) * (maxY - minY);
+              const w1 = maxY - ((j + 1) / gr) * (maxY - minY);
+              const v00 = mlPredictProb(s0, w0) - 0.5;
+              const v10 = mlPredictProb(s1, w0) - 0.5;
+              const v11 = mlPredictProb(s1, w1) - 0.5;
+              const v01 = mlPredictProb(s0, w1) - 0.5;
+              const pts = [];
+              const lerpEdge = (a, b, x1, y1, x2, y2) => {
+                if ((a < 0 && b >= 0) || (a >= 0 && b < 0)) {
+                  const t = Math.abs(a) / (Math.abs(a) + Math.abs(b) + 1e-9);
+                  pts.push([x1 + t * (x2 - x1), y1 + t * (y2 - y1)]);
+                }
+              };
+              const x0 = toSX(s0), x1 = toSX(s1), y0 = toSY(w0), y1 = toSY(w1);
+              lerpEdge(v00, v10, x0, y0, x1, y0);
+              lerpEdge(v10, v11, x1, y0, x1, y1);
+              lerpEdge(v11, v01, x1, y1, x0, y1);
+              lerpEdge(v01, v00, x0, y1, x0, y0);
+              if (pts.length >= 2) segs.push([pts[0], pts[1]]);
+            }
+          }
+
+          ctx.strokeStyle = '#2d62e8';
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          for (let k = 0; k < segs.length; k++) {
+            ctx.moveTo(segs[k][0][0], segs[k][0][1]);
+            ctx.lineTo(segs[k][1][0], segs[k][1][1]);
+          }
+          ctx.stroke();
+
+          // ML status badge top-left of plot
+          const bx = px + 10, by = py + 10;
+          ctx.fillStyle = 'rgba(255,255,255,0.94)';
+          ctx.strokeStyle = '#2d62e8';
+          ctx.lineWidth = 1;
+          ctx.fillRect(bx, by, 232, 36);
+          ctx.strokeRect(bx, by, 232, 36);
+          ctx.fillStyle = '#2d62e8';
+          ctx.font = '600 10px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(state.f1.training ? `ML LEARNING... epoch ${state.f1.epoch}/${state.f1.maxEpochs}` : 'LEARNED ML DECISION BOUNDARY', bx + 8, by + 15);
+          ctx.fillStyle = '#71717a';
+          ctx.font = '9.5px "IBM Plex Mono", monospace';
+          ctx.fillText(`w = [${state.f1.weights.slice(0, 3).map(v => v.toFixed(1)).join(', ')}, ...]`, bx + 8, by + 29);
+
+          // Clickable ML curve
+          state.hitRegions.push({
+            id: 'f1-ml-curve',
+            cursor: 'pointer',
+            test: (mx, my) => {
+              if (mx < px || mx > px + plotW || my < py || my > py + plotH) return false;
+              const p = mlPredictProb(fromSX(mx), fromSY(my));
+              return Math.abs(p - 0.5) < 0.06;
+            },
+            info: {
+              tag: 'LEARNED ML BOUNDARY',
+              name: 'Machine Learning Decision Curve',
+              desc: 'No human drew this line! The computer automatically curved it by testing every fruit example and adjusting its math weights to shrink mistakes.',
+              mem: `weights = [${state.f1.weights.map(v => v.toFixed(2)).join(', ')}]`,
+              color: '#2d62e8'
+            }
+          });
+        }
+
+        // 4. Draw Every Fruit Data Point (Mango = Red Circle, Nimbu = Blue Square)
+        state.f1.fruits.forEach((f) => {
+          const cx = toSX(f.size);
+          const cy = toSY(f.sweet);
+          const pred = state.f1.mode === 'rules' ? rulePredict(f.size, f.sweet) : (mlPredictProb(f.size, f.sweet) >= 0.5 ? 1 : 0);
+          const wrong = pred !== f.label;
+          const isHovered = state.hoverRegion && state.hoverRegion.id === f.id;
+          const r = isHovered ? 9 : 7.5;
+
+          if (f.label === 1) {
+            // Mango: Vermilion Red Circle
+            ctx.fillStyle = '#e0533c';
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = f.tricky ? '#111111' : '#ffffff';
+            ctx.lineWidth = f.tricky ? 2 : 1.6;
+            ctx.stroke();
+          } else {
+            // Nimbu: Cobalt Blue Square
+            ctx.fillStyle = '#2d62e8';
+            ctx.fillRect(cx - r + 1, cy - r + 1, (r - 1) * 2, (r - 1) * 2);
+            ctx.strokeStyle = f.tricky ? '#111111' : '#ffffff';
+            ctx.lineWidth = f.tricky ? 2 : 1.6;
+            ctx.strokeRect(cx - r + 1, cy - r + 1, (r - 1) * 2, (r - 1) * 2);
+          }
+
+          // Mistake red X halo!
+          if (wrong) {
+            ctx.strokeStyle = '#e0533c';
+            ctx.lineWidth = 2.2;
+            const xr = 12;
+            ctx.beginPath();
+            ctx.moveTo(cx - xr, cy - xr); ctx.lineTo(cx + xr, cy + xr);
+            ctx.moveTo(cx + xr, cy - xr); ctx.lineTo(cx - xr, cy + xr);
+            ctx.stroke();
+
+            ctx.fillStyle = '#e0533c';
+            ctx.font = '600 9px "IBM Plex Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('MISTAKE', cx, cy - 15);
+          }
+
+          // X-Ray Computer View vs Friendly Label
+          if (state.f1.xray) {
+            ctx.fillStyle = '#111111';
+            ctx.font = '9px "IBM Plex Mono", monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(`(${f.size.toFixed(1)},${f.sweet.toFixed(1)})→${f.label}`, cx + 10, cy + 3);
+          } else if (f.tricky && !wrong) {
+            ctx.fillStyle = '#111111';
+            ctx.font = '9px "IBM Plex Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('tricky!', cx, cy - 12);
+          }
+
+          // Clickable data point
+          state.hitRegions.unshift({
+            id: f.id,
+            cursor: 'pointer',
+            test: (mx, my) => Math.hypot(mx - cx, my - cy) <= 13,
+            info: {
+              tag: wrong ? 'MISCLASSIFIED DATA POINT' : 'TRAINING EXAMPLE',
+              name: (f.label === 1 ? 'Mango' : 'Nimbu (Lemon)') + (f.tricky ? ' — Tricky Example!' : ''),
+              desc: wrong
+                ? `The computer guessed "${pred === 1 ? 'Mango' : 'Nimbu'}", which is WRONG! ${f.note || 'This real-world fruit breaks the current boundary.'}`
+                : `Correctly classified as ${f.label === 1 ? 'Mango' : 'Nimbu'}! Computers learn by comparing hundreds of labeled examples like this one.`,
+              mem: `x = [${f.size.toFixed(1)}, ${f.sweet.toFixed(1)}], y_true = ${f.label} (${f.label === 1 ? 'Mango' : 'Nimbu'})`,
+              color: f.label === 1 ? '#e0533c' : '#2d62e8'
+            }
+          });
+        });
+
+        // 5. Fallback click on empty plot grid -> Add a brand new Mango or Nimbu!
+        state.hitRegions.push({
+          id: 'f1-plot-add',
+          cursor: 'crosshair',
+          test: (mx, my) => mx >= px && mx <= px + plotW && my >= py && my <= py + plotH,
+          onClick: (mx, my) => {
+            const s = fromSX(mx);
+            const sw = fromSY(my);
+            const newFruit = {
+              id: 'user-' + Date.now() + Math.random(),
+              size: s,
+              sweet: sw,
+              label: state.f1.addLabel,
+              tricky: false
+            };
+            state.f1.fruits.push(newFruit);
+            recordFig1History();
+            inspectPart({
+              tag: 'NEW EXAMPLE ADDED',
+              name: `Added ${newFruit.label === 1 ? 'Mango' : 'Nimbu'} at (${s.toFixed(1)} cm, sweet ${sw.toFixed(1)})`,
+              desc: 'You just added new training data! Click "train / learn" to let Classical ML adapt to your new fruit.',
+              mem: `dataset.append((${s.toFixed(1)}, ${sw.toFixed(1)}, ${newFruit.label}))`,
+              color: newFruit.label === 1 ? '#e0533c' : '#2d62e8'
+            });
+          }
+        });
+      }
+
+      /* -------------------- RENDER FIG. 02: RPS COMPARATOR -------------------- */
+      function drawHandSymbol(x, y, moveIdx, color, scale = 1) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 1.8;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        if (moveIdx === 0) {
+          // Rock: crisp geometric faceted octagon
+          ctx.beginPath();
+          ctx.moveTo(-12, -6); ctx.lineTo(-5, -13); ctx.lineTo(7, -12);
+          ctx.lineTo(14, -4); ctx.lineTo(12, 9); ctx.lineTo(2, 13);
+          ctx.lineTo(-10, 10); ctx.lineTo(-14, 2);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-5, -13); ctx.lineTo(-2, 0); ctx.lineTo(12, 9); ctx.stroke();
+        } else if (moveIdx === 1) {
+          // Paper: crisp document sheet with folded corner
+          ctx.beginPath();
+          ctx.moveTo(-11, -14); ctx.lineTo(4, -14); ctx.lineTo(11, -7);
+          ctx.lineTo(11, 14); ctx.lineTo(-11, 14); ctx.closePath();
+          ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(4, -14); ctx.lineTo(4, -7); ctx.lineTo(11, -7); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-6, -1); ctx.lineTo(6, -1); ctx.moveTo(-6, 5); ctx.lineTo(4, 5); ctx.stroke();
+        } else if (moveIdx === 2) {
+          // Scissors: geometric crossing blades + rings
+          ctx.beginPath();
+          ctx.arc(-8, 9, 4.5, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(8, 9, 4.5, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(-5, 5); ctx.lineTo(10, -13);
+          ctx.moveTo(5, 5); ctx.lineTo(-10, -13);
+          ctx.stroke();
+        } else {
+          // Waiting question mark
+          ctx.font = '500 18px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('?', 0, 1);
+        }
+        ctx.restore();
+      }
+
+      function drawFig2() {
+        const b = getStageBounds();
+        const cx = b.x + b.w * 0.5;
+        const activeBrain = state.f2.brain;
+        const stMove = state.f2.lastStudent;
+        const aiMove = state.f2.lastMoves[activeBrain];
+        const outcome = state.f2.lastOutcome[activeBrain];
+
+        // 1. TOP ARENA CARDS: STUDENT MOVE vs AI OPPONENT MOVE
+        const cardW = Math.min(182, b.w * 0.31);
+        const cardH = 82;
+        const topY = b.y + 8;
+        const leftCardX = cx - cardW - 52;
+        const rightCardX = cx + 52;
+
+        // Student Card
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#d4d4d8';
+        ctx.lineWidth = 1.2;
+        ctx.fillRect(leftCardX, topY, cardW, cardH);
+        ctx.strokeRect(leftCardX, topY, cardW, cardH);
+        ctx.fillStyle = '#71717a';
+        ctx.font = '9.5px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('STUDENT MOVE', leftCardX + 10, topY + 16);
+        drawHandSymbol(leftCardX + 34, topY + 50, stMove, '#2d62e8', 0.95);
+        ctx.fillStyle = '#111111';
+        ctx.font = '600 15px "IBM Plex Mono", monospace';
+        ctx.fillText(stMove !== null ? MOVES[stMove] : 'Waiting...', leftCardX + 64, topY + 54);
+
+        // AI Card
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = outcome === 'ai' ? '#16a34a' : (outcome === 'student' ? '#e0533c' : '#d4d4d8');
+        ctx.lineWidth = outcome ? 1.6 : 1.2;
+        ctx.fillRect(rightCardX, topY, cardW, cardH);
+        ctx.strokeRect(rightCardX, topY, cardW, cardH);
+        ctx.fillStyle = '#71717a';
+        ctx.font = '9.5px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        const brainTag = activeBrain === 'rule' ? 'RULE BOT' : activeBrain === 'ml' ? 'CLASSICAL ML' : 'MODERN NEURAL AI';
+        ctx.fillText(brainTag, rightCardX + 10, topY + 16);
+        drawHandSymbol(rightCardX + 34, topY + 50, aiMove, '#e0533c', 0.95);
+        ctx.fillStyle = '#111111';
+        ctx.font = '600 15px "IBM Plex Mono", monospace';
+        ctx.fillText(aiMove !== null ? MOVES[aiMove] : 'Ready', rightCardX + 64, topY + 54);
+
+        // Center VS / Outcome Badge
+        ctx.textAlign = 'center';
+        if (outcome) {
+          const msg = outcome === 'ai' ? 'AI WINS' : outcome === 'student' ? 'YOU WIN' : 'TIE';
+          const col = outcome === 'ai' ? '#16a34a' : outcome === 'student' ? '#e0533c' : '#71717a';
+          ctx.fillStyle = col;
+          ctx.font = '600 12px "IBM Plex Mono", monospace';
+          ctx.fillText(msg, cx, topY + 42);
+          ctx.fillStyle = '#a1a1aa';
+          ctx.font = '9.5px "IBM Plex Mono", monospace';
+          ctx.fillText(`round #${state.f2.rounds}`, cx, topY + 58);
+        } else {
+          ctx.fillStyle = '#a1a1aa';
+          ctx.font = '500 11px "IBM Plex Mono", monospace';
+          ctx.fillText('VS', cx, topY + 46);
+        }
+
+        // Animated signal pulse from Student Card down into Brain Box!
+        const brainTop = topY + cardH + 26;
+        const brainH = Math.max(185, b.h - (brainTop - b.y) - 8);
+        const brainW = Math.min(b.w - 16, 610);
+        const brainX = cx - brainW * 0.5;
+
+        // Wire from Student -> Brain & Brain -> AI
+        ctx.strokeStyle = '#d4d4d8';
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        ctx.moveTo(leftCardX + cardW * 0.5, topY + cardH);
+        ctx.lineTo(leftCardX + cardW * 0.5, brainTop);
+        ctx.moveTo(rightCardX + cardW * 0.5, brainTop);
+        ctx.lineTo(rightCardX + cardW * 0.5, topY + cardH);
+        ctx.stroke();
+
+        if (state.f2.pulseProgress < 1) {
+          const t = state.f2.pulseProgress;
+          const py1 = topY + cardH + t * (brainTop - (topY + cardH));
+          ctx.fillStyle = '#2d62e8';
+          ctx.beginPath(); ctx.arc(leftCardX + cardW * 0.5, py1, 4.5, 0, Math.PI * 2); ctx.fill();
+
+          const py2 = brainTop - t * (brainTop - (topY + cardH));
+          ctx.fillStyle = '#e0533c';
+          ctx.beginPath(); ctx.arc(rightCardX + cardW * 0.5, py2, 4.5, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // 2. MAIN BRAIN VISUALIZATION PANEL
+        ctx.fillStyle = 'rgba(255,255,255,0.96)';
+        ctx.strokeStyle = '#d4d4d8';
+        ctx.lineWidth = 1.1;
+        ctx.fillRect(brainX, brainTop, brainW, brainH);
+        ctx.strokeRect(brainX, brainTop, brainW, brainH);
+
+        if (state.f2.compareAll) {
+          drawCompareAll3Panel(brainX, brainTop, brainW, brainH);
+        } else if (activeBrain === 'rule') {
+          drawRuleBotBrain(brainX, brainTop, brainW, brainH);
+        } else if (activeBrain === 'ml') {
+          drawMLBotBrain(brainX, brainTop, brainW, brainH);
+        } else {
+          drawNeuralBotBrain(brainX, brainTop, brainW, brainH);
+        }
+      }
+
+      function drawRuleBotBrain(bx, by, bw, bh) {
+        ctx.fillStyle = '#71717a';
+        ctx.font = '600 10px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('INSIDE BRAIN 1 · FIXED IF / ELIF / ELSE FLOWCHART', bx + 14, by + 20);
+
+        const isAlwaysRock = state.f2.ruleVariant === 'alwaysRock';
+        const branches = isAlwaysRock
+          ? [
+              { cond: 'ALWAYS (ignore student)', act: 'return "Rock"', idx: 0, desc: 'This super-simple Rule Bot ignores everything you do and ALWAYS plays Rock!' }
+            ]
+          : [
+              { cond: 'if last_move == "Rock":',  act: 'play "Paper"',    idx: 0, desc: 'Fixed Branch 1: Assumes you might repeat Rock, so it hardcoded Paper.' },
+              { cond: 'elif last_move == "Paper":', act: 'play "Scissors"', idx: 1, desc: 'Fixed Branch 2: Whenever your last move was Paper, it always answers Scissors.' },
+              { cond: 'else (Scissors / start):',  act: 'play "Rock"',     idx: 2, desc: 'Fixed Fallback Branch: Otherwise, it always plays Rock.' }
+            ];
+
+        const rowH = Math.min(48, (bh - 52) / branches.length - 8);
+        const startY = by + 38;
+
+        branches.forEach((br, i) => {
+          const ry = startY + i * (rowH + 10);
+          const active = state.f2.rounds > 0 && state.f2.activeRuleBranch === br.idx;
+          const rx = bx + 20;
+          const rw = bw - 40;
+
+          ctx.fillStyle = active ? '#fff5f3' : '#fafafa';
+          ctx.strokeStyle = active ? '#e0533c' : '#e4e4e7';
+          ctx.lineWidth = active ? 1.8 : 1;
+          ctx.fillRect(rx, ry, rw, rowH);
+          ctx.strokeRect(rx, ry, rw, rowH);
+
+          // Glowing indicator dot
+          ctx.fillStyle = active ? '#e0533c' : '#d4d4d8';
+          ctx.beginPath(); ctx.arc(rx + 16, ry + rowH / 2, 4.5, 0, Math.PI * 2); ctx.fill();
+
+          ctx.fillStyle = active ? '#111111' : '#52525b';
+          ctx.font = '500 11.5px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(br.cond, rx + 30, ry + rowH / 2 + 4);
+
+          ctx.fillStyle = active ? '#e0533c' : '#71717a';
+          ctx.font = '600 11.5px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'right';
+          ctx.fillText('→ ' + br.act, rx + rw - 16, ry + rowH / 2 + 4);
+
+          state.hitRegions.push({
+            id: 'f2-rule-' + i,
+            cursor: 'pointer',
+            test: (mx, my) => mx >= rx && mx <= rx + rw && my >= ry && my <= ry + rowH,
+            info: {
+              tag: 'HARDCODED RULE',
+              name: `Flowchart Branch #${i + 1}`,
+              desc: br.desc + ' It NEVER learns or adapts even if you beat it 10 times in a row!',
+              mem: `${br.cond} ${br.act}  # 0 bytes of learned memory`,
+              color: '#e0533c'
+            }
+          });
+        });
+
+        // Bottom teaching caption
+        ctx.fillStyle = '#a1a1aa';
+        ctx.font = '10px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('memory used: 0 learned numbers (rules are frozen forever)', bx + 20, by + bh - 12);
+      }
+
+      function drawMLBotBrain(bx, by, bw, bh) {
+        ctx.fillStyle = '#2d62e8';
+        ctx.font = '600 10px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('INSIDE BRAIN 2 · CLASSICAL ML MEMORY TABLE & PROBABILITY BARS', bx + 14, by + 20);
+
+        const c = state.f2.mlCounts;
+        const tot = c[0] + c[1] + c[2];
+
+        // Live Python Dictionary Strip
+        ctx.fillStyle = '#fafafa';
+        ctx.strokeStyle = '#e4e4e7';
+        ctx.fillRect(bx + 14, by + 30, bw - 28, 26);
+        ctx.strokeRect(bx + 14, by + 30, bw - 28, 26);
+        ctx.fillStyle = '#111111';
+        ctx.font = '10.5px "IBM Plex Mono", monospace';
+        ctx.fillText(`memory = { 'Rock': ${c[0]},  'Paper': ${c[1]},  'Scissors': ${c[2]} }`, bx + 22, by + 47);
+
+        // Left half: Overall Probability Bars
+        const leftW = bw * 0.48;
+        const barBaseY = by + 74;
+        const barH = 22;
+
+        ctx.fillStyle = '#71717a';
+        ctx.font = '9.5px "IBM Plex Mono", monospace';
+        ctx.fillText('YOUR FAVORITE MOVES (PROBABILITY)', bx + 16, barBaseY - 6);
+
+        MOVES.forEach((name, idx) => {
+          const y = barBaseY + idx * 34;
+          const p = tot ? c[idx] / tot : 0.333;
+          const maxBarW = leftW - 95;
+
+          ctx.fillStyle = '#111111';
+          ctx.font = '10.5px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(name, bx + 16, y + 15);
+
+          ctx.fillStyle = '#f4f4f5';
+          ctx.fillRect(bx + 78, y + 2, maxBarW, barH - 4);
+          ctx.fillStyle = '#2d62e8';
+          ctx.fillRect(bx + 78, y + 2, Math.max(2, p * maxBarW), barH - 4);
+
+          ctx.fillStyle = '#2d62e8';
+          ctx.font = '600 10px "IBM Plex Mono", monospace';
+          ctx.fillText(Math.round(p * 100) + '%', bx + 84 + maxBarW, y + 14);
+
+          state.hitRegions.push({
+            id: 'f2-ml-bar-' + idx,
+            cursor: 'pointer',
+            test: (mx, my) => mx >= bx + 14 && mx <= bx + leftW && my >= y && my <= y + 26,
+            info: {
+              tag: 'ML MEMORY BAR',
+              name: `Student "${name}" Counter (${c[idx]} times)`,
+              desc: `Classical ML counts every time you pick ${name}. If this bar becomes the tallest, the bot predicts "${name}" next and plays ${MOVES[BEATS[idx]]} to beat you!`,
+              mem: `memory['${name}'] = ${c[idx]}  (${Math.round(p * 100)}% of rounds)`,
+              color: '#2d62e8'
+            }
+          });
+        });
+
+        // Right half: Markov 1-Step Transition Table ("What you play AFTER...")
+        const rx = bx + leftW + 22;
+        const rw = bw - leftW - 36;
+        ctx.fillStyle = '#71717a';
+        ctx.font = '9.5px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('NEXT-MOVE HABIT TABLE (MARKOV)', rx, barBaseY - 6);
+
+        const colW = (rw - 56) / 3;
+        ctx.fillStyle = '#a1a1aa';
+        ctx.textAlign = 'center';
+        ['→R', '→P', '→S'].forEach((lbl, ci) => {
+          ctx.fillText(lbl, rx + 56 + ci * colW + colW / 2, barBaseY + 10);
+        });
+
+        const lastM = state.f2.studentHistory.length ? state.f2.studentHistory[state.f2.studentHistory.length - 1] : -1;
+        for (let r = 0; r < 3; r++) {
+          const ry = barBaseY + 18 + r * 28;
+          const isCurrent = (r === lastM);
+          ctx.fillStyle = isCurrent ? '#e0533c' : '#52525b';
+          ctx.font = (isCurrent ? '600 ' : '') + '10px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText('after ' + MOVE_SHORT[r], rx, ry + 14);
+
+          const rowSum = state.f2.mlMarkov[r][0] + state.f2.mlMarkov[r][1] + state.f2.mlMarkov[r][2];
+          for (let col = 0; col < 3; col++) {
+            const val = state.f2.mlMarkov[r][col];
+            const frac = rowSum ? val / rowSum : 0;
+            const cx = rx + 56 + col * colW;
+            ctx.fillStyle = `rgba(45, 98, 232, ${0.06 + frac * 0.42})`;
+            ctx.strokeStyle = isCurrent ? 'rgba(224, 83, 60, 0.45)' : '#e4e4e7';
+            ctx.fillRect(cx + 2, ry, colW - 4, 22);
+            ctx.strokeRect(cx + 2, ry, colW - 4, 22);
+
+            ctx.fillStyle = frac > 0.5 ? '#111111' : '#52525b';
+            ctx.textAlign = 'center';
+            ctx.fillText(String(val), cx + colW / 2, ry + 14);
+          }
+
+          state.hitRegions.push({
+            id: 'f2-markov-' + r,
+            cursor: 'pointer',
+            test: (mx, my) => mx >= rx && mx <= rx + rw && my >= ry && my <= ry + 24,
+            info: {
+              tag: 'MARKOV PATTERN ROW',
+              name: `What You Play After ${MOVES[r]}`,
+              desc: `Tracks your exact habit right after playing ${MOVES[r]}: Rock=${state.f2.mlMarkov[r][0]}, Paper=${state.f2.mlMarkov[r][1]}, Scissors=${state.f2.mlMarkov[r][2]}.`,
+              mem: `after['${MOVE_SHORT[r]}'] = { R:${state.f2.mlMarkov[r][0]}, P:${state.f2.mlMarkov[r][1]}, S:${state.f2.mlMarkov[r][2]} }`,
+              color: '#2d62e8'
+            }
+          });
+        }
+      }
+
+      function drawNeuralBotBrain(bx, by, bw, bh) {
+        const nn = state.f2.nn;
+        ctx.fillStyle = '#e0533c';
+        ctx.font = '600 10px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('INSIDE BRAIN 3 · MINI NEURAL NETWORK (6 INPUTS → 4 HIDDEN → 3 OUTPUTS)', bx + 14, by + 20);
+
+        const colX = [bx + bw * 0.17, bx + bw * 0.50, bx + bw * 0.83];
+        const topPad = by + 40;
+        const usableH = bh - 56;
+
+        const inNodes = [];
+        const inLabels = ['last:R', 'last:P', 'last:S', 'prev:R', 'prev:P', 'prev:S'];
+        for (let i = 0; i < 6; i++) {
+          inNodes.push({ x: colX[0], y: topPad + (i / 5) * usableH, val: nn.lastInput[i], lbl: inLabels[i] });
+        }
+
+        const hidNodes = [];
+        for (let h = 0; h < 4; h++) {
+          hidNodes.push({ x: colX[1], y: topPad + ((h + 0.5) / 4) * usableH, val: nn.lastHidden[h], lbl: 'H' + (h + 1) });
+        }
+
+        const outNodes = [];
+        const outLabels = ['predict R', 'predict P', 'predict S'];
+        for (let o = 0; o < 3; o++) {
+          outNodes.push({ x: colX[2], y: topPad + ((o + 0.5) / 3) * usableH, val: nn.lastOut[o], lbl: outLabels[o] });
+        }
+
+        // Draw Weighted Wires (Input -> Hidden)
+        for (let h = 0; h < 4; h++) {
+          for (let i = 0; i < 6; i++) {
+            const w = nn.w1[h][i];
+            const strength = Math.min(1, Math.abs(w) / 1.8);
+            const active = inNodes[i].val > 0.5;
+            ctx.strokeStyle = w >= 0
+              ? `rgba(224, 83, 60, ${active ? 0.35 + strength * 0.6 : 0.1 + strength * 0.25})`
+              : `rgba(45, 98, 232, ${active ? 0.35 + strength * 0.6 : 0.1 + strength * 0.25})`;
+            ctx.lineWidth = 0.8 + strength * (active ? 2.6 : 1.5);
+            ctx.beginPath();
+            ctx.moveTo(inNodes[i].x, inNodes[i].y);
+            ctx.lineTo(hidNodes[h].x, hidNodes[h].y);
+            ctx.stroke();
+
+            // Animated pulse dot along active input wire
+            if (active && state.f2.pulseProgress < 0.65) {
+              const t = Math.min(1, state.f2.pulseProgress / 0.55);
+              const px = inNodes[i].x + (hidNodes[h].x - inNodes[i].x) * t;
+              const py = inNodes[i].y + (hidNodes[h].y - inNodes[i].y) * t;
+              ctx.fillStyle = w >= 0 ? '#e0533c' : '#2d62e8';
+              ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2); ctx.fill();
+            }
+          }
+        }
+
+        // Draw Weighted Wires (Hidden -> Output)
+        for (let o = 0; o < 3; o++) {
+          for (let h = 0; h < 4; h++) {
+            const w = nn.w2[o][h];
+            const strength = Math.min(1, Math.abs(w) / 1.8);
+            ctx.strokeStyle = w >= 0
+              ? `rgba(224, 83, 60, ${0.18 + strength * 0.72})`
+              : `rgba(45, 98, 232, ${0.18 + strength * 0.72})`;
+            ctx.lineWidth = 0.9 + strength * 2.5;
+            ctx.beginPath();
+            ctx.moveTo(hidNodes[h].x, hidNodes[h].y);
+            ctx.lineTo(outNodes[o].x, outNodes[o].y);
+            ctx.stroke();
+
+            // Clickable midpoint for Output Weights
+            const mxW = (hidNodes[h].x + outNodes[o].x) * 0.5;
+            const myW = (hidNodes[h].y + outNodes[o].y) * 0.5;
+            state.hitRegions.push({
+              id: `f2-nn-w-${o}-${h}`,
+              cursor: 'pointer',
+              test: (mx, my) => Math.hypot(mx - mxW, my - myW) < 8,
+              info: {
+                tag: 'NEURAL WEIGHT',
+                name: `Wire H${h + 1} → Predict ${MOVES[o]} (w = ${w >= 0 ? '+' : ''}${w.toFixed(2)})`,
+                desc: w >= 0
+                  ? 'A RED positive weight! When Hidden Neuron H' + (h + 1) + ' activates, it votes YES that you will play ' + MOVES[o] + ' next.'
+                  : 'A BLUE negative weight! When Hidden Neuron H' + (h + 1) + ' activates, it votes NO against ' + MOVES[o] + '.',
+                mem: `W2[${o}][${h}] = ${w.toFixed(3)}  # updated after every round`,
+                color: w >= 0 ? '#e0533c' : '#2d62e8'
+              }
+            });
+          }
+        }
+
+        // Draw Nodes
+        inNodes.forEach((n, i) => {
+          ctx.fillStyle = n.val > 0.5 ? '#2d62e8' : '#ffffff';
+          ctx.strokeStyle = n.val > 0.5 ? '#2d62e8' : '#a1a1aa';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = n.val > 0.5 ? '#2d62e8' : '#71717a';
+          ctx.font = '9.5px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'right';
+          ctx.fillText(n.lbl, n.x - 12, n.y + 3);
+
+          state.hitRegions.unshift({
+            id: 'f2-nn-in-' + i,
+            cursor: 'pointer',
+            test: (mx, my) => Math.hypot(mx - n.x, my - n.y) < 12,
+            info: {
+              tag: 'INPUT NEURON',
+              name: `Input "${n.lbl}" = ${n.val}`,
+              desc: 'Turns ON (1) if that exact move happened in your last 2 turns. Because this brain sees TWO moves back, it can beat patterns like R→R→P!',
+              mem: `input[${i}] = ${n.val}  # ${n.lbl}`,
+              color: '#2d62e8'
+            }
+          });
+        });
+
+        hidNodes.forEach((n, h) => {
+          const act = Math.abs(n.val);
+          ctx.fillStyle = n.val >= 0 ? `rgba(224, 83, 60, ${0.12 + act * 0.78})` : `rgba(45, 98, 232, ${0.12 + act * 0.78})`;
+          ctx.strokeStyle = '#111111';
+          ctx.lineWidth = 1.3;
+          ctx.beginPath(); ctx.arc(n.x, n.y, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#111111';
+          ctx.font = '600 9px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(n.lbl, n.x, n.y + 3);
+
+          state.hitRegions.unshift({
+            id: 'f2-nn-h-' + h,
+            cursor: 'pointer',
+            test: (mx, my) => Math.hypot(mx - n.x, my - n.y) < 14,
+            info: {
+              tag: 'HIDDEN NEURON',
+              name: `Hidden Pattern Neuron ${n.lbl} (act = ${n.val.toFixed(2)})`,
+              desc: 'Combines your last two moves into a secret pattern detector! After every game, backpropagation adjusts its incoming wires to learn your habits.',
+              mem: `hidden[${h}] = tanh(sum(inputs * W1)) = ${n.val.toFixed(3)}`,
+              color: '#e0533c'
+            }
+          });
+        });
+
+        outNodes.forEach((n, o) => {
+          ctx.fillStyle = `rgba(224, 83, 60, ${0.1 + n.val * 0.85})`;
+          ctx.strokeStyle = '#e0533c';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath(); ctx.arc(n.x, n.y, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#111111';
+          ctx.font = '600 10px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(`${MOVE_SHORT[o]} ${Math.round(n.val * 100)}%`, n.x + 17, n.y + 3.5);
+
+          state.hitRegions.unshift({
+            id: 'f2-nn-out-' + o,
+            cursor: 'pointer',
+            test: (mx, my) => Math.hypot(mx - n.x, my - n.y) < 15,
+            info: {
+              tag: 'OUTPUT PREDICTION',
+              name: `Predicts Student Plays ${MOVES[o]} (${Math.round(n.val * 100)}%)`,
+              desc: `Confidence that you will pick ${MOVES[o]} next. If this is the highest node, the Neural AI counters with ${MOVES[BEATS[o]]}!`,
+              mem: `prob['${MOVES[o]}'] = ${n.val.toFixed(3)} → counter: '${MOVES[BEATS[o]]}'`,
+              color: '#e0533c'
+            }
+          });
+        });
+      }
+
+      function drawCompareAll3Panel(bx, by, bw, bh) {
+        ctx.fillStyle = '#111111';
+        ctx.font = '600 10px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('LIVE 3-BRAIN RACE · ALL THREE AI MODELS PLAY EVERY ROUND SIMULTANEOUSLY', bx + 14, by + 20);
+
+        const cols = [
+          { key: 'rule',   title: '1. RULE BOT',     sub: 'Fixed if/else',    col: '#e0533c' },
+          { key: 'ml',     title: '2. CLASSICAL ML', sub: 'Pattern counter',  col: '#2d62e8' },
+          { key: 'neural', title: '3. MODERN AI',    sub: '2-step neural net',col: '#16a34a' }
+        ];
+        const cw = (bw - 40) / 3;
+        const ch = bh - 44;
+
+        cols.forEach((c, idx) => {
+          const x = bx + 14 + idx * (cw + 6);
+          const y = by + 32;
+          const st = state.f2.stats[c.key];
+          const wr = state.f2.rounds ? (st.wins / state.f2.rounds) * 100 : 0;
+          const mv = state.f2.lastMoves[c.key];
+          const res = state.f2.lastOutcome[c.key];
+
+          ctx.fillStyle = '#fafafa';
+          ctx.strokeStyle = c.col;
+          ctx.lineWidth = 1.2;
+          ctx.fillRect(x, y, cw, ch);
+          ctx.strokeRect(x, y, cw, ch);
+
+          ctx.fillStyle = c.col;
+          ctx.font = '600 10.5px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(c.title, x + 10, y + 18);
+          ctx.fillStyle = '#71717a';
+          ctx.font = '9.5px "IBM Plex Mono", monospace';
+          ctx.fillText(c.sub, x + 10, y + 32);
+
+          // Big win rate %
+          ctx.fillStyle = '#111111';
+          ctx.font = '600 22px "IBM Plex Mono", monospace';
+          ctx.fillText(wr.toFixed(0) + '%', x + 10, y + 66);
+          ctx.fillStyle = '#71717a';
+          ctx.font = '9.5px "IBM Plex Mono", monospace';
+          ctx.fillText(`wins: ${st.wins} / ${state.f2.rounds}`, x + 10, y + 84);
+
+          // Progress bar
+          ctx.fillStyle = '#e4e4e7';
+          ctx.fillRect(x + 10, y + 94, cw - 20, 7);
+          ctx.fillStyle = c.col;
+          ctx.fillRect(x + 10, y + 94, ((cw - 20) * wr) / 100, 7);
+
+          // Last move played
+          ctx.fillStyle = '#3f3f46';
+          ctx.font = '10px "IBM Plex Mono", monospace';
+          ctx.fillText(`played: ${mv !== null ? MOVES[mv] : '—'}`, x + 10, y + ch - 26);
+          ctx.fillStyle = res === 'ai' ? '#16a34a' : res === 'student' ? '#e0533c' : '#71717a';
+          ctx.font = '600 10px "IBM Plex Mono", monospace';
+          ctx.fillText(res === 'ai' ? '● AI WON ROUND' : res === 'student' ? '○ STUDENT WON' : res === 'tie' ? '◐ TIE' : 'READY', x + 10, y + ch - 11);
+
+          state.hitRegions.push({
+            id: 'f2-cmp-' + c.key,
+            cursor: 'pointer',
+            test: (mx, my) => mx >= x && mx <= x + cw && my >= y && my <= y + ch,
+            onClick: () => {
+              state.f2.brain = c.key;
+              state.f2.compareAll = false;
+              updateCodeDrawer();
+              renderControls();
+            },
+            info: {
+              tag: 'CLICK TO ZOOM INSIDE',
+              name: `${c.title} (${wr.toFixed(1)}% Win Rate)`,
+              desc: `Won ${st.wins} out of ${state.f2.rounds} rounds. Click this card to open its full internal brain view!`,
+              mem: `score['${c.key}'] = { wins: ${st.wins}, losses: ${st.losses}, ties: ${st.ties} }`,
+              color: c.col
+            }
+          });
+        });
+      }
+
+      /* -------------------- RENDER FIG. 03: PIXEL VISION (3D NEURAL NET) -------------------- */
+      function project3D(x, y, z, originX, originY, scale) {
+        const cy = Math.cos(state.f3.yaw), sy = Math.sin(state.f3.yaw);
+        const cp = Math.cos(state.f3.pitch), sp = Math.sin(state.f3.pitch);
+        // Rotate Y then X
+        const x1 = x * cy - z * sy;
+        const z1 = x * sy + z * cy;
+        const y2 = y * cp - z1 * sp;
+        const z2 = y * sp + z1 * cp;
+        const persp = 5.4 / (5.4 + z2 * 0.45);
+        return {
+          x: originX + x1 * scale * persp,
+          y: originY + y2 * scale * persp,
+          z: z2,
+          s: persp
+        };
+      }
+
+      function drawFig3() {
+        const b = getStageBounds();
+        const gridSide = Math.min(188, b.w * 0.30, b.h * 0.56);
+        const cell = gridSide / 5;
+        const gx = b.x + 14;
+        const gy = b.y + (b.h - gridSide) * 0.5 - 12;
+
+        // 1. LEFT: INTERACTIVE 5x5 PIXEL GRID
+        ctx.fillStyle = '#71717a';
+        ctx.font = '600 10px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('5×5 PIXEL INPUT (CLICK TO DRAW)', gx, gy - 12);
+
+        for (let r = 0; r < 5; r++) {
+          for (let c = 0; c < 5; c++) {
+            const idx = r * 5 + c;
+            const val = state.f3.displayGrid[idx];
+            const baseVal = state.f3.baseGrid[idx];
+            const isFlippedNoise = val !== baseVal;
+            const x = gx + c * cell;
+            const y = gy + r * cell;
+
+            ctx.fillStyle = val ? (isFlippedNoise ? '#e0533c' : '#18181b') : (isFlippedNoise ? '#fee2e2' : '#fafafa');
+            ctx.strokeStyle = isFlippedNoise ? '#e0533c' : '#d4d4d8';
+            ctx.lineWidth = isFlippedNoise ? 1.5 : 1;
+            ctx.fillRect(x, y, cell, cell);
+            ctx.strokeRect(x, y, cell, cell);
+
+            if (state.f3.xray) {
+              ctx.fillStyle = val ? '#ffffff' : '#a1a1aa';
+              ctx.font = '600 11px "IBM Plex Mono", monospace';
+              ctx.textAlign = 'center';
+              ctx.fillText(String(val), x + cell / 2, y + cell / 2 + 4);
+            }
+
+            state.hitRegions.unshift({
+              id: 'f3-px-' + idx,
+              cursor: 'pointer',
+              isPixelCell: true,
+              pixelIndex: idx,
+              test: (mx, my) => mx >= x && mx <= x + cell && my >= y && my <= y + cell,
+              onClick: () => {
+                state.f3.baseGrid[idx] = state.f3.baseGrid[idx] ? 0 : 1;
+                evaluateFig3();
+              },
+              info: {
+                tag: isFlippedNoise ? 'NOISY PIXEL!' : 'INPUT PIXEL',
+                name: `Pixel [${r + 1}, ${c + 1}] = ${val}`,
+                desc: val
+                  ? 'This square is LIT (1), so it sends an electric signal into all 6 hidden detector neurons on the right!'
+                  : 'This square is OFF (0), so it sends zero signal to the neural network.',
+                mem: `grid[${r}][${c}] = ${val}  # computer only sees 0 or 1`,
+                color: val ? '#111111' : '#71717a'
+              }
+            });
+          }
+        }
+
+        // Fixed Rule vs Modern AI Robustness Badge right below the 5x5 grid!
+        const badgeY = gy + gridSide + 16;
+        ctx.fillStyle = state.f3.exactRuleMatch ? '#f0fdf4' : '#fff5f3';
+        ctx.strokeStyle = state.f3.exactRuleMatch ? '#16a34a' : '#e0533c';
+        ctx.lineWidth = 1;
+        ctx.fillRect(gx, badgeY, gridSide, 36);
+        ctx.strokeRect(gx, badgeY, gridSide, 36);
+        ctx.fillStyle = state.f3.exactRuleMatch ? '#16a34a' : '#e0533c';
+        ctx.font = '600 9.5px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(state.f3.exactRuleMatch ? 'FIXED RULE: EXACT MATCH' : 'FIXED RULE: CRASHED!', gx + 8, badgeY + 14);
+        ctx.fillStyle = '#3f3f46';
+        ctx.font = '9.5px "IBM Plex Mono", monospace';
+        const topConf = Math.round(Math.max(...state.f3.outProbs) * 100);
+        ctx.fillText(`MODERN AI: "${state.f3.predLabel}" (${topConf}%)`, gx + 8, badgeY + 28);
+
+        // 2. CENTER/RIGHT: 3D-PROJECTED NEURAL NETWORK
+        const netCenterX = gx + gridSide + (b.x + b.w - (gx + gridSide)) * 0.50;
+        const netCenterY = b.y + b.h * 0.50 - 6;
+        const scale = Math.min(b.w * 0.145, b.h * 0.25, 92);
+
+        // Compute 3D projected positions for Input (5x5), Hidden (6), Output (3)
+        const pInputs = [];
+        for (let r = 0; r < 5; r++) {
+          for (let c = 0; c < 5; c++) {
+            const idx = r * 5 + c;
+            const px3 = -2.2;
+            const py3 = (r - 2) * 0.42;
+            const pz3 = (c - 2) * 0.42;
+            pInputs.push({ ...project3D(px3, py3, pz3, netCenterX, netCenterY, scale), val: state.f3.displayGrid[idx], idx });
+          }
+        }
+
+        const pHidden = F3_DETECTORS.map((det, h) => {
+          const py3 = (h - 2.5) * 0.56;
+          const pz3 = Math.sin(h * 1.1) * 0.28;
+          return { ...project3D(0.05, py3, pz3, netCenterX, netCenterY, scale), act: state.f3.hiddenActs[h], det, h };
+        });
+
+        const pOutputs = F3_OUT_LABELS.map((lbl, o) => {
+          const py3 = (o - 1) * 0.92;
+          return { ...project3D(2.05, py3, 0, netCenterX, netCenterY, scale), prob: state.f3.outProbs[o], lbl, o };
+        });
+
+        // Subtle 3D layer labels
+        const l1 = project3D(-2.2, -1.55, 0, netCenterX, netCenterY, scale);
+        const l2 = project3D(0.05, -1.95, 0, netCenterX, netCenterY, scale);
+        const l3 = project3D(2.05, -1.55, 0, netCenterX, netCenterY, scale);
+        ctx.fillStyle = '#a1a1aa';
+        ctx.font = '9.5px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('INPUT LAYER (25)', l1.x, l1.y);
+        ctx.fillText('HIDDEN DETECTORS (6)', l2.x, l2.y);
+        ctx.fillText('PREDICTION (3)', l3.x, l3.y);
+
+        // Draw Wires: Lit Pixels -> Hidden Neurons (only draw meaningful weights to keep ultra-clean!)
+        const pulseT = (state.time * 0.95) % 1;
+        for (let i = 0; i < 25; i++) {
+          const pin = pInputs[i];
+          if (!pin.val && !state.f3.xray) continue;
+          for (let h = 0; h < 6; h++) {
+            const w = F3_DETECTORS[h].mask[i];
+            if (Math.abs(w) < 0.42) continue;
+            const ph = pHidden[h];
+            const isPos = w >= 0;
+            const alpha = pin.val ? (0.24 + Math.abs(w) * 0.55) : 0.05;
+            ctx.strokeStyle = isPos ? `rgba(224, 83, 60, ${alpha})` : `rgba(45, 98, 232, ${alpha})`;
+            ctx.lineWidth = pin.val ? (0.8 + Math.abs(w) * 1.6) : 0.6;
+            ctx.beginPath();
+            ctx.moveTo(pin.x, pin.y);
+            ctx.lineTo(ph.x, ph.y);
+            ctx.stroke();
+
+            // Traveling signal bead when power is ON
+            if (state.f3.powerOn && pin.val && Math.abs(w) > 0.65) {
+              const t = (pulseT + (i * 0.07 + h * 0.13)) % 1;
+              const bx = pin.x + (ph.x - pin.x) * t;
+              const by = pin.y + (ph.y - pin.y) * t;
+              ctx.fillStyle = isPos ? '#e0533c' : '#2d62e8';
+              ctx.beginPath(); ctx.arc(bx, by, 2.5, 0, Math.PI * 2); ctx.fill();
+            }
+          }
+        }
+
+        // Draw Wires: Hidden Neurons -> Output Nodes (all clickable!)
+        for (let h = 0; h < 6; h++) {
+          for (let o = 0; o < 3; o++) {
+            const w = F3_OUT_W[o][h];
+            const ph = pHidden[h];
+            const po = pOutputs[o];
+            const isPos = w >= 0;
+            const strength = Math.min(1, Math.abs(w) / 3.0);
+            const alpha = 0.14 + ph.act * strength * 0.78;
+            ctx.strokeStyle = isPos ? `rgba(224, 83, 60, ${alpha})` : `rgba(45, 98, 232, ${alpha})`;
+            ctx.lineWidth = 0.8 + strength * (1.2 + ph.act * 2.2);
+            ctx.beginPath();
+            ctx.moveTo(ph.x, ph.y);
+            ctx.lineTo(po.x, po.y);
+            ctx.stroke();
+
+            if (state.f3.powerOn && ph.act > 0.35 && isPos) {
+              const t = (pulseT + h * 0.17 + o * 0.25) % 1;
+              const bx = ph.x + (po.x - ph.x) * t;
+              const by = ph.y + (po.y - ph.y) * t;
+              ctx.fillStyle = '#e0533c';
+              ctx.beginPath(); ctx.arc(bx, by, 3.2, 0, Math.PI * 2); ctx.fill();
+            }
+
+            // Show raw weight numbers on x-ray
+            const wx = ph.x + (po.x - ph.x) * 0.48;
+            const wy = ph.y + (po.y - ph.y) * 0.48;
+            if (state.f3.xray && Math.abs(w) >= 1.5) {
+              ctx.fillStyle = isPos ? '#e0533c' : '#2d62e8';
+              ctx.font = '9px "IBM Plex Mono", monospace';
+              ctx.textAlign = 'center';
+              ctx.fillText((w > 0 ? '+' : '') + w.toFixed(1), wx, wy - 2);
+            }
+
+            state.hitRegions.push({
+              id: `f3-wire-${h}-${o}`,
+              cursor: 'pointer',
+              test: (mx, my) => Math.hypot(mx - wx, my - wy) < 9,
+              info: {
+                tag: 'SYNAPTIC WEIGHT',
+                name: `Weight = ${w >= 0 ? '+' : ''}${w.toFixed(2)} (${F3_DETECTORS[h].short} → "${F3_OUT_LABELS[o]}")`,
+                desc: w >= 0
+                  ? `A positive RED wire! When "${F3_DETECTORS[h].name}" lights up, this wire strongly votes YES for the shape "${F3_OUT_LABELS[o]}".`
+                  : `A negative BLUE wire! When "${F3_DETECTORS[h].name}" lights up, it votes NO against "${F3_OUT_LABELS[o]}".`,
+                mem: `weight[${F3_DETECTORS[h].short} → ${F3_OUT_LABELS[o]}] = ${w.toFixed(2)}`,
+                color: isPos ? '#e0533c' : '#2d62e8'
+              }
+            });
+          }
+        }
+
+        // Draw 3D Input Pixel Nodes
+        pInputs.forEach((p) => {
+          ctx.fillStyle = p.val ? '#18181b' : '#ffffff';
+          ctx.strokeStyle = p.val ? '#18181b' : '#cbd5e1';
+          ctx.lineWidth = 1.1;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 4.2 * p.s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        });
+
+        // Draw Hidden Detector Neurons
+        pHidden.forEach((ph) => {
+          const r = 12 * ph.s;
+          ctx.fillStyle = `rgba(224, 83, 60, ${0.08 + ph.act * 0.85})`;
+          ctx.strokeStyle = ph.act > 0.5 ? '#e0533c' : '#71717a';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.arc(ph.x, ph.y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = ph.act > 0.55 ? '#ffffff' : '#3f3f46';
+          ctx.font = '600 8.5px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(ph.act.toFixed(1), ph.x, ph.y + 3);
+
+          ctx.fillStyle = '#52525b';
+          ctx.font = '9px "IBM Plex Mono", monospace';
+          ctx.fillText(ph.det.short, ph.x, ph.y - r - 4);
+
+          state.hitRegions.unshift({
+            id: 'f3-hid-' + ph.h,
+            cursor: 'pointer',
+            test: (mx, my) => Math.hypot(mx - ph.x, my - ph.y) < r + 5,
+            info: {
+              tag: 'HIDDEN NEURON',
+              name: `${ph.det.name} (score: ${Math.round(ph.act * 100)}%)`,
+              desc: ph.det.desc,
+              mem: `neuron_${ph.h + 1} = sigmoid(sum(pixels * weights)) = ${ph.act.toFixed(2)}`,
+              color: '#e0533c'
+            }
+          });
+        });
+
+        // Draw Output Prediction Nodes + Horizontal Confidence Bars
+        pOutputs.forEach((po) => {
+          const isWinner = po.lbl === state.f3.predLabel;
+          const r = 15 * po.s;
+          ctx.fillStyle = isWinner ? '#e0533c' : '#ffffff';
+          ctx.strokeStyle = isWinner ? '#e0533c' : '#a1a1aa';
+          ctx.lineWidth = isWinner ? 2 : 1.4;
+          ctx.beginPath(); ctx.arc(po.x, po.y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = isWinner ? '#ffffff' : '#111111';
+          ctx.font = '600 13px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(po.lbl, po.x, po.y + 4.5);
+
+          // Confidence bar to the right
+          const barX = po.x + r + 10;
+          const barW = 54;
+          ctx.fillStyle = '#f4f4f5';
+          ctx.fillRect(barX, po.y - 5, barW, 10);
+          ctx.fillStyle = isWinner ? '#e0533c' : '#2d62e8';
+          ctx.fillRect(barX, po.y - 5, po.prob * barW, 10);
+
+          ctx.fillStyle = isWinner ? '#e0533c' : '#71717a';
+          ctx.font = '600 10px "IBM Plex Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(Math.round(po.prob * 100) + '%', barX + barW + 6, po.y + 3.5);
+
+          state.hitRegions.unshift({
+            id: 'f3-out-' + po.o,
+            cursor: 'pointer',
+            test: (mx, my) => (Math.hypot(mx - po.x, my - po.y) < r + 6) || (mx >= barX && mx <= barX + barW + 30 && Math.abs(my - po.y) < 12),
+            info: {
+              tag: isWinner ? 'WINNING PREDICTION' : 'OUTPUT NODE',
+              name: `Output "${po.lbl}" — ${Math.round(po.prob * 100)}% Confidence`,
+              desc: `Adds up all 6 red/blue votes from the hidden pattern detectors. Modern AI never guesses 100% blindly — it outputs probabilities!`,
+              mem: `confidence['${po.lbl}'] = ${po.prob.toFixed(3)}`,
+              color: isWinner ? '#e0533c' : '#2d62e8'
+            }
+          });
+        });
+      }
+
+      /* -------------------- RENDER TOP-RIGHT TELEMETRY & MINI-GRAPH -------------------- */
+      function drawTelemetry() {
+        const titleEl = document.getElementById('tel-title');
+        const readoutEl = document.getElementById('tel-readout');
+        const rowsEl = document.getElementById('tel-rows');
+        const gw = telCanvas.parentElement.clientWidth;
+        const gh = telCanvas.parentElement.clientHeight;
+
+        tctx.clearRect(0, 0, gw, gh);
+        // Subtle horizontal mid-line
+        tctx.strokeStyle = '#f0f0f3';
+        tctx.lineWidth = 1;
+        tctx.beginPath(); tctx.moveTo(0, gh * 0.5); tctx.lineTo(gw, gh * 0.5); tctx.stroke();
+
+        const plotSeries = (arr, color, maxVal = 1.0, dashed = false) => {
+          if (arr.length < 2) return;
+          tctx.save();
+          tctx.strokeStyle = color;
+          tctx.lineWidth = 1.5;
+          if (dashed) tctx.setLineDash([4, 3]);
+          tctx.beginPath();
+          for (let i = 0; i < arr.length; i++) {
+            const x = (i / Math.max(1, arr.length - 1)) * (gw - 8) + 4;
+            const y = gh - 7 - Math.max(0, Math.min(1, arr[i] / maxVal)) * (gh - 14);
+            if (i === 0) tctx.moveTo(x, y); else tctx.lineTo(x, y);
+          }
+          tctx.stroke();
+          tctx.restore();
+        };
+
+        if (state.fig === 1) {
+          const ev = evaluateFig1();
+          const isRules = state.f1.mode === 'rules';
+          const acc = isRules ? ev.ruleAcc : ev.mlAcc;
+          const mistakes = isRules ? ev.ruleMistakes : ev.mlMistakes;
+
+          titleEl.textContent = 'PREDICTION ACCURACY';
+          readoutEl.textContent = (acc * 100).toFixed(1) + '%';
+          readoutEl.style.color = mistakes > 0 ? '#e0533c' : '#111111';
+
+          // Plot loss (red) & accuracy (blue)
+          plotSeries(state.f1.lossHistory, '#e0533c', 1.2, false);
+          plotSeries(state.f1.accHistory, '#2d62e8', 1.0, false);
+
+          rowsEl.innerHTML = `
+            <div class="tel-row"><span class="k">examples</span><span class="v">${ev.total} fruits</span></div>
+            <div class="tel-row"><span class="k">mistakes</span><span class="v" style="color:${mistakes > 0 ? 'var(--red)' : 'var(--green)'}">${mistakes} wrong</span></div>
+            <div class="tel-row"><span class="k">brain type</span><span class="v">${isRules ? 'fixed rules' : 'classical ml'}</span></div>
+            <div class="tel-row"><span class="k">ml vs rule</span><span class="v">${Math.round(ev.mlAcc * 100)}% vs ${Math.round(ev.ruleAcc * 100)}%</span></div>
+          `;
+
+        } else if (state.fig === 2) {
+          const bKey = state.f2.brain;
+          const st = state.f2.stats[bKey];
+          const wr = state.f2.rounds ? (st.wins / state.f2.rounds) * 100 : 0;
+
+          titleEl.textContent = state.f2.compareAll ? '3-BRAIN WIN RATE' : 'AI WIN RATE';
+          readoutEl.textContent = state.f2.rounds ? `${wr.toFixed(1)}%` : '0.0%';
+          readoutEl.style.color = '#111111';
+
+          // Plot win-rate curves: Red = Rule, Blue = Classical ML, Emerald = Modern AI
+          plotSeries(state.f2.stats.rule.hist, '#e0533c', 1.0);
+          plotSeries(state.f2.stats.ml.hist, '#2d62e8', 1.0);
+          plotSeries(state.f2.stats.neural.hist, '#16a34a', 1.0);
+
+          const c = state.f2.mlCounts;
+          const topNN = Math.max(...state.f2.nn.lastOut);
+          const predMoveIdx = state.f2.nn.lastOut.indexOf(topNN);
+
+          rowsEl.innerHTML = `
+            <div class="tel-row"><span class="k">rounds</span><span class="v">${state.f2.rounds} played</span></div>
+            <div class="tel-row"><span class="k">rule / ml / ai</span><span class="v">${state.f2.stats.rule.wins} / ${state.f2.stats.ml.wins} / ${state.f2.stats.neural.wins} W</span></div>
+            <div class="tel-row"><span class="k">next guess</span><span class="v" style="color:var(--red)">${MOVES[predMoveIdx]} (${Math.round(topNN * 100)}%)</span></div>
+            <div class="tel-row"><span class="k">dict memory</span><span class="v">{R:${c[0]}, P:${c[1]}, S:${c[2]}}</span></div>
+          `;
+
+        } else {
+          const conf = Math.max(...state.f3.outProbs);
+          titleEl.textContent = 'CONFIDENCE SCORE';
+          readoutEl.textContent = `${state.f3.predLabel} · ${(conf * 100).toFixed(1)}%`;
+          readoutEl.style.color = '#111111';
+
+          plotSeries(state.f3.ruleHistory, '#2d62e8', 1.0, true);
+          plotSeries(state.f3.confHistory, '#e0533c', 1.0, false);
+
+          const litCount = state.f3.displayGrid.reduce((a, b) => a + b, 0);
+          rowsEl.innerHTML = `
+            <div class="tel-row"><span class="k">lit pixels</span><span class="v">${litCount} / 25 ON</span></div>
+            <div class="tel-row"><span class="k">noise level</span><span class="v">${Math.round(state.f3.noise * 7)} flipped</span></div>
+            <div class="tel-row"><span class="k">fixed rule</span><span class="v" style="color:${state.f3.exactRuleMatch ? 'var(--green)' : 'var(--red)'}">${state.f3.exactRuleMatch ? 'EXACT MATCH' : 'FAILED!'}</span></div>
+            <div class="tel-row"><span class="k">network</span><span class="v">25 → 6 → 3</span></div>
+          `;
+        }
+      }
+
+      /* =========================================================================
+         9. UI RENDERING (Editorial Column + Bottom Controls per Figure)
+         ========================================================================= */
+      function renderEditorial() {
+        const d = FIGURES[state.fig];
+        document.getElementById('nav-fig-tag').textContent = d.tag;
+        document.getElementById('nav-fig-title').textContent = d.navTitle;
+        document.getElementById('nav-formula').textContent = d.formula;
+        document.getElementById('ed-crumb').textContent = d.crumb;
+        document.getElementById('ed-h1').textContent = d.h1;
+        document.getElementById('ed-h2').textContent = d.h2;
+        document.getElementById('ed-intro').textContent = d.intro;
+        document.getElementById('hint-line-1').textContent = d.hint1;
+
+        document.getElementById('ed-notes').innerHTML = d.notes.map(([k, v]) => `
+          <div class="notes-k">${k}</div>
+          <div class="notes-v">${v}</div>
+        `).join('');
+
+        document.querySelectorAll('.nav-tab').forEach((btn) => {
+          btn.classList.toggle('active', parseInt(btn.dataset.fig, 10) === state.fig);
+        });
+
+        document.getElementById('rps-action-bar').classList.toggle('visible', state.fig === 2);
+        updateCodeDrawer();
+      }
+
+      function makeBtn(label, cls, onClick) {
+        const b = document.createElement('button');
+        b.className = 'sci-btn ' + (cls || '');
+        b.textContent = label;
+        b.onclick = onClick;
+        return b;
+      }
+
+      function makeSlider(label, min, max, step, val, formatFn, onChange) {
+        const wrap = document.createElement('label');
+        wrap.className = 'slider-wrap';
+        wrap.innerHTML = `<span>${label}</span><input type="range" class="sci-range" min="${min}" max="${max}" step="${step}" value="${val}" /><span class="slider-val">${formatFn(val)}</span>`;
+        const inp = wrap.querySelector('input');
+        const valEl = wrap.querySelector('.slider-val');
+        inp.oninput = (e) => {
+          const v = parseFloat(e.target.value);
+          valEl.textContent = formatFn(v);
+          onChange(v);
+        };
+        return wrap;
+      }
+
+      function renderControls() {
+        const leg = document.getElementById('legend-bar');
+        const row = document.getElementById('controls-row');
+        row.innerHTML = '';
+
+        if (state.fig === 1) {
+          leg.innerHTML = `
+            <span class="leg-item"><span class="leg-dash" style="background:var(--red)"></span>mango (label 1) / fixed rule</span>
+            <span class="leg-item">&middot;</span>
+            <span class="leg-item"><span class="leg-dash" style="background:var(--blue)"></span>nimbu (label 0) / learned ml curve</span>
+          `;
+
+          row.appendChild(makeBtn('mode: fixed rules', state.f1.mode === 'rules' ? 'active' : '', () => {
+            state.f1.mode = 'rules';
+            state.f1.training = false;
+            recordFig1History();
+            renderControls();
+          }));
+
+          row.appendChild(makeBtn('mode: classical ml', state.f1.mode === 'ml' ? 'active' : '', () => {
+            state.f1.mode = 'ml';
+            recordFig1History();
+            renderControls();
+          }));
+
+          row.appendChild(makeBtn('train / learn', state.f1.training ? 'active-blue' : '', startFig1Training));
+          row.appendChild(makeBtn('drop tricky fruit', '', dropTrickyFruit));
+
+          row.appendChild(makeBtn(
+            state.f1.addLabel === 1 ? 'add: mango ●' : 'add: nimbu ■',
+            state.f1.addLabel === 1 ? 'active' : 'active-blue',
+            () => {
+              state.f1.addLabel = state.f1.addLabel === 1 ? 0 : 1;
+              renderControls();
+            }
+          ));
+
+          row.appendChild(makeBtn(
+            state.f1.xray ? 'x-ray: numbers ON' : 'x-ray: computer view',
+            state.f1.xray ? 'active-blue' : '',
+            () => {
+              state.f1.xray = !state.f1.xray;
+              renderControls();
+            }
+          ));
+
+          row.appendChild(makeBtn('reset', '', () => {
+            resetFig1();
+            renderControls();
+          }));
+
+          if (state.f1.mode === 'rules') {
+            const sep = document.createElement('div');
+            sep.className = 'v-sep';
+            row.appendChild(sep);
+            row.appendChild(makeSlider('rule: min size', 3, 10, 0.2, state.f1.minSize, v => v.toFixed(1), (v) => {
+              state.f1.minSize = v;
+              recordFig1History();
+            }));
+            row.appendChild(makeSlider('rule: min sweet', 2, 9, 0.2, state.f1.minSweet, v => v.toFixed(1), (v) => {
+              state.f1.minSweet = v;
+              recordFig1History();
+            }));
+          }
+
+        } else if (state.fig === 2) {
+          leg.innerHTML = `
+            <span class="leg-item"><span class="leg-dash" style="background:var(--red)"></span>rule bot / positive weight</span>
+            <span class="leg-item">&middot;</span>
+            <span class="leg-item"><span class="leg-dash" style="background:var(--blue)"></span>classical ml / negative weight</span>
+            <span class="leg-item">&middot;</span>
+            <span class="leg-item"><span class="leg-dash" style="background:var(--green)"></span>modern neural ai</span>
+          `;
+
+          row.appendChild(makeBtn('rule bot', (!state.f2.compareAll && state.f2.brain === 'rule') ? 'active' : '', () => {
+            state.f2.brain = 'rule';
+            state.f2.compareAll = false;
+            updateCodeDrawer();
+            renderControls();
+          }));
+
+          row.appendChild(makeBtn('classical ml', (!state.f2.compareAll && state.f2.brain === 'ml') ? 'active' : '', () => {
+            state.f2.brain = 'ml';
+            state.f2.compareAll = false;
+            updateCodeDrawer();
+            renderControls();
+          }));
+
+          row.appendChild(makeBtn('modern neural ai', (!state.f2.compareAll && state.f2.brain === 'neural') ? 'active' : '', () => {
+            state.f2.brain = 'neural';
+            state.f2.compareAll = false;
+            updateCodeDrawer();
+            renderControls();
+          }));
+
+          row.appendChild(makeBtn('compare all 3', state.f2.compareAll ? 'active-green' : '', () => {
+            state.f2.compareAll = !state.f2.compareAll;
+            renderControls();
+          }));
+
+          if (!state.f2.compareAll && state.f2.brain === 'rule') {
+            row.appendChild(makeBtn(
+              state.f2.ruleVariant === 'beatLast' ? 'rule: beat last' : 'rule: always rock',
+              'active-blue',
+              () => {
+                state.f2.ruleVariant = state.f2.ruleVariant === 'beatLast' ? 'alwaysRock' : 'beatLast';
+                renderControls();
+              }
+            ));
+          }
+
+          const sep = document.createElement('div');
+          sep.className = 'v-sep';
+          row.appendChild(sep);
+
+          row.appendChild(makeBtn(
+            state.f2.simRunning ? 'sim: running...' : 'sim: habit player (20x)',
+            state.f2.simRunning ? 'active-blue' : '',
+            () => {
+              state.f2.simRunning = true;
+              state.f2.simRemaining = 20;
+              state.f2.simTimer = 0;
+              inspectPart({
+                tag: 'AUTO-PLAY DEMO',
+                name: 'Simulating a Predictable Student (R → R → P)',
+                desc: 'This student repeats a sneaky 3-move habit: Rock, Rock, Paper! Watch the top-right graph — Modern Neural AI sees 2 steps back and crushes this habit!',
+                mem: 'pattern = [Rock, Rock, Paper, Rock, Rock, Paper, ...]',
+                color: '#16a34a'
+              });
+              renderControls();
+            }
+          ));
+
+          row.appendChild(makeBtn(
+            state.f2.codeOpen ? 'hide python code' : 'show python code',
+            state.f2.codeOpen ? 'active' : '',
+            () => {
+              state.f2.codeOpen = !state.f2.codeOpen;
+              updateCodeDrawer();
+              renderControls();
+            }
+          ));
+
+          row.appendChild(makeBtn('reset match', '', () => {
+            resetFig2();
+            renderControls();
+          }));
+
+        } else {
+          leg.innerHTML = `
+            <span class="leg-item"><span class="leg-dash" style="background:var(--red)"></span>positive weight (+ vote YES) / AI confidence</span>
+            <span class="leg-item">&middot;</span>
+            <span class="leg-item"><span class="leg-dash" style="background:var(--blue)"></span>negative weight (− vote NO) / fixed rule</span>
+          `;
+
+          row.appendChild(makeBtn('draw: X', '', () => { applyFig3Preset('X'); }));
+          row.appendChild(makeBtn('draw: O', '', () => { applyFig3Preset('O'); }));
+          row.appendChild(makeBtn('draw: +', '', () => { applyFig3Preset('+'); }));
+          row.appendChild(makeBtn('clear grid', '', () => { applyFig3Preset('clear'); }));
+
+          const sep = document.createElement('div');
+          sep.className = 'v-sep';
+          row.appendChild(sep);
+
+          row.appendChild(makeBtn(
+            state.f3.xray ? 'x-ray: 0s & 1s ON' : 'x-ray: 0s & 1s',
+            state.f3.xray ? 'active-blue' : '',
+            () => {
+              state.f3.xray = !state.f3.xray;
+              renderControls();
+            }
+          ));
+
+          row.appendChild(makeBtn(
+            state.f3.powerOn ? 'power: on' : 'power: off',
+            state.f3.powerOn ? 'active' : '',
+            () => {
+              state.f3.powerOn = !state.f3.powerOn;
+              renderControls();
+            }
+          ));
+
+          row.appendChild(makeSlider('noise / messiness', 0, 1, 0.14, state.f3.noise, v => Math.round(v * 7) + ' px', (v) => {
+            state.f3.noise = v;
+            evaluateFig3();
+            if (v > 0.1) {
+              inspectPart({
+                tag: 'NOISE STRESS TEST',
+                name: `Added ${Math.round(v * 7)} Messy Flipped Pixels!`,
+                desc: 'Notice the box below the grid: a Fixed Rule exact-match crashes immediately, while Modern AI still reads your messy shape by adding up all the clues!',
+                mem: `exact_rule_match = ${state.f3.exactRuleMatch} | neural_ai = "${state.f3.predLabel}"`,
+                color: '#e0533c'
+              });
+            }
+          }));
+        }
+      }
+
+      /* =========================================================================
+         10. NAVIGATION, KEYBOARD SHORTCUTS & POINTER INTERACTIONS
+         ========================================================================= */
+      function switchFigure(num) {
+        if (num < 1) num = 3;
+        if (num > 3) num = 1;
+        state.fig = num;
+        state.hoverRegion = null;
+        renderEditorial();
+        renderControls();
+        resetInspectorForFigure(num);
+      }
+
+      document.querySelectorAll('.nav-tab').forEach((btn) => {
+        btn.onclick = () => switchFigure(parseInt(btn.dataset.fig, 10));
+      });
+      document.getElementById('btn-prev-fig').onclick = () => switchFigure(state.fig - 1);
+      document.getElementById('btn-next-fig').onclick = () => switchFigure(state.fig + 1);
+      document.getElementById('btn-close-code').onclick = () => {
+        state.f2.codeOpen = false;
+        updateCodeDrawer();
+        renderControls();
+      };
+
+      document.querySelectorAll('.rps-play-btn').forEach((btn) => {
+        btn.onclick = () => playRPSRound(parseInt(btn.dataset.move, 10));
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key === 'ArrowRight') switchFigure(state.fig + 1);
+        else if (e.key === 'ArrowLeft') switchFigure(state.fig - 1);
+        else if (e.key === '/') { e.preventDefault(); window.location.href = '../../'; }
+        else if (state.fig === 2) {
+          const k = e.key.toLowerCase();
+          if (k === 'r') playRPSRound(0);
+          else if (k === 'p') playRPSRound(1);
+          else if (k === 's') playRPSRound(2);
+        }
+      });
+
+      function findHitRegion(mx, my) {
+        for (let i = 0; i < state.hitRegions.length; i++) {
+          if (state.hitRegions[i].test(mx, my)) return state.hitRegions[i];
+        }
+        return null;
+      }
+
+      mainCanvas.addEventListener('pointerdown', (e) => {
+        const rect = mainCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const hit = findHitRegion(mx, my);
+
+        if (state.fig === 3 && (!hit || !hit.isPixelCell)) {
+          state.f3.dragging = true;
+          state.f3.dragLast = { x: e.clientX, y: e.clientY };
+          state.f3.dragMoved = 0;
+          mainCanvas.className = 'grabbing';
+          mainCanvas.setPointerCapture(e.pointerId);
+          return;
+        }
+
+        if (state.fig === 3 && hit && hit.isPixelCell) {
+          state.f3.painting = true;
+          const idx = hit.pixelIndex;
+          state.f3.paintValue = state.f3.baseGrid[idx] ? 0 : 1;
+          state.f3.baseGrid[idx] = state.f3.paintValue;
+          evaluateFig3();
+          if (hit.info) inspectPart(hit.info);
+          return;
+        }
+
+        if (hit) {
+          if (hit.info) inspectPart(hit.info);
+          if (typeof hit.onClick === 'function') hit.onClick(mx, my);
+        }
+      });
+
+      mainCanvas.addEventListener('pointermove', (e) => {
+        const rect = mainCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        if (state.fig === 3 && state.f3.dragging) {
+          const dx = e.clientX - state.f3.dragLast.x;
+          const dy = e.clientY - state.f3.dragLast.y;
+          state.f3.dragMoved += Math.hypot(dx, dy);
+          state.f3.dragLast = { x: e.clientX, y: e.clientY };
+          state.f3.targetYaw = Math.max(-0.95, Math.min(0.85, state.f3.targetYaw + dx * 0.007));
+          state.f3.targetPitch = Math.max(-0.65, Math.min(0.65, state.f3.targetPitch + dy * 0.007));
+          return;
+        }
+
+        if (state.fig === 3 && state.f3.painting) {
+          const hit = findHitRegion(mx, my);
+          if (hit && hit.isPixelCell) {
+            state.f3.baseGrid[hit.pixelIndex] = state.f3.paintValue;
+            evaluateFig3();
+          }
+          return;
+        }
+
+        const hit = findHitRegion(mx, my);
+        state.hoverRegion = hit;
+        if (hit && hit.cursor) {
+          mainCanvas.className = hit.cursor === 'crosshair' ? 'crosshair' : 'clickable';
+        } else {
+          mainCanvas.className = state.fig === 3 ? 'grab' : '';
+        }
+      });
+
+      mainCanvas.addEventListener('pointerup', (e) => {
+        const rect = mainCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        if (state.fig === 3 && state.f3.dragging) {
+          state.f3.dragging = false;
+          mainCanvas.className = 'grab';
+          try { mainCanvas.releasePointerCapture(e.pointerId); } catch (_) {}
+          // If it was a clean tap/click (not orbit drag), inspect any 3D neuron or wire!
+          if (state.f3.dragMoved < 6) {
+            const hit = findHitRegion(mx, my);
+            if (hit && hit.info) inspectPart(hit.info);
+          }
+        }
+        state.f3.painting = false;
+      });
+
+      window.addEventListener('resize', resizeCanvases);
+
+      /* =========================================================================
+         11. MAIN 60FPS ANIMATION LOOP (Started strictly on window.onload)
+         ========================================================================= */
+      function tick(ts) {
+        requestAnimationFrame(tick);
+        const dt = Math.min(0.05, (ts - state.lastTs) / 1000 || 0.016);
+        state.lastTs = ts;
+        state.time += dt;
+
+        // 1. Step Live Simulations
+        if (state.fig === 1 && state.f1.training) {
+          for (let s = 0; s < 4; s++) {
+            if (state.f1.epoch < state.f1.maxEpochs) {
+              state.f1.epoch++;
+              stepMLTrainingEpoch(s === 0);
+            } else {
+              state.f1.training = false;
+              renderControls();
+              break;
+            }
+          }
+        }
+
+        if (state.fig === 2) {
+          if (state.f2.pulseProgress < 1) {
+            state.f2.pulseProgress = Math.min(1, state.f2.pulseProgress + dt * 2.2);
+          }
+          if (state.f2.simRunning && state.f2.simRemaining > 0) {
+            state.f2.simTimer += dt;
+            if (state.f2.simTimer >= 0.14) {
+              state.f2.simTimer = 0;
+              // Realistic human habit: Rock -> Rock -> Paper (repeats!)
+              const habitSeq = [0, 0, 1];
+              const mv = habitSeq[state.f2.simStep % habitSeq.length];
+              state.f2.simStep++;
+              state.f2.simRemaining--;
+              playRPSRound(mv);
+              if (state.f2.simRemaining <= 0) {
+                state.f2.simRunning = false;
+                renderControls();
+              }
+            }
+          }
+        }
+
+        if (state.fig === 3) {
+          state.f3.yaw += (state.f3.targetYaw - state.f3.yaw) * 0.14;
+          state.f3.pitch += (state.f3.targetPitch - state.f3.pitch) * 0.14;
+          // Push smooth telemetry trace
+          if (Math.floor(state.time * 20) !== Math.floor((state.time - dt) * 20)) {
+            state.f3.confHistory.push(Math.max(...state.f3.outProbs));
+            state.f3.ruleHistory.push(state.f3.exactRuleMatch ? 1.0 : 0.05);
+            if (state.f3.confHistory.length > 80) state.f3.confHistory.shift();
+            if (state.f3.ruleHistory.length > 80) state.f3.ruleHistory.shift();
+          }
+        }
+
+        // 2. Render Main Stage & Rebuild Clickable Hit Regions
+        state.hitRegions = [];
+        drawArchitecturalBackground();
+        if (state.fig === 1) drawFig1();
+        else if (state.fig === 2) drawFig2();
+        else drawFig3();
+
+        // 3. Render Top-Right Live Telemetry Card
+        drawTelemetry();
+      }
+
+      window.onload = function () {
+        resizeCanvases();
+        resetFig1();
+        resetFig2();
+        applyFig3Preset('X');
+        switchFigure(1);
+        requestAnimationFrame(tick);
+      };
+    })();
+  </script>
+</body>
+</html>
