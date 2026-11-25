@@ -1,55 +1,31 @@
-# AGENTS.md — `my-virtual-classroom`
+# AGENTS.md — My Virtual Classroom
 
-## Project Overview
-- **Repository**: `my-virtual-classroom`
-- **Purpose**: Interactive 3D and 2D visual teaching labs for **Grades 5–9 students** (Indian Atal Tinkering Lab / ATL curriculum) across two strictly separated subjects:
-  1. **Electronics & Robotics** (`electronics`)
-  2. **Artificial Intelligence & Python** (`artificial-intelligence`)
-- **Design Identity**: Pure white, minimalist **Swiss-editorial scientific lab** aesthetic modeled on `field-studies.ai.studio`.
+## Mission
+Create complete, projector-ready, animated interactive lessons for Indian ATL students in Grades 5–9. A lesson is a guided explanation, not just a quiz, dashboard, PDF, or collection of apps. The approved benchmark is the 45-minute version of `testing/artificial-intelligence/what-is-ai.html` (commit `455e9c127c84085f4db2ec42e6ad9c44701c7615`). Match its teaching experience and design for every new concept, not its fruit example, subject matter, slide count or wording.
 
-## Repository & Built Website Architecture
-Keep **Electronics** and **Artificial Intelligence** strictly separated:
+## Read before making changes
+- `PEDAGOGY.md`: authoritative teaching method, scope, vocabulary, timing and student content.
+- `DESIGN.md`: authoritative visual system, layout, animation and UI.
+- `.agents/skills/create-virtual-lab/SKILL.md`: required workflow for creating, revising or expanding any lesson, lab or concept.
+- Read the current approved benchmark HTML before implementing a new lesson, and inspect an appropriate subject lab when needed. The pinned commit identifies the approved version if the current file has changed.
+- `README.md`: project overview and commands. Follow applicable nested agent instructions as well, and resolve conflicts explicitly rather than combining incompatible rules. Explicit user requirements control lesson topic, audience and duration.
 
-- **Source Folders (for organizing lab `.html` files)**:
-  - `testing/electronics/` & `published/electronics/` — Electronics lab source files (compiled cleanly into `dist/electronics/`)
-  - `testing/artificial-intelligence/` & `published/artificial-intelligence/` — AI lab source files (compiled cleanly into `dist/artificial-intelligence/`)
-- **Published Website (`dist/` — zero folder clutter shown to students)**:
-  - `index.html` → `dist/index.html` — Clean front page linking to the two separate subject pages (`/electronics/` and `/artificial-intelligence/`), with no internal folder labels or developer notices
-  - `/electronics/` (`dist/electronics/index.html`) — Dedicated Electronics-only webpage + labs (`/electronics/<slug>.html`)
-  - `/artificial-intelligence/` (`dist/artificial-intelligence/index.html`) — Dedicated Artificial Intelligence-only webpage + labs (`/artificial-intelligence/<slug>.html`)
-- `lib/catalog.mjs` — Pure discovery, metadata extraction, and HTML page renderer for the front page and the two standalone subject pages
-- `build.mjs` — Static site generator that builds `dist/`
-- `server.js` — Express static server serving `dist/` on port `3000` (`0.0.0.0`)
+## Repository boundaries
+- Two subject portals: Electronics & Robotics (`electronics`) and AI & Python (`artificial-intelligence`). Keep their source folders and published pages separate.
+- New lessons go in `testing/<subject>/<lowercase-hyphenated-slug>.html` unless publishing is explicitly requested. Existing lesson revisions keep their path and slug. The build also discovers `published/<subject>/`; published entries take precedence over duplicate testing slugs, so check for shadowing.
+- `index.html` is the front page template; `lib/catalog.mjs` discovers labs, extracts metadata and renders subject pages. `build.mjs` builds `dist/index.html`, `dist/electronics/` and `dist/artificial-intelligence/`; `server.js` serves `dist/` on port 3000.
+- Do not hand-edit generated dist, change deployment configuration, server.js or unrelated lessons without a task-specific reason and authorization. Preserve navigation and existing catalog metadata conventions.
+- A lesson is self-contained HTML/CSS/JS, with inline illustrations and system fonts, no runtime network dependency for new lessons. If a specialized 3D dependency is necessary, provide a working offline alternative or disclose the limitation. No API keys, tracking or external searches required to teach.
 
-## Lab Authoring Rules
-- Put newly generated labs inside `testing/electronics/<slug>.html` or `testing/artificial-intelligence/<slug>.html` (or `published/<subject>/<slug>.html`). `build.mjs` automatically publishes every subject lab cleanly into `/electronics/<slug>.html` or `/artificial-intelligence/<slug>.html`.
-- Use lowercase, hyphen-separated slugs (e.g., `capacitor.html`, `decision-trees.html`).
-- Keep every lab as a **self-contained single HTML file** (HTML + CSS + JS; Three.js CDN allowed for 3D electronics; Google Fonts with system fallbacks) so it works offline or on Vercel/Express with zero broken assets.
-- Do not modify `server.js` or `vercel.json` unless explicitly requested.
+## Non-negotiable lesson contract
+- Default 45 minutes including 10 minutes of notebook notes; adapt to explicit request. One coherent topic, simple words, full explanation through progressive steps, one main analogy, a meaningful experiment, misconceptions and checks.
+- Visible explanation first, example second, animated visual of the mechanism, then optional revealable reasoning. Not just questions or interactions. Every essential unfamiliar word has a clickable definition, example and suitable visual, plus a global word bank.
+- Consistent lesson shell: jump-to-slide, previous/next, step navigation, replay, word bank, fullscreen, progress and final notebook. Same design system across topics; adapt actual illustration and experiment to the subject.
+- Keep notes short and self-contained. No author/assistant references in the student interface.
+- Use accurate simulation logic and disclose simplifications; no fake readings or decorative-only controls.
 
-## Commands
-- **Build (`dist/`)**: `node build.mjs` (or `npm run build`)
-- **Serve (`http://localhost:3000`)**: `node server.js` (or `npm start`)
-- **Build & Serve**: `npm run dev`
-- **Lint / Syntax Check**: `npm run lint`
-- **Unit Tests**: `npm test` (`node --test lib/catalog.test.mjs`)
+## Verification before delivery
+For code changes run `npm run lint`, `npm test`, and `npm run build`. Verify correct source is published and subject pages link correctly. Serve with `npm start` or `npm run dev` and test the actual lesson in a browser at 1280×720, 1920×1080 and a tablet/small viewport. Use the checklist in the skill's references. Inspect screenshots, navigate every slide/step, replay, test definitions, experiments, incorrect answers and resets, keyboard and touch controls. Check zero console errors and no inaccessible or clipped content. Do not claim tests or deployment that were not performed. For docs-only changes, check all referenced paths, consistency and skill metadata; no need to pretend a build was run.
 
-## Mandatory References
-1. **Visual & UI System**: ALWAYS read `DESIGN.md` at the project root before building or editing any lab or classroom page.
-2. **Lesson Generation Workflow**: ALWAYS read and follow `.agents/skills/create-virtual-lab/SKILL.md` whenever asked to create a new Electronics component or AI/Python concept lab.
-
-## Verification Checklist
-1. Run `npm test` (`node --test lib/catalog.test.mjs`) and confirm all tests pass.
-2. Run `node build.mjs` and verify the generated pages in `dist/` (`index.html`, `electronics/index.html`, `artificial-intelligence/index.html`, and the lab files).
-3. Verify on `http://localhost:3000` that there are zero console errors, zero overlapping UI panels, and working navigation across `/`, `/electronics/`, `/artificial-intelligence/`, and each lab.
-
-
-## Universal classroom lesson standard (Grades 5–9)
-
-- One clear learning objective per lesson. Start with a familiar question, then show a visual, let students predict, interact, reveal the answer and explain why.
-- Default to a 30-minute introductory lesson including 10 minutes for a one-page notebook summary. Keep visible text short, but provide complete on-demand explanations inside the page.
-- Use one coherent everyday example throughout where practical. Every new technical word must be clickable, opening a plain-language definition and a concrete example. Include numbered questions, revealable answers, meaningful animations, an experiment with feedback, and a short understanding check.
-- Introductory lessons must not require code, advanced theory, external searches or teacher-only notes. Advanced views are optional and only included when relevant to the lesson objective. Distinguish simplified teaching models from real systems.
-- Use projector-scale text (typically 20–24px body, 32–56px headings), high contrast, touch and keyboard controls, responsive layouts, reduced-motion support and self-contained illustrations. Allow controlled scrolling on small screens rather than clipping content.
-- Notebook summary: essential definitions, one example, a comparison if useful, and the key takeaway. Student-facing copy must not refer to the author or assistant.
-- Verify each interaction, vocabulary popup, reset, navigation, answer feedback and projector layout before claiming classroom readiness.
+## Reporting
+Summarize changed files, actual checks and limitations. Commit only the requested changes when repository updates are authorized. Keep the approved reference lesson unchanged unless specifically asked to revise it.
