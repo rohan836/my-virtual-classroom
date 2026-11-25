@@ -1,0 +1,4 @@
+interface:
+  display_name: "Classroom Video Explainer"
+  short_description: "Render and review animated classroom explainers with the original video-explainer pipeline."
+  default_prompt: "Use $video-explainer to create a simple, animated 60–75 second classroom explainer with captions, then render and verify it using the bundled upstream tools."

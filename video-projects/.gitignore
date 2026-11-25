@@ -1,0 +1,11 @@
+# Generated local production outputs; only commit scripts, source graphics and approved media.
+**/work/
+**/renders/
+**/hf/
+**/.hyperframes/
+**/captures/
+**/__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example

@@ -29,3 +29,6 @@ For code changes run `npm run lint`, `npm test`, and `npm run build`. Verify cor
 
 ## Reporting
 Summarize changed files, actual checks and limitations. Commit only the requested changes when repository updates are authorized. Keep the approved reference lesson unchanged unless specifically asked to revise it.
+
+## Animated film workflow (separate from classroom lessons)
+For requests to make an animated video, narrated explainer, or film-plus-lesson, read `VIDEO-EXPLAINER.md` and follow `.agents/skills/video-explainer/SKILL.md` as well as the relevant teaching rules. The original upstream video-explainer is pinned under `vendor/video-explainer/`; use its actual scripts for video rendering and QA. Preserve the 45-minute lesson default; a 60–75 second film is a separate deliverable. Use the shared classroom white style and age-appropriate narration. Do not overwrite existing lessons, install dependencies without approval, expose a local review server publicly, or put keys in the repo. Video projects live outside the website source folders; no video toolchain dependency in the static build. Verify the actual film/render and report unrun checks.

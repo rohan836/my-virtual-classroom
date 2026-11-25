@@ -31,3 +31,6 @@ Reserve about 10 minutes by default. Use roughly 80–150 words where suitable, 
 
 ## Acceptance criteria
 A learner can explain the meaning, purpose and basic working of the concept in their own words, identify an example, complete an experiment, and explain why an outcome occurs. The lesson includes enough structured explanation to support its planned duration, but no filler. Every essential technical claim is accurate and the illustration, explanation and simulation agree.
+
+## Short video companion
+A 60–75 second film is a hook or recap, not a substitute for the 45-minute interactive lesson. Use simple narration, one example carried through a continuous animated mechanism, clear captions and a closing answer. The film may omit detailed glossary and experiments only when these are available in the accompanying lesson or the user requests a standalone short film. Follow VIDEO-EXPLAINER.md for production; do not add advanced topics simply for visual effect.

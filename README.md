@@ -33,3 +33,6 @@ Agents with repository instruction and skill support can discover these files au
 - [GitHub Copilot custom instructions](https://docs.github.com/en/copilot/concepts/prompting-and-context/custom-instructions)
 - [Google DESIGN.md format](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md)
 These are documentation conventions; the classroom requirements are defined locally in the files above.
+
+## Animated video production
+The repository also includes the complete pinned [Peter Yang Video Explainer](vendor/video-explainer), with Motion, Illustrated and 3D engines, narration/captions, sound tools, HyperFrames rendering, frame-pinned review, tests and original licenses. Use the separate [video-explainer skill](.agents/skills/video-explainer/SKILL.md), [production guide](VIDEO-EXPLAINER.md), and [classroom style](video-projects/classroom-style.json) for short films or video-plus-lesson projects. This is optional local tooling; the website build and full interactive lesson workflow are unchanged.

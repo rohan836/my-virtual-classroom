@@ -91,3 +91,6 @@ The visible explanation is primary, not hidden behind a quiz. Each teaching step
 - Do not use dark mode, dense technical dashboards, mandatory charts, unrelated 3D, long text walls, decorative-only animation, or question-only pages.
 - Do not change the homepage, subject catalogs or existing lessons merely to enforce the new design without a specific request.
 - Follow the skill and PEDAGOGY.md for content and verification. The YAML tokens are a structured local design reference inspired by the DESIGN.md format; formal third-party lint validation is not assumed.
+
+## Animated film edition
+For short motion-graphics films, use VIDEO-EXPLAINER.md and the video-explainer skill. The local classroom-style.json aligns the upstream rendering theme with this white scientific design. Film composition is continuous and full-frame (one hero visual, short labels, caption-safe region), not the interactive two-panel lesson shell. Keep readable captions, meaningful scene/word-timed motion and projector-safe contrast. The full classroom page still follows the lesson shell; both formats are complementary.

@@ -23,3 +23,6 @@ Use the correct subject and slug per AGENTS.md. Include title, description and l
 
 ## 5. Test and deliver
 Apply the [quality checklist](references/quality-checklist.md) in full. Fix discovered problems. Run repository checks and browser tests for lesson changes, and distinguish passed checks from unverified ones. Deliver or update the requested HTML path, not a PDF or a separate teacher document unless requested. Report what changed and actual verification. When updating documentation only, verify links and rules instead of pretending to test a lesson.
+
+## Optional cinematic companion
+When a user asks for a narrated animated film or a video-plus-lesson edition, also follow the root VIDEO-EXPLAINER.md and sibling video-explainer/SKILL.md. Use the pinned upstream rendering toolchain for the film, and preserve this skill's full teaching, word explorer, experiment and notebook workflow for the HTML lesson. Keep existing lesson files unchanged unless replacement is explicitly requested.
