@@ -42,3 +42,14 @@ Keep **Electronics** and **Artificial Intelligence** strictly separated:
 1. Run `npm test` (`node --test lib/catalog.test.mjs`) and confirm all tests pass.
 2. Run `node build.mjs` and verify the generated pages in `dist/` (`index.html`, `electronics/index.html`, `artificial-intelligence/index.html`, and the lab files).
 3. Verify on `http://localhost:3000` that there are zero console errors, zero overlapping UI panels, and working navigation across `/`, `/electronics/`, `/artificial-intelligence/`, and each lab.
+
+
+## Universal classroom lesson standard (Grades 5–9)
+
+- One clear learning objective per lesson. Start with a familiar question, then show a visual, let students predict, interact, reveal the answer and explain why.
+- Default to a 30-minute introductory lesson including 10 minutes for a one-page notebook summary. Keep visible text short, but provide complete on-demand explanations inside the page.
+- Use one coherent everyday example throughout where practical. Every new technical word must be clickable, opening a plain-language definition and a concrete example. Include numbered questions, revealable answers, meaningful animations, an experiment with feedback, and a short understanding check.
+- Introductory lessons must not require code, advanced theory, external searches or teacher-only notes. Advanced views are optional and only included when relevant to the lesson objective. Distinguish simplified teaching models from real systems.
+- Use projector-scale text (typically 20–24px body, 32–56px headings), high contrast, touch and keyboard controls, responsive layouts, reduced-motion support and self-contained illustrations. Allow controlled scrolling on small screens rather than clipping content.
+- Notebook summary: essential definitions, one example, a comparison if useful, and the key takeaway. Student-facing copy must not refer to the author or assistant.
+- Verify each interaction, vocabulary popup, reset, navigation, answer feedback and projector layout before claiming classroom readiness.
