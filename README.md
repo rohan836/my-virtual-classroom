@@ -1,31 +1,35 @@
 # My Virtual Classroom
 
-Interactive Swiss-editorial 3D and 2D teaching labs for **Grades 5–9** (Indian Atal Tinkering Lab / ATL) students, covering **Electronics & Robotics** and **Artificial Intelligence & Python**.
+Self-contained animated visual lessons for Grades 5–9 Indian Atal Tinkering Lab (ATL) students: Electronics & Robotics and Artificial Intelligence & Python.
 
-## Agent & Design Configuration
-- **`AGENTS.md`** — Project structure, build/test commands, and mandatory workflow rules.
-- **`DESIGN.md`** — Exact Swiss-editorial scientific visual system (colors, typography, fixed-viewport lab layout, index layout, and prohibitions).
-- **`.agents/skills/create-virtual-lab/SKILL.md`** — Reusable step-by-step recipe for generating new Electronics and AI labs.
+Every new concept is a guided, projector-ready lesson with progressive explanations, illustrations, clickable vocabulary, experiments, reasoned answers and notebook notes. Default duration is 45 minutes including 10 minutes of note-taking; adapt to the requested topic and time. The approved reference is [What Is AI?](testing/artificial-intelligence/what-is-ai.html) (approved revision 455e9c127c84085f4db2ec42e6ad9c44701c7615). It is a design and teaching benchmark, not a content template to repeat verbatim.
 
-## Built Website Pages (`dist/`)
-Running `node build.mjs` compiles all labs and builds a clean, publish-ready static site with **separate web pages** for each subject:
-- `/` (`dist/index.html`) — Clean front page with dedicated Electronics and AI webpage portals
-- `/electronics/` (`dist/electronics/index.html`) — Dedicated Electronics & Robotics webpage (`/electronics/<slug>.html`)
-- `/artificial-intelligence/` (`dist/artificial-intelligence/index.html`) — Dedicated Artificial Intelligence & Python webpage (`/artificial-intelligence/<slug>.html`)
+## Documentation
+- [AGENTS.md](AGENTS.md) — repository-wide agent rules, architecture and verification.
+- [PEDAGOGY.md](PEDAGOGY.md) — teaching method, terminology, content and timing across subjects.
+- [DESIGN.md](DESIGN.md) — visual identity, interface and meaningful motion.
+- [create-virtual-lab/SKILL.md](.agents/skills/create-virtual-lab/SKILL.md) — reusable agent workflow, with [lesson blueprint](.agents/skills/create-virtual-lab/references/lesson-blueprint.md) and [quality checklist](.agents/skills/create-virtual-lab/references/quality-checklist.md).
+- [Copilot instructions](.github/copilot-instructions.md) — pointer to the same standards for supported GitHub Copilot clients.
+
+Agents with repository instruction and skill support can discover these files automatically; other agents should be explicitly told to read AGENTS.md and follow the skill. No instruction file alone guarantees that a particular agent will follow every rule.
+
+## Website architecture
+- `testing/electronics/`, `published/electronics/`: Electronics & Robotics sources.
+- `testing/artificial-intelligence/`, `published/artificial-intelligence/`: AI & Python sources.
+- `dist/`: generated website. Front page at /, subject portals at /electronics/ and /artificial-intelligence/, labs under their respective subject path. Published sources take precedence over duplicate testing slugs.
+- `lib/catalog.mjs` discovers and renders the catalog; `build.mjs` builds the site; `server.js` serves it. Do not edit generated dist manually.
 
 ## Commands
-- `npm test` — Run catalog & page-separation unit tests (`node --test lib/catalog.test.mjs`)
-- `node build.mjs` (or `npm run build`) — Build static site into `dist/`
-- `node server.js` (or `npm start`) — Serve `dist/` on port `3000`
-- `npm run dev` — Build `dist/` and start the Express server on port `3000`
+- `npm run lint`: syntax checks.
+- `npm test`: catalog and subject separation tests.
+- `npm run build` (or `node build.mjs`): build static site.
+- `npm start` (or `node server.js`): serve dist on port 3000.
+- `npm run dev`: build and serve.
 
-
-## Universal classroom lesson standard (Grades 5–9)
-
-- One clear learning objective per lesson. Start with a familiar question, then show a visual, let students predict, interact, reveal the answer and explain why.
-- Default to a 30-minute introductory lesson including 10 minutes for a one-page notebook summary. Keep visible text short, but provide complete on-demand explanations inside the page.
-- Use one coherent everyday example throughout where practical. Every new technical word must be clickable, opening a plain-language definition and a concrete example. Include numbered questions, revealable answers, meaningful animations, an experiment with feedback, and a short understanding check.
-- Introductory lessons must not require code, advanced theory, external searches or teacher-only notes. Advanced views are optional and only included when relevant to the lesson objective. Distinguish simplified teaching models from real systems.
-- Use projector-scale text (typically 20–24px body, 32–56px headings), high contrast, touch and keyboard controls, responsive layouts, reduced-motion support and self-contained illustrations. Allow controlled scrolling on small screens rather than clipping content.
-- Notebook summary: essential definitions, one example, a comparison if useful, and the key takeaway. Student-facing copy must not refer to the author or assistant.
-- Verify each interaction, vocabulary popup, reset, navigation, answer feedback and projector layout before claiming classroom readiness.
+## Standards behind the agent documentation
+- [Agent Skills specification](https://agentskills.io/specification)
+- [OpenAI AGENTS.md guidance](https://developers.openai.com/codex/guides/agents-md)
+- [OpenAI skill creation guidance](https://learn.chatgpt.com/docs/build-skills)
+- [GitHub Copilot custom instructions](https://docs.github.com/en/copilot/concepts/prompting-and-context/custom-instructions)
+- [Google DESIGN.md format](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md)
+These are documentation conventions; the classroom requirements are defined locally in the files above.
