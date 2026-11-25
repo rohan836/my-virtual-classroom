@@ -49,14 +49,14 @@ Load Google Fonts with clean offline system fallbacks so labs remain crisp in sc
 - **Technical UI, Notes, Formulas, Telemetry, Buttons & Code**:
   - `'IBM Plex Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace`.
   - Uppercase micro-headers (`PART INSPECTOR`, `CURRENT & OHM'S LAW`, `PREDICTION ACCURACY`): `9.5px–10.5px`, `letter-spacing: 0.08em`, muted ink.
-  - Editorial body & notes table: `11px–11.5px`, `line-height: 1.55–1.62`.
+  - Editorial body & notes table (compact technical labs only): `11px–11.5px`, `line-height: 1.55–1.62`.
   - Live telemetry primary numeric readout: `22px–28px`, `font-weight: 500–600`, `letter-spacing: -0.02em`.
 
 ---
 
 ## 3. Fixed Viewport Layout — Interactive Labs (`100vw × 100vh`)
 
-Interactive labs fill the exact viewport (`width: 100vw; height: 100vh; overflow: hidden;`) with **no messy page scrolling**. All panels float cleanly over the full-bleed white stage:
+Interactive labs fill the exact viewport (`width: 100vw; height: 100vh; overflow: hidden;`) with controlled content scrolling where needed to avoid clipping. All panels float cleanly over the full-bleed white stage:
 
 1. **Top Hairline Bar (`40px–44px`, `border-bottom: 1px solid #e5e5e5`)**:
    - Left cells separated by `1px solid #e5e5e5`: subject breadcrumb link (`../../` back to index), active figure badge in Signal Red (`fig. 01`), short lowercase subtitle, and key formula/rule in monospace.
@@ -102,3 +102,14 @@ Modeled directly on `field-studies.ai.studio`:
 - **NO heavy drop shadows** (only an ultra-light hairline shadow on temporary popovers/code drawers).
 - **NO rounded bubble cards**, pill badges, or cartoonish clutter.
 - **NO walls of text** — keep every note calm, museum-grade, and projector-friendly.
+
+
+## Universal classroom lesson standard (Grades 5–9)
+
+- One clear learning objective per lesson. Start with a familiar question, then show a visual, let students predict, interact, reveal the answer and explain why.
+- Default to a 30-minute introductory lesson including 10 minutes for a one-page notebook summary. Keep visible text short, but provide complete on-demand explanations inside the page.
+- Use one coherent everyday example throughout where practical. Every new technical word must be clickable, opening a plain-language definition and a concrete example. Include numbered questions, revealable answers, meaningful animations, an experiment with feedback, and a short understanding check.
+- Introductory lessons must not require code, advanced theory, external searches or teacher-only notes. Advanced views are optional and only included when relevant to the lesson objective. Distinguish simplified teaching models from real systems.
+- Use projector-scale text (typically 20–24px body, 32–56px headings), high contrast, touch and keyboard controls, responsive layouts, reduced-motion support and self-contained illustrations. Allow controlled scrolling on small screens rather than clipping content.
+- Notebook summary: essential definitions, one example, a comparison if useful, and the key takeaway. Student-facing copy must not refer to the author or assistant.
+- Verify each interaction, vocabulary popup, reset, navigation, answer feedback and projector layout before claiming classroom readiness.
