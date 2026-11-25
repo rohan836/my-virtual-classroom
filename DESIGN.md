@@ -1,115 +1,93 @@
-# DESIGN.md — Swiss-Editorial Scientific Lab Design System
-
-Every page in `my-virtual-classroom` — the front page (`index.html`), the separate subject pages (`/electronics/` and `/artificial-intelligence/`), and every interactive lab — MUST follow this exact visual language, modeled on `field-studies.ai.studio` and our reference labs (`testing/electronics/resistor.html`, `testing/electronics/transistor.html`, and `testing/artificial-intelligence/what-is-ai.html`).
-
 ---
-
-## 1. Color Palette (Tokens)
-
-```css
-:root {
-  /* Surfaces */
-  --bg: #ffffff;            /* Pure white primary canvas & page background */
-  --surface: #fafafa;       /* Subtle hairline surface for callouts, code headers, hover */
-
-  /* Typography Ink */
-  --ink: #111111;           /* Primary near-black ink */
-  --ink-soft: #333338;      /* Body copy ink */
-  --muted: #666666;         /* Secondary metadata & labels (#6e6e73 / #71717a) */
-  --faint: #999999;         /* Breadcrumbs, table keys, keyboard hints (#9a9aa0 / #a1a1aa) */
-
-  /* Hairlines & Grids */
-  --border: #e5e5e5;        /* Primary 1px structural dividers & card borders */
-  --border-strong: #d4d4d8; /* Interactive button & panel frame borders */
-  --grid: #efefef;          /* Subtle 3D floor grid & 2D architectural plot lines (#f0f0f0) */
-
-  /* Signal Accents */
-  --red: #e04836;           /* Signal Red: active buttons, primary current/output, positive weights, sliders, active fig tag */
-  --red-soft: #fff6f5;      /* Active button / published tag subtle wash */
-  --blue: #2563eb;          /* Signal Blue: secondary current, control/base signals, field lines, secondary class, negative weights */
-  --blue-soft: #f0f5ff;     /* Active secondary toggle / testing tag subtle wash */
-  --green: #16a34a;         /* Optional 3rd comparison trace only (e.g., 3-brain race / safe status) */
-  --danger: #dc2626;        /* Clean overload / error state — never neon or gamified */
-}
-```
-
+version: alpha
+name: My Virtual Classroom
+description: White Swiss-editorial scientific classroom lessons with projector-scale explanations and meaningful interactive motion.
+colors:
+  primary: "#2563eb"
+  secondary: "#e04836"
+  background: "#ffffff"
+  surface: "#fafafa"
+  ink: "#111111"
+  muted: "#626262"
+  border: "#e5e5e5"
+  blue-soft: "#f0f5ff"
+  success: "#13733b"
+  error: "#b33225"
+typography:
+  heading:
+    fontFamily: "system-ui, Arial, sans-serif"
+    fontSize: 48px
+    fontWeight: 550
+    lineHeight: 1.06
+    letterSpacing: "-0.045em"
+  body:
+    fontFamily: "system-ui, Arial, sans-serif"
+    fontSize: 22px
+    lineHeight: 1.45
+  metadata:
+    fontFamily: "ui-monospace, monospace"
+    fontSize: 13px
+spacing:
+  panel: 20px
+  gap: 18px
+  grid: 32px
+rounded:
+  panel: 0px
+  button: 0px
+motion:
+  reveal:
+    duration: 420ms
+    timingFunction: ease-out
+  transition:
+    duration: 250ms
+    timingFunction: ease
 ---
+# DESIGN.md — Universal classroom visual system
 
-## 2. Typography
+## Overview
+The approved visual reference is the 45-minute version of `@testing/artificial-intelligence/what-is-ai.html` (commit 455e9c127c84085f4db2ec42e6ad9c44701c7615). Its white editorial shell, progressive explanations, clear animated illustrations and simple controls define the experience for all new and revised lessons. Do not copy its fruit theme to unrelated topics. Teach using topic-specific diagrams, simulations and examples. Existing homepage/portal identity and routes remain intact.
 
-Load Google Fonts with clean offline system fallbacks so labs remain crisp in school classrooms:
+## Colors
+White canvas, near-black ink, subtle gray borders and grid. Signal blue indicates primary actions, selected steps, information and learning flow. Red indicates important contrast, errors or a physical signal when explicitly labelled. Green indicates success or safe state where useful. The primary button is white text on blue. Diagram objects may use realistic semantic colors (fruit, wire, resistor bands, robot parts); the UI itself stays restrained. Always pair color cues with labels, line styles, or symbols.
 
-```html
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
-```
+## Typography
+Use the approved lesson's system sans-serif stack and monospace only for metadata, step labels, small control text or actual code. Optional serif italics for editorial emphasis; not a required title pattern. No runtime font download required. Projector headings scale from 32–57px, subheadings 23–32px, teaching text 19–25px (aim 21–24px), example and feedback text 18–22px. Metadata may be 13–15px; never hide essential explanation in tiny technical labels. Body line height around 1.45. Use sentence case and plain English; see PEDAGOGY.md.
 
-- **Editorial Two-Line Heading**:
-  - Line 1 (Regular/Medium Sans): `'Inter', -apple-system, BlinkMacSystemFont, sans-serif`, `font-weight: 400–500`, tight tracking `-0.025em`, `line-height: 1.08`.
-  - Line 2 (*Italic Serif*): `'Newsreader', Georgia, serif`, `font-style: italic`, `font-weight: 400` (e.g., `Slowing the rush` / *`of electric current`*, or `Fixed rules` / *`vs. learning from examples`*).
-- **Technical UI, Notes, Formulas, Telemetry, Buttons & Code**:
-  - `'IBM Plex Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace`.
-  - Uppercase micro-headers (`PART INSPECTOR`, `CURRENT & OHM'S LAW`, `PREDICTION ACCURACY`): `9.5px–10.5px`, `letter-spacing: 0.08em`, muted ink.
-  - Editorial body & notes table (compact technical labs only): `11px–11.5px`, `line-height: 1.55–1.62`.
-  - Live telemetry primary numeric readout: `22px–28px`, `font-weight: 500–600`, `letter-spacing: -0.02em`.
+## Layout
+Use the reference lesson shell as the default for AI, Python, electronics and robotics.
+- Viewport: CSS grid with header, scrollable main area and footer; use 100dvh with 100vh fallback. Header and footer remain reachable. At small widths allow wrapping and vertical scrolling, never clip material.
+- Header: subject breadcrumb, lesson/day and total duration, jump-to-slide select, Word bank and Full screen.
+- Main: subtle 32px architectural grid, 16–48px padding adjusted to viewport. Figure number and duration, large title, step selectors with question IDs and selected state.
+- Desktop: two white hairline panels with roughly 38/62 split and 18px gap. Left is visible explanation, example callout and replay/previous-step/next-explanation controls. Right is large illustration or interactive experiment with caption and feedback. Below is a short Think together prompt and revealable explanation.
+- At 1280×720 reduce padding and graphic height before shrinking teaching text. At 1920×1080 use generous white space. At roughly 780px or less stack panels in logical reading order; allow scroll. Do not force a sidebar, chart or telemetry card when it reduces clarity.
+- Footer: previous slide, current slide and planned cumulative time, next slide. Keep controls accessible. Final notebook slide replaces the two-panel view with a centered copy-friendly page.
+- Front page and subject portals retain the existing hairline top bar, two-subject navigation, editorial split hero, flush lab grids and catalog metadata. No source-folder names or developer notices in the published interface.
 
----
+## Elevation & Depth
+Flat white panels, 1px borders, no heavy shadows. Dialogs may use a neutral translucent backdrop. Meaningful 3D diagrams are welcome when they teach physical structure better; they are not a universal requirement.
 
-## 3. Fixed Viewport Layout — Interactive Labs (`100vw × 100vh`)
+## Shapes
+Square panels and controls, minimal radius only for specific illustrated objects. No decorative bubble cards, gradients, neon effects or unrelated gamification.
 
-Interactive labs fill the exact viewport (`width: 100vw; height: 100vh; overflow: hidden;`) with controlled content scrolling where needed to avoid clipping. All panels float cleanly over the full-bleed white stage:
+## Motion & Micro-interaction
+Animate the mechanism: show a signal traveling, a value changing, a circuit responding, a comparison being made, a program executing, or an actuator moving. Use staged before/during/after states and captions explaining what changed. Enter transitions around 250–650ms; longer instructional motion when useful. Replay reruns the current animation without losing experiment state. Continuous movement must support pause where needed; reduced-motion mode must preserve every explanatory state. No automatic slide advance; classroom pace is controlled by the presenter. Avoid flashes, decorative particles and perpetual distractions. Use meaningful interaction feedback and disabled states.
 
-1. **Top Hairline Bar (`40px–44px`, `border-bottom: 1px solid #e5e5e5`)**:
-   - Left cells separated by `1px solid #e5e5e5`: subject breadcrumb link (`../../` back to index), active figure badge in Signal Red (`fig. 01`), short lowercase subtitle, and key formula/rule in monospace.
-   - Right controls: `← fig. prev` / figure tabs (`fig. 01`, `fig. 02`, ...) / `fig. next →`.
-2. **Left Editorial Column (`width: 300px–340px`, transparent over white)**:
-   - Breadcrumb metadata (`[ fig. 01 ] component name`)
-   - Two-line title (regular sans + *italic serif*)
-   - 2–3 line beginner-friendly intro paragraph
-   - Hairline divider + structured key-value notes (`law`/`concept`, `try`, `notice`, `in life`, `found by`)
-   - Live **Part Inspector** box anchored at bottom (`margin-top: auto`), updating whenever the student clicks any 3D part, wire, pin, layer, neuron, pixel, or rule.
-3. **Center Interactive Stage (Full-bleed white canvas)**:
-   - Subtle perspective floor grid (`#ebedf0` / `#d8dce3`) for 3D Three.js electronics or architectural `32px` grid (`#f2f2f5`) for 2D/3D-projected AI.
-   - Smooth drag-to-orbit and scroll-to-zoom where 3D applies.
-   - Animated current/electron dots or data-flow pulses (Signal Red & Signal Blue).
-   - Every part is hoverable and clickable with subtle highlight feedback.
-4. **Top-Right Telemetry Card (`width: 220px–250px`, `1px solid #d4d4d8`, white bg)**:
-   - Monospace uppercase header + red `LIVE` tag
-   - Large live numeric readout (`22px–28px` monospace)
-   - Live animated oscilloscope / trend `<canvas>` with red & blue traces
-   - 3–5 compact monospace key-value live metrics underneath
-5. **Bottom Control Bar**:
-   - Left: Tiny color legend (`— red meaning · — blue meaning`), sharp rectangular `1px`-bordered monospace buttons (`power: on` with red border when active, view/mode toggles, `reset`), and minimal red-thumb sliders.
-   - Right: Subtle monospace interaction hints (`click parts — inspect`, `drag empty space — orbit`, `← → move between studies`).
+## Voice & Content Strategy
+The visible explanation is primary, not hidden behind a quiz. Each teaching step includes one short answer, concrete example, corresponding visual and optional revealable reasoning. Use progressive steps for detailed content instead of walls of text. Vocabulary popups, discussion answers, experiments and notes must be self-contained and student-facing. PEDAGOGY.md owns the complete content requirements.
 
----
+## Components
+- Primary control: blue background and white text; secondary control: white with gray 1px border. Clear focus ring, touch-friendly targets, disabled feedback.
+- Step navigation: numbered question IDs, selected state, back/next and replay; use arrow keys for slides and Space for next explanation when focus is outside interactive inputs. Use native keyboard behavior when a control has focus.
+- Word explorer: blue dotted-underlined terms; accessible dialog with word, short meaning, concrete example and illustrated scene/part. All words opens the global word bank. Close/Escape restores prior lesson context.
+- Visual stage: scalable SVG, Canvas or a labelled 3D model. Meaningful clickable parts should update explanatory feedback. Label axes, units and visual states. Never present fabricated readings.
+- Example callout: pale blue with a blue left border; feedback: clear text and color with correct/incorrect reason.
+- Experiment: clear starting state, controls, result and reset/replay. Show current state and genuine calculations or logic, with assumptions. Add telemetry, x-ray/cutaway, code panels or sliders only when the concept warrants them.
+- Notebook: white centered panel with short numbered definitions, optional comparison table or labelled sketch, one example and takeaway. Large enough to copy from a projector.
 
-## 4. Front Page & Dedicated Subject Pages Layout
-
-Modeled directly on `field-studies.ai.studio`:
-- **Top Hairline Bar (`44px`)**: Vertical hairline cells linking `/` (front page), `/electronics/` (Electronics page), `/artificial-intelligence/` (AI page), plus total lab count.
-- **2-Column Split Hero**: Left column (`~66%`) with subtle architectural grid, two-line display title, concise monospace intro, and direct navigation links to the separate Electronics and AI pages. Right column (`~34%`) with stacked hairline-divided spec cells (`/subject pages`, `/keys & controls`, `/reading the labs`).
-- **Strict Separation & Zero Folder Clutter**:
-  - The published front page (`/`) displays two separate subject portals linking to `/electronics/` and `/artificial-intelligence/`, without internal folder names (`published/`, `testing/`), stage badges, or developer notices.
-  - `/electronics/` holds only Electronics & Robotics labs; `/artificial-intelligence/` holds only AI & Python labs.
-- **Flush Hairline Grids**: Zero rounded bubble cards, zero drop shadows, `1px solid #e5e5e5` dividers, `[01] /slug` + `fig. 01` header, medium title, 2–3 line description, and bottom monospace formula line.
-
----
-
-## 5. Design Prohibitions
-
-- **NO dark mode** or dark backgrounds anywhere.
-- **NO glowing neon sci-fi effects**, cyberpunk gradients, or particle fireworks.
-- **NO heavy drop shadows** (only an ultra-light hairline shadow on temporary popovers/code drawers).
-- **NO rounded bubble cards**, pill badges, or cartoonish clutter.
-- **NO walls of text** — keep every note calm, museum-grade, and projector-friendly.
-
-
-## Universal classroom lesson standard (Grades 5–9)
-
-- One clear learning objective per lesson. Start with a familiar question, then show a visual, let students predict, interact, reveal the answer and explain why.
-- Default to a 30-minute introductory lesson including 10 minutes for a one-page notebook summary. Keep visible text short, but provide complete on-demand explanations inside the page.
-- Use one coherent everyday example throughout where practical. Every new technical word must be clickable, opening a plain-language definition and a concrete example. Include numbered questions, revealable answers, meaningful animations, an experiment with feedback, and a short understanding check.
-- Introductory lessons must not require code, advanced theory, external searches or teacher-only notes. Advanced views are optional and only included when relevant to the lesson objective. Distinguish simplified teaching models from real systems.
-- Use projector-scale text (typically 20–24px body, 32–56px headings), high contrast, touch and keyboard controls, responsive layouts, reduced-motion support and self-contained illustrations. Allow controlled scrolling on small screens rather than clipping content.
-- Notebook summary: essential definitions, one example, a comparison if useful, and the key takeaway. Student-facing copy must not refer to the author or assistant.
-- Verify each interaction, vocabulary popup, reset, navigation, answer feedback and projector layout before claiming classroom readiness.
+## Do's and Don'ts
+- Do reproduce the approved interaction pattern and overall appearance; adapt visual subject matter, step count and experiment.
+- Do use inline graphics and system fonts. Do not depend on external assets for teaching.
+- Do test projector and mobile sizes, focus, keyboard, touch, reduced motion, all controls and actual experiment logic.
+- Do not use dark mode, dense technical dashboards, mandatory charts, unrelated 3D, long text walls, decorative-only animation, or question-only pages.
+- Do not change the homepage, subject catalogs or existing lessons merely to enforce the new design without a specific request.
+- Follow the skill and PEDAGOGY.md for content and verification. The YAML tokens are a structured local design reference inspired by the DESIGN.md format; formal third-party lint validation is not assumed.
