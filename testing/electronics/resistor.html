@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>/electronics studies — Resistor: control current, protect an LED</title>
-  <meta name="description" content="A complete interactive resistor lesson: realistic 3D AA battery pack, knife switch, 5mm LED anode/cathode, carbon-film cutaway, 4/5-band color decoder, schematic view, and Ohm's law calculator." />
+  <meta name="description" content="A complete interactive resistor lesson: split lesson guide alongside a pinned 3D circuit bench with real-time 4/5-band color code, X-ray cutaway, 2D schematic, and Ohm's law calculator." />
   <meta name="lab-formula" content="V = I × R" />
   <!-- fig. 01 · fig. 02 · fig. 03 · fig. 04 · fig. 05 · fig. 06 · fig. 07 · fig. 08 · fig. 09 -->
 
@@ -16,7 +16,7 @@
 
   <style>
     /* =========================================================================
-       VIBE DISCOVERY THEME — /electronics studies: Interactive 3D Resistor Lab
+       VIBE DISCOVERY SPLIT WORKBENCH — /electronics studies: Resistor Lab
        ========================================================================= */
     :root {
       --c-pine: #065758;
@@ -49,7 +49,7 @@
       --safe-soft: #e3f7ef;
 
       --hero-grad: linear-gradient(180deg, #d8efec 0%, #eaf7f5 55%, #f4faf9 100%);
-      --masthead-bg: rgba(244, 250, 249, 0.88);
+      --masthead-bg: rgba(244, 250, 249, 0.90);
       --top-strip: linear-gradient(90deg, #065758 0%, #00999F 28%, #BCEDD8 56%, #FEEE30 78%, #81D2E3 100%);
 
       --font-serif: 'Newsreader', 'Computer Modern Serif', Georgia, serif;
@@ -81,7 +81,7 @@
       --safe-soft: #0b3528;
 
       --hero-grad: linear-gradient(180deg, #062b2d 0%, #051e20 55%, #041718 100%);
-      --masthead-bg: rgba(4, 23, 24, 0.88);
+      --masthead-bg: rgba(4, 23, 24, 0.90);
     }
 
     * {
@@ -94,7 +94,7 @@
       scroll-behavior: smooth;
       background: var(--bg-page);
       color: var(--text-primary);
-      font-size: 17px;
+      font-size: 16px;
     }
 
     body {
@@ -102,7 +102,7 @@
       background: var(--bg-page);
       color: var(--text-primary);
       font-family: var(--font-serif);
-      line-height: 1.72;
+      line-height: 1.68;
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
@@ -111,7 +111,7 @@
       position: sticky;
       top: 0;
       z-index: 50;
-      height: 62px;
+      height: 58px;
       background: var(--masthead-bg);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
@@ -119,16 +119,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
-      gap: 16px;
+      padding: 0 22px;
+      gap: 14px;
     }
 
     .masthead::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 3px;
       background: var(--top-strip);
     }
@@ -144,7 +142,7 @@
 
     .masthead-brand {
       font-family: var(--font-serif);
-      font-size: 1.1rem;
+      font-size: 1.08rem;
       font-weight: 700;
       color: var(--accent-primary);
       text-decoration: none;
@@ -159,10 +157,7 @@
       border-radius: 5px;
     }
 
-    .masthead-crumb:hover {
-      background: var(--bg-subtle);
-      color: var(--accent-primary);
-    }
+    .masthead-crumb:hover { background: var(--bg-subtle); color: var(--accent-primary); }
 
     .masthead-formula {
       background: var(--bg-subtle);
@@ -185,7 +180,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 14px;
+      padding: 6px 13px;
       border-radius: 6px;
       border: 1px solid var(--accent-primary);
       background: var(--accent-primary);
@@ -196,22 +191,17 @@
       text-decoration: none;
       cursor: pointer;
       white-space: nowrap;
-      transition: background 0.15s ease, transform 0.12s ease;
+      transition: background 0.15s ease;
     }
 
     [data-theme="dark"] .btn-solid { color: #041718; }
-
-    .btn-solid:hover {
-      background: var(--accent-hover);
-      border-color: var(--accent-hover);
-      transform: translateY(-1px);
-    }
+    .btn-solid:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 
     .btn-outline {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 13px;
+      padding: 6px 12px;
       border-radius: 6px;
       border: 1px solid var(--border-strong);
       background: var(--bg-surface);
@@ -225,67 +215,58 @@
       transition: all 0.15s ease;
     }
 
-    .btn-outline:hover {
-      background: var(--bg-subtle);
-      border-color: var(--accent-hover);
-    }
+    .btn-outline:hover { background: var(--bg-subtle); border-color: var(--accent-hover); }
 
-    /* 2. HERO FRONTMATTER */
+    /* 2. COMPACT HERO STRIP (SO WORKBENCH IS IMMEDIATELY VISIBLE!) */
     .paper-hero {
       background: var(--hero-grad);
       border-bottom: 1px solid var(--border-subtle);
-      padding: 44px 24px 38px;
+      padding: 18px 22px;
     }
 
     .paper-hero-inner {
-      max-width: 980px;
+      max-width: 1480px;
       margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px 24px;
     }
 
     .hero-eyebrow {
       font-family: var(--font-mono);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.09em;
       color: var(--accent-copper);
-      margin-bottom: 10px;
+      margin-bottom: 2px;
     }
 
     h1.paper-title {
-      margin: 0 0 8px;
+      margin: 0 0 4px;
       font-family: var(--font-serif);
-      font-size: clamp(2.0rem, 3.6vw, 2.85rem);
+      font-size: clamp(1.55rem, 2.5vw, 2.1rem);
       font-weight: 700;
-      line-height: 1.14;
-      letter-spacing: -0.02em;
+      line-height: 1.15;
       color: var(--c-pine);
     }
 
     [data-theme="dark"] h1.paper-title { color: var(--c-mint); }
 
-    .paper-authors {
-      font-family: var(--font-mono);
-      font-size: 12.5px;
-      color: var(--text-muted);
-      margin-bottom: 22px;
+    .hero-summary-line {
+      margin: 0;
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      max-width: 68ch;
     }
 
-    .abstract-box {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-top: 2px solid var(--c-mint);
-      border-left: 4px solid var(--c-pine);
-      border-radius: 6px;
-      padding: 18px 22px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 18px rgba(6, 56, 57, 0.04);
-    }
-
-    [data-theme="dark"] .abstract-box {
-      border-top-color: var(--c-teal);
-      border-left-color: var(--c-sky);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
     }
 
     .badge-lemon {
@@ -293,13 +274,12 @@
       background: var(--c-lemon);
       color: #063839;
       font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 2px 8px;
-      border-radius: 3px;
-      margin-bottom: 8px;
+      padding: 3px 9px;
+      border-radius: 4px;
     }
 
     .badge-mint {
@@ -307,55 +287,38 @@
       background: var(--c-mint);
       color: #063839;
       font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 2px 8px;
-      border-radius: 3px;
-      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 4px;
     }
 
-    .abstract-box p,
-    .subthreshold-hero-box p {
-      margin: 0;
-      font-size: 1.02rem;
-      line-height: 1.7;
-      color: var(--text-secondary);
-    }
-
-    .subthreshold-hero-box {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-subtle);
-      border-left: 4px solid var(--c-teal);
-      border-radius: 6px;
-      padding: 14px 20px;
-      margin-bottom: 22px;
-    }
-
-    .hero-cta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    /* 3. WORKSPACE GRID */
-    .workspace-grid {
-      max-width: 1280px;
+    /* 3. SPLIT WORKSPACE: LEFT LESSON + CONTENT LIST | RIGHT PINNED INTERACTIVE 3D LAB */
+    .split-workspace {
+      max-width: 1480px;
       margin: 0 auto;
-      padding: 38px 24px 64px;
+      padding: 18px 22px 48px;
       display: grid;
-      grid-template-columns: 245px minmax(0, 1fr);
-      gap: 48px;
+      grid-template-columns: minmax(340px, 0.88fr) minmax(560px, 1.25fr);
+      gap: 24px;
       align-items: start;
     }
 
-    .toc-sidebar {
-      position: sticky;
-      top: 84px;
+    /* LEFT COLUMN: Content Index + Scrollable Lesson Sections */
+    .lesson-pane {
+      min-width: 0;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
+    }
+
+    .toc-bar-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 3px solid var(--c-teal);
+      border-radius: 8px;
+      padding: 12px 14px;
     }
 
     .toc-group-label {
@@ -365,113 +328,74 @@
       text-transform: uppercase;
       letter-spacing: 0.09em;
       color: var(--accent-copper);
-      margin: 0 0 6px;
+      margin: 0 0 8px;
     }
 
-    .toc-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
+    .toc-pills {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
+      flex-wrap: wrap;
+      gap: 5px;
     }
 
-    .toc-link {
-      display: block;
-      padding: 5px 10px;
+    .toc-pill {
+      display: inline-block;
+      padding: 4px 9px;
       border-radius: 5px;
-      border-left: 2px solid transparent;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-page);
       font-family: var(--font-mono);
-      font-size: 11.5px;
+      font-size: 11px;
       color: var(--text-secondary);
       text-decoration: none;
-      transition: all 0.15s ease;
+      transition: all 0.14s ease;
     }
 
-    .toc-link:hover,
-    .toc-link.active {
-      background: var(--bg-subtle);
-      color: var(--accent-primary);
-      border-left-color: var(--c-teal);
+    .toc-pill:hover,
+    .toc-pill.active {
+      background: var(--c-mint);
+      border-color: var(--c-teal);
+      color: #063839;
       font-weight: 600;
     }
 
-    .toc-summary-card {
+    .article-sec {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-top: 3px solid var(--c-teal);
-      border-radius: 6px;
-      padding: 14px 16px;
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-    }
-
-    .toc-stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding: 5px 0;
-      border-bottom: 1px dashed var(--border-subtle);
-      gap: 8px;
-    }
-
-    .toc-stat-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .toc-stat-label { color: var(--text-muted); }
-
-    .stat-val {
-      font-variant-numeric: tabular-nums;
-      font-weight: 700;
-      color: var(--accent-primary);
-    }
-
-    .stat-val.danger { color: var(--danger); }
-    .stat-val.safe { color: var(--safe); }
-
-    /* 4. EDITORIAL PROSE & TERMS */
-    .article-main { min-width: 0; }
-
-    .article-sec {
-      margin-bottom: 46px;
-      scroll-margin-top: 84px;
+      border-left: 4px solid var(--c-teal);
+      border-radius: 8px;
+      padding: 18px 20px;
+      scroll-margin-top: 76px;
     }
 
     .sec-num {
       font-family: var(--font-mono);
-      font-size: 0.74rem;
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.09em;
+      letter-spacing: 0.08em;
       color: var(--accent-copper);
       margin-bottom: 4px;
     }
 
     .article-sec h2 {
-      margin: 0 0 14px;
+      margin: 0 0 10px;
       font-family: var(--font-serif);
-      font-size: clamp(1.52rem, 2.3vw, 1.92rem);
+      font-size: 1.38rem;
       font-weight: 700;
-      line-height: 1.2;
+      line-height: 1.22;
       color: var(--c-pine);
     }
 
     [data-theme="dark"] .article-sec h2 { color: var(--c-mint); }
 
     .prose p {
-      margin: 0 0 15px;
-      font-size: 1.06rem;
-      line-height: 1.78;
-      max-width: 780px;
+      margin: 0 0 12px;
+      font-size: 1rem;
+      line-height: 1.72;
       color: var(--text-secondary);
     }
 
-    .prose a {
-      color: var(--accent-primary);
-      text-decoration: underline;
-      text-decoration-color: var(--c-teal);
-      text-underline-offset: 3px;
-    }
-
+    .prose p:last-child { margin-bottom: 0; }
     .prose strong { color: var(--text-primary); }
 
     .term {
@@ -490,75 +414,92 @@
 
     .inline-eq {
       font-family: var(--font-mono);
-      font-size: 0.92em;
+      font-size: 0.9em;
       background: var(--bg-code);
       color: var(--accent-primary);
-      padding: 2px 7px;
+      padding: 2px 6px;
       border-radius: 4px;
       border: 1px solid var(--border-subtle);
     }
 
     .example-callout {
-      max-width: 780px;
       background: var(--bg-subtle);
       border: 1px solid var(--border-subtle);
       border-left: 4px solid var(--c-teal);
       border-radius: 6px;
-      padding: 13px 18px;
-      margin: 14px 0;
-      font-size: 0.98rem;
+      padding: 11px 14px;
+      margin: 10px 0;
+      font-size: 0.95rem;
       color: var(--text-primary);
     }
 
     .think-box {
-      max-width: 780px;
-      background: var(--bg-surface);
+      background: var(--bg-page);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 14px 18px;
-      margin: 16px 0;
+      padding: 11px 14px;
+      margin-top: 10px;
+      font-size: 0.95rem;
     }
 
     .think-box summary {
       cursor: pointer;
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       color: var(--accent-copper);
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
-    .think-box p {
-      margin: 8px 0 0;
-      font-size: 0.98rem;
-      color: var(--text-secondary);
+    .think-box p { margin: 8px 0 0; font-size: 0.94rem; color: var(--text-secondary); }
+
+    .sec-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
     }
 
-    /* 5. INTERACTIVE WIDGET CARDS */
-    .widget-card {
-      background: var(--bg-surface);
+    .analogy-svg {
+      width: 100%;
+      max-height: 170px;
+      display: block;
+      background: var(--bg-page);
       border: 1px solid var(--border-subtle);
-      border-top: 3px solid var(--c-teal);
-      border-radius: 8px;
-      padding: 20px;
-      margin: 22px 0 32px;
-      box-shadow: 0 6px 24px rgba(6, 56, 57, 0.06);
-      scroll-margin-top: 84px;
+      border-radius: 6px;
+      margin-top: 10px;
     }
 
-    .widget-header {
+    .flowline { animation: flow 1.2s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -40; } }
+
+    /* RIGHT COLUMN: STICKY UNIFIED INTERACTIVE 3D LAB WORKBENCH */
+    .lab-workbench {
+      position: sticky;
+      top: 72px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-top: 4px solid var(--c-teal);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 30px rgba(6, 56, 57, 0.09);
+      max-height: calc(100vh - 84px);
+      overflow-y: auto;
+    }
+
+    .workbench-header {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
     .widget-title {
       margin: 0;
       font-family: var(--font-serif);
-      font-size: 1.28rem;
+      font-size: 1.18rem;
       font-weight: 700;
       color: var(--c-pine);
     }
@@ -568,23 +509,23 @@
     .widget-controls {
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
-      margin-bottom: 12px;
+      gap: 5px;
+      margin-bottom: 10px;
       align-items: center;
     }
 
     .ctrl-divider {
       width: 1px;
-      height: 22px;
+      height: 20px;
       background: var(--border-subtle);
-      margin: 0 3px;
+      margin: 0 2px;
     }
 
     .sci-btn {
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 500;
-      padding: 6px 11px;
+      padding: 5px 10px;
       border-radius: 5px;
       border: 1px solid var(--border-strong);
       background: var(--bg-page);
@@ -593,11 +534,7 @@
       transition: all 0.14s ease;
     }
 
-    .sci-btn:hover {
-      border-color: var(--accent-hover);
-      background: var(--bg-subtle);
-    }
-
+    .sci-btn:hover { border-color: var(--accent-hover); background: var(--bg-subtle); }
     .sci-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .sci-btn.active {
@@ -616,23 +553,11 @@
       font-weight: 600;
     }
 
-    .analogy-svg {
-      width: 100%;
-      max-height: 220px;
-      display: block;
-      background: var(--bg-page);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-    }
-
-    .flowline { animation: flow 1.2s linear infinite; }
-    @keyframes flow { to { stroke-dashoffset: -40; } }
-
-    /* 3D / Schematic Stage Container */
+    /* 3D / Schematic Stage */
     .stage-box {
       position: relative;
       width: 100%;
-      height: 500px;
+      height: 335px;
       background: #f8fcfb;
       border: 1px solid var(--border-strong);
       border-radius: 8px;
@@ -657,14 +582,10 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 10px;
     }
 
-    #schematic-wrap svg {
-      width: 100%;
-      height: 100%;
-      max-height: 460px;
-    }
+    #schematic-wrap svg { width: 100%; height: 100%; }
 
     #labels-layer {
       position: absolute;
@@ -677,76 +598,61 @@
       position: absolute;
       transform: translate(-50%, -50%);
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
-      line-height: 1.25;
+      line-height: 1.2;
       white-space: nowrap;
-      padding: 3px 8px;
+      padding: 2px 7px;
       background: rgba(255, 255, 255, 0.94);
       border: 1px solid #8fc8cc;
       border-radius: 4px;
       color: #063839;
-      box-shadow: 0 2px 8px rgba(6, 56, 57, 0.09);
+      box-shadow: 0 2px 6px rgba(6, 56, 57, 0.08);
       pointer-events: auto;
       cursor: pointer;
     }
 
-    .scene-label:hover {
-      background: #BCEDD8;
-      border-color: #065758;
-    }
-
+    .scene-label:hover { background: #BCEDD8; border-color: #065758; }
     .scene-label.red { color: #b91c1c; border-color: #f3b5b5; }
     .scene-label.blue { color: #065758; border-color: #00999F; }
     .scene-label.muted { color: #4b797b; }
 
-    /* Hover Tooltip inside stage */
     #hover-tooltip {
       position: absolute;
       z-index: 20;
       pointer-events: none;
       display: none;
-      max-width: 240px;
-      background: rgba(4, 23, 24, 0.94);
+      max-width: 230px;
+      background: rgba(4, 23, 24, 0.95);
       color: #eefaf8;
       border: 1px solid #00999F;
       border-radius: 6px;
-      padding: 8px 11px;
+      padding: 7px 10px;
       font-family: var(--font-mono);
-      font-size: 11.5px;
-      line-height: 1.45;
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+      font-size: 11px;
+      line-height: 1.4;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
     }
 
-    #hover-tooltip strong {
-      display: block;
-      color: #FEEE30;
-      margin-bottom: 2px;
-    }
-
-    #hover-tooltip span.tip-sub {
-      display: block;
-      color: #81D2E3;
-      font-size: 10.5px;
-      margin-top: 3px;
-    }
+    #hover-tooltip strong { display: block; color: #FEEE30; margin-bottom: 2px; }
+    #hover-tooltip span.tip-sub { display: block; color: #81D2E3; font-size: 10px; margin-top: 2px; }
 
     .stage-cam-bar {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 8px;
+      right: 8px;
       z-index: 10;
       display: flex;
-      gap: 5px;
+      gap: 4px;
       flex-wrap: wrap;
     }
 
     .cam-pill {
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
-      padding: 4px 9px;
-      border-radius: 5px;
+      padding: 3px 7px;
+      border-radius: 4px;
       border: 1px solid #8fc8cc;
       background: rgba(255, 255, 255, 0.92);
       color: #063839;
@@ -757,66 +663,182 @@
 
     .stage-hint {
       position: absolute;
-      bottom: 10px;
-      right: 12px;
+      bottom: 8px;
+      right: 10px;
       background: rgba(244, 250, 249, 0.94);
       border: 1px solid #c8e5e2;
       color: #063839;
       font-family: var(--font-mono);
-      font-size: 11px;
-      padding: 4px 9px;
+      font-size: 10.5px;
+      padding: 3px 8px;
       border-radius: 4px;
       pointer-events: none;
     }
 
-    .part-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-      align-items: center;
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-      color: var(--text-muted);
-    }
-
-    /* Telemetry Strip + Part Inspector */
+    /* Telemetry Strip */
     .telemetry-strip {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-      padding: 12px 14px;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 9px 12px;
       background: var(--bg-canvas);
       color: #eefaf8;
       border-radius: 6px;
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11.5px;
       font-variant-numeric: tabular-nums;
     }
 
     .tele-cell-k {
       display: block;
-      font-size: 10px;
+      font-size: 9.5px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       color: #81D2E3;
     }
 
-    .tele-cell-v {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #BCEDD8;
-    }
-
+    .tele-cell-v { font-size: 0.98rem; font-weight: 700; color: #BCEDD8; }
     .tele-cell-v.warn { color: #FEEE30; }
     .tele-cell-v.burn { color: #ff7b72; }
 
+    /* Integrated Workbench Tabs (Color Code | Calculator | Inspector & Scope) */
+    .wb-tabs {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+      border-bottom: 2px solid var(--border-subtle);
+      padding-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .wb-tab {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 5px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-page);
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .wb-tab.active {
+      background: var(--c-mint);
+      border-color: var(--c-teal);
+      color: #063839;
+    }
+
+    .wb-panel { display: none; padding-top: 10px; }
+    .wb-panel.active { display: block; }
+
+    .slider-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 8px 11px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .slider-row input[type="range"] { flex: 1 1 130px; accent-color: var(--c-teal); cursor: pointer; }
+
+    .bands-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .band-group {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .band-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .swatch-strip { display: flex; flex-wrap: wrap; gap: 4px; }
+
+    .swatch-btn {
+      width: 23px;
+      height: 23px;
+      border-radius: 4px;
+      border: 2px solid rgba(6, 56, 57, 0.25);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .swatch-btn:hover { transform: translateY(-1px); }
+    .swatch-btn.selected {
+      border-color: var(--c-pine);
+      box-shadow: 0 0 0 2px var(--c-lemon);
+      transform: scale(1.08);
+    }
+
+    /* Calculator inside Workbench */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .calc-field {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .calc-field label { display: block; font-weight: 600; color: var(--accent-copper); margin-bottom: 4px; }
+
+    .calc-field input,
+    .calc-field select {
+      width: 100%;
+      padding: 5px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+    }
+
+    .calc-output {
+      background: var(--bg-canvas);
+      color: #eefaf8;
+      border-radius: 6px;
+      padding: 11px 13px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .calc-output strong { color: #FEEE30; }
+    .calc-big { font-size: 1.12rem; font-weight: 700; color: #BCEDD8; margin-bottom: 4px; }
+
+    /* Inspector + Scope inside Workbench */
     .lab-split {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 16px;
-      margin-top: 14px;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 10px;
     }
 
     .inspector-card,
@@ -824,305 +846,123 @@
       background: var(--bg-subtle);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 14px 16px;
+      padding: 10px 12px;
     }
 
     .inspector-head {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--accent-copper);
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
     }
 
-    .inspector-name {
-      margin: 0 0 6px;
-      font-family: var(--font-serif);
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .inspector-desc {
-      margin: 0 0 8px;
-      font-size: 0.94rem;
-      line-height: 1.55;
-      color: var(--text-secondary);
-    }
-
+    .inspector-name { margin: 0 0 4px; font-family: var(--font-serif); font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+    .inspector-desc { margin: 0 0 6px; font-size: 0.88rem; line-height: 1.48; color: var(--text-secondary); }
     .inspector-tip {
       font-family: var(--font-mono);
-      font-size: 11.5px;
+      font-size: 11px;
       color: var(--accent-primary);
       background: var(--bg-surface);
       border-left: 3px solid var(--c-teal);
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 4px;
     }
 
     #scope-canvas {
       width: 100%;
-      height: 115px;
+      height: 100px;
       display: block;
       background: var(--bg-canvas);
       border-radius: 4px;
-      margin-top: 6px;
-    }
-
-    .slider-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      margin-top: 14px;
-      padding: 12px 14px;
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-    }
-
-    .slider-row input[type="range"] {
-      flex: 1 1 180px;
-      accent-color: var(--c-teal);
-      cursor: pointer;
-    }
-
-    /* Band Decoder */
-    .bands-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 14px;
-    }
-
-    .band-group {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 12px 14px;
-    }
-
-    .band-label {
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .swatch-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .swatch-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 4px;
-      border: 2px solid rgba(6, 56, 57, 0.25);
-      cursor: pointer;
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
-    }
-
-    .swatch-btn:hover { transform: translateY(-1px); }
-
-    .swatch-btn.selected {
-      border-color: var(--c-pine);
-      box-shadow: 0 0 0 2px var(--c-lemon);
-      transform: scale(1.08);
-    }
-
-    /* Ohm's Law Calculator */
-    .calc-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin: 14px 0;
-    }
-
-    .calc-field {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 12px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-    }
-
-    .calc-field label {
-      display: block;
-      font-weight: 600;
-      color: var(--accent-copper);
-      margin-bottom: 6px;
-    }
-
-    .calc-field input,
-    .calc-field select {
-      width: 100%;
-      padding: 7px 9px;
-      border-radius: 5px;
-      border: 1px solid var(--border-strong);
-      background: var(--bg-surface);
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-      font-size: 13px;
-    }
-
-    .calc-output {
-      background: var(--bg-canvas);
-      color: #eefaf8;
-      border-radius: 6px;
-      padding: 16px 18px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      line-height: 1.65;
-    }
-
-    .calc-output strong { color: #FEEE30; }
-    .calc-big { font-size: 1.35rem; font-weight: 700; color: #BCEDD8; margin-bottom: 6px; }
-
-    /* 6. KPI GRID, TABLE, QUIZ & NOTEBOOK */
-    .subthreshold-kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin: 18px 0 24px;
-    }
-
-    .kpi-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-top: 3px solid var(--c-teal);
-      border-radius: 6px;
-      padding: 16px 18px;
-    }
-
-    .kpi-val {
-      font-family: var(--font-mono);
-      font-size: 1.55rem;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      color: var(--c-pine);
-    }
-
-    [data-theme="dark"] .kpi-val { color: var(--c-mint); }
-
-    .kpi-label {
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-      color: var(--text-muted);
       margin-top: 4px;
     }
 
+    /* Tables, Quiz & Notebook */
     .table-wrap {
       overflow-x: auto;
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
+      margin-top: 10px;
     }
 
     .subthreshold-table {
       width: 100%;
       border-collapse: collapse;
       font-family: var(--font-mono);
-      font-size: 12.5px;
+      font-size: 12px;
     }
 
     .subthreshold-table th,
     .subthreshold-table td {
       text-align: left;
-      padding: 11px 14px;
+      padding: 8px 10px;
       border-bottom: 1px solid var(--border-subtle);
     }
 
     .subthreshold-table th {
       background: var(--bg-subtle);
       color: var(--accent-copper);
-      font-size: 11px;
+      font-size: 10.5px;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
     }
 
     .subthreshold-table tr:last-child td { border-bottom: none; }
 
     .swatch-inline {
       display: inline-block;
-      width: 13px;
-      height: 13px;
+      width: 12px; height: 12px;
       border-radius: 3px;
       border: 1px solid rgba(0,0,0,0.25);
       vertical-align: middle;
-      margin-right: 6px;
+      margin-right: 5px;
     }
 
     .status-pill {
       display: inline-block;
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 999px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
     }
 
     .status-pill.safe { background: var(--safe-soft); color: var(--safe); }
     .status-pill.warn { background: var(--danger-soft); color: var(--danger); }
 
-    .quiz-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 16px;
-    }
+    .quiz-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
 
     .quiz-card {
-      background: var(--bg-surface);
+      background: var(--bg-page);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 16px;
+      padding: 12px;
     }
 
-    .quiz-card legend {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 10px;
-      color: var(--text-primary);
-    }
-
-    .quiz-feedback {
-      margin: 10px 0 0;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      min-height: 18px;
-    }
-
+    .quiz-card legend { font-weight: 700; font-size: 0.96rem; margin-bottom: 8px; color: var(--text-primary); }
+    .quiz-feedback { margin: 8px 0 0; font-family: var(--font-mono); font-size: 11.5px; min-height: 16px; }
     .quiz-feedback.good { color: var(--safe); }
     .quiz-feedback.bad { color: var(--danger); }
 
     .notebook-card {
-      background: var(--bg-surface);
+      background: var(--bg-subtle);
       border: 1px solid var(--border-subtle);
-      border-top: 3px solid var(--c-pine);
-      border-left: 4px solid var(--c-teal);
+      border-left: 4px solid var(--c-pine);
       border-radius: 6px;
-      padding: 22px 26px;
-      max-width: 780px;
+      padding: 14px 18px;
+      margin-top: 8px;
     }
 
-    .notebook-card ol { margin: 10px 0 14px; padding-left: 22px; }
-    .notebook-card li { margin-bottom: 8px; font-size: 1rem; color: var(--text-secondary); }
+    .notebook-card ol { margin: 6px 0 10px; padding-left: 20px; }
+    .notebook-card li { margin-bottom: 6px; font-size: 0.95rem; color: var(--text-secondary); }
 
-    /* Interactive Pop-up Dialog (Component Inspector & Word Explorer) */
+    /* Pop-up Dialogs */
     dialog#gloss,
     dialog#part-popup {
-      width: min(560px, 92vw);
+      width: min(540px, 92vw);
       max-height: 88vh;
       overflow: auto;
       background: var(--bg-surface);
@@ -1130,7 +970,7 @@
       border: 1px solid var(--border-strong);
       border-top: 4px solid var(--c-teal);
       border-radius: 8px;
-      padding: 24px;
+      padding: 22px;
       box-shadow: 0 20px 54px rgba(4, 23, 24, 0.34);
     }
 
@@ -1144,28 +984,23 @@
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
       padding: 10px 14px;
-      margin: 10px 0 14px;
+      margin: 10px 0 12px;
       font-family: var(--font-mono);
       font-size: 12px;
     }
 
-    .dictionary-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 12px 0 16px;
-    }
+    .dictionary-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 14px; }
 
-    /* 7. FOOTER */
+    /* Footer */
     .paper-footer {
       background: var(--bg-subtle);
       border-top: 1px solid var(--border-subtle);
-      padding: 24px;
+      padding: 18px 22px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       font-family: var(--font-mono);
       font-size: 12px;
       color: var(--text-muted);
@@ -1174,31 +1009,27 @@
     .paper-footer a { color: var(--accent-primary); text-decoration: none; font-weight: 600; }
     .paper-footer a:hover { text-decoration: underline; }
 
-    @media (max-width: 1024px) {
-      .workspace-grid { grid-template-columns: 1fr; gap: 28px; }
-      .toc-sidebar {
-        position: static;
-        background: var(--bg-surface);
-        border: 1px solid var(--border-subtle);
-        border-radius: 6px;
-        padding: 16px;
+    @media (max-width: 1080px) {
+      .split-workspace {
+        grid-template-columns: 1fr;
       }
-      .toc-list { flex-direction: row; flex-wrap: wrap; gap: 6px; }
-      .toc-link { border-left: none; border: 1px solid var(--border-subtle); }
+      .lab-workbench {
+        position: static;
+        max-height: none;
+        order: -1; /* Keep interactive 3D workbench right on top on tablets/phones */
+      }
     }
 
     @media (max-width: 860px) {
       .hide-sm { display: none; }
     }
 
-    @media (max-width: 720px) {
-      .lab-split,
+    @media (max-width: 640px) {
       .bands-grid,
-      .subthreshold-kpi-grid,
-      .quiz-grid,
-      .calc-grid { grid-template-columns: 1fr; }
+      .calc-grid,
+      .lab-split { grid-template-columns: 1fr; }
       .telemetry-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .stage-box { height: 370px; }
+      .stage-box { height: 290px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1208,7 +1039,7 @@
 </head>
 <body>
 
-  <!-- 1. STICKY TRANSLUCENT MASTHEAD -->
+  <!-- 1. STICKY MASTHEAD -->
   <header class="masthead">
     <div class="masthead-left">
       <a class="masthead-brand" href="../">My Virtual Classroom</a>
@@ -1217,428 +1048,191 @@
     </div>
     <div class="masthead-clean">
       <button type="button" class="btn-outline" id="btn-word-bank">Word bank</button>
-      <a class="btn-solid hide-sm" href="#sec-lab-stage">Launch 3D Lab &darr;</a>
       <button type="button" class="btn-outline" id="theme-toggle" aria-label="Toggle dark mode">&#9680; Dark</button>
     </div>
   </header>
 
-  <!-- 2. HERO FRONTMATTER -->
+  <!-- 2. COMPACT HERO HEADER -->
   <section class="paper-hero" aria-labelledby="resistor-title">
     <div class="paper-hero-inner">
-      <div class="hero-eyebrow">Electronics &amp; Robotics &middot; ATL Grades 5&ndash;9 [fig. 01 &ndash; fig. 09]</div>
-      <h1 class="paper-title" id="resistor-title">Resistor: Control Current, Protect an LED</h1>
-      <div class="paper-authors">45-Minute Interactive Study &middot; Realistic 3D Circuit Bench, X-Ray Cutaway, Color Code &amp; Ohm's Law Calculator</div>
-
-      <div class="abstract-box">
-        <span class="badge-lemon">Summary</span>
-        <p id="editorial-intro">
-          Electricity wants to race through a wire as fast as it can. Connect a tiny <button type="button" class="term" data-word="LED">LED</button> straight to a 6&nbsp;V <button type="button" class="term" data-word="battery">battery</button> and too much <button type="button" class="term" data-word="current">current</button> rushes through, overheating and damaging it. A <button type="button" class="term" data-word="resistor">resistor</button> provides controlled opposition to slow charge down to a safe, steady flow.
+      <div>
+        <div class="hero-eyebrow">Electronics &amp; Robotics &middot; ATL Grades 5&ndash;9 [fig. 01 &ndash; fig. 09]</div>
+        <h1 class="paper-title" id="resistor-title">Resistor: Control Current, Protect an LED</h1>
+        <p class="hero-summary-line" id="editorial-intro">
+          Read the guided lesson on the left while testing the live <strong>3D Circuit Bench, Color Code &amp; Ohm's Law Calculator</strong> pinned on the right &mdash; every change updates in real time.
         </p>
       </div>
-
-      <div class="subthreshold-hero-box">
-        <span class="badge-mint">Key Equation &middot; Ohm's Law</span>
-        <p>
-          Current equals voltage across a resistor divided by its resistance:
-          <span class="inline-eq">I = V &divide; R</span>. Hover or click any 3D component in the virtual bench below for a concise pop-up card with its symbol and math.
-        </p>
-      </div>
-
-      <div class="hero-cta-row">
-        <a class="btn-solid" href="#sec-lab-stage">Open 3D Resistor &amp; Circuit Lab &darr;</a>
-        <a class="btn-outline" href="#sec-bands">Color Code Decoder &darr;</a>
-        <a class="btn-outline" href="#sec-calculator">Ohm's Law Calculator &darr;</a>
-        <a class="btn-outline" href="#sec-notes">Notebook Notes &darr;</a>
+      <div class="hero-badges">
+        <span class="badge-lemon">I = (V &minus; Vf) &divide; R</span>
+        <span class="badge-mint">Safe LED: 10&ndash;20 mA</span>
         <a class="btn-outline" href="./">&larr; Electronics Portal</a>
       </div>
     </div>
   </section>
 
-  <!-- 3. WORKSPACE GRID -->
-  <div class="workspace-grid">
-    <!-- Sticky Left TOC & Live Telemetry -->
-    <aside class="toc-sidebar" aria-label="Table of Contents and Live Telemetry">
-      <div>
-        <h2 class="toc-group-label">Lesson Sections</h2>
-        <ul class="toc-list">
-          <li><a class="toc-link active" href="#sec-intro">1 &middot; Why protect an LED?</a></li>
-          <li><a class="toc-link" href="#sec-electricity">2 &middot; Current &amp; Voltage</a></li>
-          <li><a class="toc-link" href="#sec-resistance">3 &middot; Meet the Resistor</a></li>
-          <li><a class="toc-link" href="#sec-inside">4 &middot; Inside a Resistor</a></li>
-          <li><a class="toc-link" href="#sec-bands">5 &middot; Color Code Decoder</a></li>
-          <li><a class="toc-link" href="#sec-ohms">6 &middot; Ohm's Law &amp; Calculator</a></li>
-          <li><a class="toc-link" href="#sec-circuit">7 &middot; Polarity &amp; Habits</a></li>
-          <li><a class="toc-link" href="#sec-check">8 &middot; Concept Check</a></li>
-          <li><a class="toc-link" href="#sec-notes">9 &middot; Notebook Summary</a></li>
-        </ul>
-      </div>
+  <!-- 3. SPLIT WORKSPACE: LEFT CONTENT + RIGHT STICKY FULL INTERACTIVE 3D LAB -->
+  <div class="split-workspace">
 
-      <div>
-        <h2 class="toc-group-label">Interactive Labs</h2>
-        <ul class="toc-list">
-          <li><a class="toc-link" href="#sec-lab-stage">3D Circuit Bench &amp; Schematic</a></li>
-          <li><a class="toc-link" href="#sec-decoder-widget">4/5-Band Color Selector</a></li>
-          <li><a class="toc-link" href="#sec-calculator">Ohm's Law Calculator</a></li>
-        </ul>
-      </div>
+    <!-- LEFT SIDE: CONTENT LIST + STEP-BY-STEP EXPLANATIONS -->
+    <main class="lesson-pane">
+      <nav class="toc-bar-card" aria-label="Lesson Sections">
+        <h2 class="toc-group-label">Lesson Content</h2>
+        <div class="toc-pills">
+          <a class="toc-pill active" href="#sec-intro">1 &middot; LED Protection</a>
+          <a class="toc-pill" href="#sec-electricity">2 &middot; Current &amp; Voltage</a>
+          <a class="toc-pill" href="#sec-resistance">3 &middot; Resistor vs Resistance</a>
+          <a class="toc-pill" href="#sec-inside">4 &middot; Inside a Resistor</a>
+          <a class="toc-pill" href="#sec-bands">5 &middot; 4/5-Band Code</a>
+          <a class="toc-pill" href="#sec-ohms">6 &middot; Ohm's Law Table</a>
+          <a class="toc-pill" href="#sec-circuit">7 &middot; Polarity &amp; Safety</a>
+          <a class="toc-pill" href="#sec-check">8 &middot; Concept Check</a>
+          <a class="toc-pill" href="#sec-notes">9 &middot; Notebook</a>
+        </div>
+      </nav>
 
-      <div class="toc-summary-card" aria-live="polite">
-        <h2 class="toc-group-label">Live Telemetry</h2>
-        <div class="toc-stat-row">
-          <span class="toc-stat-label">Resistance</span>
-          <span class="stat-val" id="toc-r">220 &Omega;</span>
-        </div>
-        <div class="toc-stat-row">
-          <span class="toc-stat-label">Supply</span>
-          <span class="stat-val" id="toc-v">6.0 V</span>
-        </div>
-        <div class="toc-stat-row">
-          <span class="toc-stat-label">Current</span>
-          <span class="stat-val" id="toc-i">18.2 mA</span>
-        </div>
-        <div class="toc-stat-row">
-          <span class="toc-stat-label">LED Status</span>
-          <span class="stat-val safe" id="toc-led">SAFE</span>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Main Editorial Content & Interactive Widgets -->
-    <main class="article-main">
-
-      <!-- SECTION 1: WHY PROTECT AN LED -->
+      <!-- SECTION 1 -->
       <section class="article-sec" id="sec-intro">
         <div class="sec-num">Section 1 &middot; fig. 01</div>
         <h2>Why does an LED need protection?</h2>
         <div class="prose">
           <p>
-            A small <button type="button" class="term" data-word="LED">LED</button> turns electrical energy into light, and it only needs a safe amount of <button type="button" class="term" data-word="current">current</button> (about 10&ndash;20&nbsp;<button type="button" class="term" data-word="mA">mA</button>). A <button type="button" class="term" data-word="battery">battery</button> supplies energy, a <button type="button" class="term" data-word="resistor">resistor</button> limits current, an LED gives light, and a <button type="button" class="term" data-word="switch">switch</button> opens or closes the loop. Together they form a <button type="button" class="term" data-word="circuit">circuit</button>.
+            A small <button type="button" class="term" data-word="LED">LED</button> turns electrical energy into light, and it only needs a safe amount of <button type="button" class="term" data-word="current">current</button> (10&ndash;20&nbsp;<button type="button" class="term" data-word="mA">mA</button>). A <button type="button" class="term" data-word="battery">battery</button> pushes charge, a <button type="button" class="term" data-word="resistor">resistor</button> limits current, an LED gives light, and a <button type="button" class="term" data-word="switch">switch</button> opens or closes the <button type="button" class="term" data-word="circuit">circuit</button>.
           </p>
           <div class="example-callout">
-            <strong>Example:</strong> Think of the tiny red indicator light on a charger or Arduino board—it is not built to take unlimited current. Opening the switch breaks the path so steady current stops immediately.
+            <strong>Try it right now on the right bench:</strong> Click <strong>Test 10 &Omega; (Overload!)</strong> to see too much current burn out the LED, then click <strong>Replace Burnt LED</strong> and <strong>Test 220 &Omega; (Safe)</strong>.
           </div>
           <details class="think-box">
-            <strong>Think together:</strong> What might happen if a small LED receives too much current, and why does opening a switch turn it off?
+            <strong>Think together:</strong> Why does opening the knife switch turn the LED off immediately?
             <summary>Reveal explanation</summary>
-            <p>Too much current heats and damages the LED. Opening the switch breaks the connected path, so steady current cannot flow around the loop.</p>
+            <p>Lifting the copper blade creates an insulating air gap, breaking the closed loop so steady current drops to 0 mA.</p>
           </details>
         </div>
       </section>
 
-      <!-- SECTION 2: ELECTRICITY, CURRENT & VOLTAGE -->
+      <!-- SECTION 2 -->
       <section class="article-sec" id="sec-electricity">
         <div class="sec-num">Section 2 &middot; fig. 02</div>
-        <h2>Electricity, current and voltage</h2>
+        <h2>Electricity, current &amp; voltage</h2>
         <div class="prose">
           <p>
-            Metal wires already contain movable <button type="button" class="term" data-word="electron">electrons</button> carrying negative <button type="button" class="term" data-word="charge">charge</button>. When a complete path and a source of <button type="button" class="term" data-word="voltage">voltage</button> are present, charges drift through the metal and <button type="button" class="term" data-word="electricity">electricity</button> transfers energy to the LED.
-          </p>
-          <p>
-            <strong>Current (I)</strong> is how much charge passes a point each second, measured in <button type="button" class="term" data-word="A">amperes (A)</button> or <button type="button" class="term" data-word="mA">milliamperes (mA)</button>, where <span class="inline-eq">1 A = 1,000 mA</span>. <strong>Voltage (V)</strong> is the electrical push between two points, measured in <button type="button" class="term" data-word="V">volts (V)</button>.
+            Metal wires already contain movable <button type="button" class="term" data-word="electron">electrons</button> carrying negative <button type="button" class="term" data-word="charge">charge</button>. <button type="button" class="term" data-word="voltage">Voltage (V)</button> is the electrical push; <button type="button" class="term" data-word="current">Current (I)</button> is how much charge passes a point each second, measured in <button type="button" class="term" data-word="A">amperes (A)</button> or <button type="button" class="term" data-word="mA">milliamperes (mA)</button>.
           </p>
         </div>
-
-        <div class="widget-card" aria-label="Water pipe resistance analogy">
-          <div class="widget-header">
-            <h3 class="widget-title">Analogy: Narrowing the Pipe Slows the Flow</h3>
-            <div class="widget-controls" style="margin-bottom:0;">
-              <button type="button" class="sci-btn active" id="btn-pipe-wide">Wider Passage (Low R)</button>
-              <button type="button" class="sci-btn" id="btn-pipe-narrow">Narrower Passage (High R)</button>
-            </div>
-          </div>
-          <svg class="analogy-svg" viewBox="0 0 760 210" role="img" aria-label="Water pipe analogy comparing wide and narrow passages">
-            <defs>
-              <clipPath id="pipeclip">
-                <path id="pipe-clip-path" d="M65 55 H290 L330 75 H430 L470 55 H695 V155 H470 L430 135 H330 L290 155 H65 Z" />
-              </clipPath>
-            </defs>
-            <path id="pipe-outline" d="M65 55 H290 L330 75 H430 L470 55 H695 V155 H470 L430 135 H330 L290 155 H65 Z" fill="#dff4f2" stroke="#065758" stroke-width="3.5" />
-            <g clip-path="url(#pipeclip)" stroke="#00999F" stroke-width="4.5" stroke-dasharray="6 22" class="flowline" id="pipe-flow" style="animation-duration:1s;">
-              <path d="M60 80 H700" /><path d="M60 105 H700" /><path d="M60 130 H700" />
-            </g>
-            <text id="pipe-caption" x="380" y="34" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="600" fill="#063839">Wider passage · greater flow (lower resistance)</text>
-            <text x="380" y="188" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#4b797b">Same pressure difference · analogy, not literal electrons</text>
-          </svg>
+        <div class="sec-actions">
+          <button type="button" class="sci-btn active" id="btn-pipe-wide">Wider Pipe (Low R)</button>
+          <button type="button" class="sci-btn" id="btn-pipe-narrow">Narrower Pipe (High R)</button>
         </div>
+        <svg class="analogy-svg" viewBox="0 0 760 205" role="img" aria-label="Water pipe analogy comparing wide and narrow passages">
+          <defs>
+            <clipPath id="pipeclip">
+              <path id="pipe-clip-path" d="M65 55 H290 L330 75 H430 L470 55 H695 V155 H470 L430 135 H330 L290 155 H65 Z" />
+            </clipPath>
+          </defs>
+          <path id="pipe-outline" d="M65 55 H290 L330 75 H430 L470 55 H695 V155 H470 L430 135 H330 L290 155 H65 Z" fill="#dff4f2" stroke="#065758" stroke-width="3.5" />
+          <g clip-path="url(#pipeclip)" stroke="#00999F" stroke-width="4.5" stroke-dasharray="6 22" class="flowline" id="pipe-flow" style="animation-duration:1s;">
+            <path d="M60 80 H700" /><path d="M60 105 H700" /><path d="M60 130 H700" />
+          </g>
+          <text id="pipe-caption" x="380" y="34" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="600" fill="#063839">Wider passage · greater flow (lower resistance)</text>
+          <text x="380" y="185" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#4b797b">Same pressure difference · analogy, not literal electrons</text>
+        </svg>
       </section>
 
-      <!-- SECTION 3: MEET THE RESISTOR -->
+      <!-- SECTION 3 -->
       <section class="article-sec" id="sec-resistance">
         <div class="sec-num">Section 3 &middot; fig. 03</div>
         <h2>Resistor versus resistance</h2>
         <div class="prose">
           <p>
-            A <button type="button" class="term" data-word="resistor">resistor</button> is the physical component; <button type="button" class="term" data-word="resistance">resistance</button> (<button type="button" class="term" data-word="R">R</button>) is how strongly it opposes current, measured in <button type="button" class="term" data-word="ohm">ohms (&Omega;)</button> or <button type="button" class="term" data-word="kohm">kilohms (k&Omega;)</button>.
+            A <button type="button" class="term" data-word="resistor">resistor</button> is the physical part; <button type="button" class="term" data-word="resistance">resistance (R)</button> is how strongly it opposes current, measured in <button type="button" class="term" data-word="ohm">ohms (&Omega;)</button> or <button type="button" class="term" data-word="kohm">kilohms (k&Omega;)</button>.
           </p>
           <p>
-            A <button type="button" class="term" data-word="fixed">fixed resistor</button> transfers electrical energy into heat—it does <strong>not</strong> consume charge. In a <button type="button" class="term" data-word="series">series circuit</button>, the exact same current passes through every component in the loop.
+            A <button type="button" class="term" data-word="fixed">fixed resistor</button> turns some electrical energy into heat—it does <strong>not</strong> use up charge. In a <button type="button" class="term" data-word="series">series circuit</button>, the exact same current passes through every component.
           </p>
         </div>
       </section>
 
-      <!-- SECTION 4: INSIDE A REAL CARBON-FILM RESISTOR + 3D STAGE -->
+      <!-- SECTION 4 -->
       <section class="article-sec" id="sec-inside">
         <div class="sec-num">Section 4 &middot; fig. 04</div>
-        <h2>Interactive 3D Resistor &amp; Realistic Circuit Bench</h2>
+        <h2>Inside a carbon-film resistor</h2>
         <div class="prose">
           <p>
-            Explore both the zoomed-in <strong>3D Carbon-Film Resistor</strong> (leads, metallic end caps, insulating <button type="button" class="term" data-word="core">ceramic core</button>, <button type="button" class="term" data-word="film">carbon film</button>, and laser-cut <button type="button" class="term" data-word="groove">helical groove</button>) and the full <strong>LED Safety Circuit</strong> (AA battery holder, brass knife switch, resistor, and 5&nbsp;mm red LED with visible <button type="button" class="term" data-word="anode">anode (+)</button> &amp; <button type="button" class="term" data-word="cathode">cathode (&minus;)</button>).
+            Outside, a resistor has two <button type="button" class="term" data-word="lead">leads</button>, a beige <button type="button" class="term" data-word="coat">protective coating</button>, and colored bands (with <strong>no <button type="button" class="term" data-word="polarity">polarity</button></strong>). Inside, a white insulating <button type="button" class="term" data-word="core">ceramic core</button> holds a thin <button type="button" class="term" data-word="film">carbon film</button> cut with a <button type="button" class="term" data-word="groove">helical groove</button> and capped with <button type="button" class="term" data-word="cap">metal end caps</button>.
           </p>
         </div>
-      </section>
-
-      <!-- INTERACTIVE 3D STAGE WIDGET -->
-      <section class="widget-card" id="sec-lab-stage" aria-label="Interactive 3D Resistor and LED Circuit">
-        <div class="widget-header">
-          <h3 class="widget-title">Interactive 3D Lab &amp; Circuit Simulator</h3>
-          <span class="badge-mint" id="stage-mode-badge">LED Safety Circuit &middot; Cutaway</span>
-        </div>
-
-        <div class="widget-controls">
-          <button type="button" class="sci-btn" id="btn-mode-closeup">3D Resistor Closeup</button>
-          <button type="button" class="sci-btn active" id="btn-mode-circuit">LED Safety Circuit</button>
-          <button type="button" class="sci-btn" id="btn-mode-schematic">2D Circuit Schematic</button>
-          <span class="ctrl-divider"></span>
-          <button type="button" class="sci-btn active" id="btn-view-cutaway">Cutaway</button>
-          <button type="button" class="sci-btn" id="btn-view-xray">X-Ray</button>
-          <button type="button" class="sci-btn" id="btn-view-outer">Outer Coat</button>
-          <span class="ctrl-divider"></span>
-          <button type="button" class="sci-btn active" id="btn-power">Switch: ON</button>
-          <button type="button" class="sci-btn" id="btn-reverse">Reverse LED</button>
-          <button type="button" class="sci-btn" id="btn-flow-dir">Current: + &rarr; &minus;</button>
-          <button type="button" class="sci-btn" id="btn-flow-pause">Pause Flow</button>
-          <button type="button" class="sci-btn danger-btn" id="btn-reset-led" style="display:none;">Replace Burnt LED</button>
-        </div>
-
-        <div class="stage-box" id="stage-box">
-          <canvas id="three-canvas"></canvas>
-          <div id="schematic-wrap"></div>
-          <div id="labels-layer"></div>
-          <div id="hover-tooltip" role="tooltip"></div>
-          <div class="stage-cam-bar" id="stage-cam-bar">
-            <button type="button" class="cam-pill" id="cam-left">&larr; Orbit</button>
-            <button type="button" class="cam-pill" id="cam-right">Orbit &rarr;</button>
-            <button type="button" class="cam-pill" id="cam-zin">+ Zoom</button>
-            <button type="button" class="cam-pill" id="cam-zout">&minus; Zoom</button>
-            <button type="button" class="cam-pill" id="cam-reset">Reset View</button>
-          </div>
-          <div class="stage-hint">Drag to orbit &middot; Scroll to zoom &middot; Hover or click any part for pop-up</div>
-        </div>
-
-        <div class="part-chips">
-          <span>Quick inspect:</span>
-          <button type="button" class="sci-btn" data-inspect="battery">Battery Pack</button>
-          <button type="button" class="sci-btn" data-inspect="resistor">Resistor &amp; Bands</button>
-          <button type="button" class="sci-btn" data-inspect="spiral">Carbon Spiral</button>
-          <button type="button" class="sci-btn" data-inspect="led">LED (Anode / Cathode)</button>
-          <button type="button" class="sci-btn" data-inspect="switch">Knife Switch</button>
-        </div>
-
-        <div class="slider-row">
-          <label for="voltage-slider"><strong>Battery Pack (AA Cells):</strong> <span id="voltage-val">6.0 V (4 &times; 1.5 V)</span></label>
-          <input type="range" id="voltage-slider" min="1.5" max="9.0" step="1.5" value="6.0" />
-          <button type="button" class="sci-btn" id="preset-10">Test 10 &Omega; (Overload!)</button>
-          <button type="button" class="sci-btn" id="preset-220">Test 220 &Omega; (Safe)</button>
-          <button type="button" class="sci-btn" id="preset-1k">Test 1 k&Omega; (Dim)</button>
-        </div>
-
-        <div class="telemetry-strip" aria-live="polite">
-          <div>
-            <span class="tele-cell-k">Resistance (R)</span>
-            <span class="tele-cell-v" id="tele-r">220 &Omega;</span>
-          </div>
-          <div>
-            <span class="tele-cell-k">Circuit Current (I)</span>
-            <span class="tele-cell-v" id="tele-i">18.2 mA</span>
-          </div>
-          <div>
-            <span class="tele-cell-k">Resistor Power (P = I&sup2;R)</span>
-            <span class="tele-cell-v" id="tele-p">73 mW</span>
-          </div>
-          <div>
-            <span class="tele-cell-k">LED State</span>
-            <span class="tele-cell-v" id="tele-status">SAFE (GLOWING)</span>
-          </div>
-        </div>
-
-        <div class="lab-split">
-          <div class="inspector-card" id="inspector-box" aria-live="polite">
-            <div class="inspector-head">
-              <span id="inspector-tag">Part Inspector</span>
-              <span>Hover or Click 3D Model</span>
-            </div>
-            <h4 class="inspector-name" id="inspector-name">Click any component for its pop-up guide</h4>
-            <p class="inspector-desc" id="inspector-desc">
-              Click the AA battery holder, knife switch, copper leads, ceramic core, carbon spiral, or 5 mm LED (anode + / cathode &minus;) to open a concise pop-up card with its circuit symbol and formula.
-            </p>
-            <div class="inspector-tip" id="inspector-tip">
-              Try clicking the Knife Switch directly in 3D, or toggle "Reverse LED" to see polarity in action!
-            </div>
-          </div>
-
-          <div class="scope-card">
-            <div class="inspector-head">
-              <span>Current Oscilloscope (0&ndash;45 mA)</span>
-              <span id="scope-badge">STEADY FLOW</span>
-            </div>
-            <canvas id="scope-canvas"></canvas>
-          </div>
+        <div class="sec-actions">
+          <button type="button" class="btn-solid" id="lesson-open-closeup">Inspect 3D Resistor Cutaway on Right &rarr;</button>
+          <button type="button" class="btn-outline" id="lesson-open-xray">Switch Right Bench to X-Ray</button>
         </div>
       </section>
 
-      <!-- SECTION 5: 4/5-BAND COLOR CODE -->
+      <!-- SECTION 5 -->
       <section class="article-sec" id="sec-bands">
         <div class="sec-num">Section 5 &middot; fig. 05</div>
-        <h2>Read the 4-band &amp; 5-band color code</h2>
+        <h2>Reading the 4-band &amp; 5-band color code</h2>
         <div class="prose">
           <p>
-            Read from the end where the bands are packed closer together; the <button type="button" class="term" data-word="tolerance">tolerance</button> band sits separated on the right. In a 4-band resistor, Bands 1&ndash;2 are digits and Band 3 is the <button type="button" class="term" data-word="multiplier">multiplier</button>. In a 5-band precision resistor, Bands 1&ndash;3 are digits and Band 4 is the multiplier.
+            Read from the end with closer bands; the <button type="button" class="term" data-word="tolerance">tolerance</button> band sits separated on the right. In a 4-band resistor, Bands 1&ndash;2 give two digits and Band 3 is the <button type="button" class="term" data-word="multiplier">multiplier</button> (e.g. Red&ndash;Red&ndash;Brown&ndash;Gold = <span class="inline-eq">22 &times; 10 = 220 &Omega; &plusmn;5%</span>).
           </p>
         </div>
-
-        <div class="widget-card" id="sec-decoder-widget">
-          <div class="widget-header">
-            <h3 class="widget-title">Interactive Color Band Decoder (Syncs Live with 3D Resistor)</h3>
-            <span class="badge-lemon" id="decoder-readout">220 &Omega; &plusmn;5%</span>
-          </div>
-
-          <div class="widget-controls">
-            <button type="button" class="sci-btn active" id="btn-band4">4-Band Resistor</button>
-            <button type="button" class="sci-btn" id="btn-band5">5-Band Resistor</button>
-            <button type="button" class="sci-btn" id="btn-ex-220">220 &Omega; Example</button>
-            <button type="button" class="sci-btn" id="btn-ex-470">470 &Omega; Example</button>
-            <button type="button" class="sci-btn" id="btn-ex-1k">1 k&Omega; Example</button>
-          </div>
-
-          <div class="bands-grid">
-            <div class="band-group">
-              <div class="band-label"><span>Band 1 (1st Digit)</span><span id="lbl-b1">Red (2)</span></div>
-              <div class="swatch-strip" id="strip-b1"></div>
-            </div>
-            <div class="band-group">
-              <div class="band-label"><span>Band 2 (2nd Digit)</span><span id="lbl-b2">Red (2)</span></div>
-              <div class="swatch-strip" id="strip-b2"></div>
-            </div>
-            <div class="band-group" id="group-b3-digit" style="display:none;">
-              <div class="band-label"><span>Band 3 (3rd Digit)</span><span id="lbl-b3d">Black (0)</span></div>
-              <div class="swatch-strip" id="strip-b3d"></div>
-            </div>
-            <div class="band-group">
-              <div class="band-label"><span id="title-mul">Band 3 (Multiplier)</span><span id="lbl-mul">Brown (&times;10)</span></div>
-              <div class="swatch-strip" id="strip-mul"></div>
-            </div>
-            <div class="band-group">
-              <div class="band-label"><span id="title-tol">Band 4 (Tolerance)</span><span id="lbl-tol">Gold (&plusmn;5%)</span></div>
-              <div class="swatch-strip" id="strip-tol"></div>
-            </div>
-          </div>
-
-          <p id="decoder-range" style="margin:12px 0 0; font-family:var(--font-mono); font-size:12px; color:var(--text-secondary);"></p>
+        <div class="sec-actions">
+          <button type="button" class="btn-solid" id="lesson-tab-colors">Open Color Code Controls on Right &rarr;</button>
         </div>
-
         <details class="think-box">
-          <strong>Reference Chart:</strong> Full Resistor Color Code Values (Digits, Multipliers &amp; Tolerance)
-          <summary>Open color code table</summary>
-          <div class="table-wrap" style="margin-top:10px;">
+          <strong>Reference Chart:</strong> Full Resistor Color Code Table
+          <summary>Show all colors (Black to White + Gold/Silver)</summary>
+          <div class="table-wrap">
             <table class="subthreshold-table">
-              <thead>
-                <tr><th>Color</th><th>Digit</th><th>Multiplier</th><th>Tolerance</th></tr>
-              </thead>
+              <thead><tr><th>Color</th><th>Digit</th><th>Multiplier</th><th>Tolerance</th></tr></thead>
               <tbody id="color-chart-body"></tbody>
             </table>
           </div>
         </details>
       </section>
 
-      <!-- SECTION 6: OHM'S LAW & INTERACTIVE CALCULATOR -->
+      <!-- SECTION 6 -->
       <section class="article-sec" id="sec-ohms">
         <div class="sec-num">Section 6 &middot; fig. 06</div>
-        <h2>Ohm's Law &amp; Interactive Circuit Calculator</h2>
+        <h2>Ohm's Law &amp; standard classroom values</h2>
         <div class="prose">
           <p>
-            <button type="button" class="term" data-word="ohmslaw">Ohm's law</button> connects voltage, current, and resistance: <span class="inline-eq">V = I &times; R</span>. When driving an LED with a <button type="button" class="term" data-word="forward">forward voltage (V<sub>f</sub>)</button>, subtract V<sub>f</sub> from the supply before dividing by R: <span class="inline-eq">I = (V<sub>supply</sub> &minus; V<sub>f</sub>) &divide; R</span>.
+            <button type="button" class="term" data-word="ohmslaw">Ohm's law</button> says <span class="inline-eq">V = I &times; R</span>. With a red LED (<button type="button" class="term" data-word="forward">forward voltage V<sub>f</sub> &approx; 2.0 V</button>), subtract 2.0&nbsp;V from the supply first: <span class="inline-eq">I = (V<sub>supply</sub> &minus; 2.0 V) &divide; R</span>.
           </p>
         </div>
-
-        <!-- INTERACTIVE OHM'S LAW & POWER CALCULATOR -->
-        <div class="widget-card" id="sec-calculator">
-          <div class="widget-header">
-            <h3 class="widget-title">Ohm's Law, LED Current &amp; Power Calculator</h3>
-            <span class="badge-mint">Live Step-by-Step Math</span>
-          </div>
-
-          <div class="widget-controls">
-            <button type="button" class="sci-btn active" id="calc-solve-i">Solve for Current (I)</button>
-            <button type="button" class="sci-btn" id="calc-solve-r">Solve for Resistor (R)</button>
-            <button type="button" class="sci-btn" id="calc-solve-v">Solve for Voltage (V)</button>
-          </div>
-
-          <div class="calc-grid">
-            <div class="calc-field">
-              <label for="calc-v">Supply Voltage (V)</label>
-              <input type="number" id="calc-v" value="6" min="0" max="24" step="0.5" />
-            </div>
-            <div class="calc-field">
-              <label for="calc-r">Resistance R (&Omega;)</label>
-              <input type="number" id="calc-r" value="220" min="1" max="1000000" step="10" />
-            </div>
-            <div class="calc-field">
-              <label for="calc-i">Target Current (mA)</label>
-              <input type="number" id="calc-i" value="18.2" min="0.1" max="1000" step="1" disabled />
-            </div>
-            <div class="calc-field">
-              <label for="calc-vf">Load / LED Type</label>
-              <select id="calc-vf">
-                <option value="2.0" selected>Red LED (V_f = 2.0 V)</option>
-                <option value="3.2">Blue / White LED (V_f = 3.2 V)</option>
-                <option value="0">Resistor Only (V_f = 0 V)</option>
-              </select>
-            </div>
-            <div class="calc-field" style="grid-column: span 2;">
-              <label>Quick Apply to 3D Lab</label>
-              <button type="button" class="btn-solid" id="calc-apply-btn" style="width:100%; justify-content:center;">Sync Calculator Values to 3D Bench &uarr;</button>
-            </div>
-          </div>
-
-          <div class="calc-output" id="calc-output" aria-live="polite"></div>
+        <div class="sec-actions">
+          <button type="button" class="btn-solid" id="lesson-tab-calc">Open Ohm's Law Calculator on Right &rarr;</button>
         </div>
-
-        <div class="subthreshold-kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-val">10&ndash;20 mA</div>
-            <div class="kpi-label">Safe current for a standard 5 mm red LED</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-val">220 &Omega;</div>
-            <div class="kpi-label">Go-to resistor for a 5–6 V LED circuit</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-val">0.25 W</div>
-            <div class="kpi-label">Standard quarter-watt classroom resistor rating</div>
-          </div>
+        <div class="table-wrap">
+          <table class="subthreshold-table">
+            <thead><tr><th>Resistance</th><th>4-Band Code</th><th>Current at 6 V (LED)</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>10 &Omega;</td><td>Brown&ndash;Black&ndash;Black</td><td>400 mA</td><td><span class="status-pill warn">Overload</span></td></tr>
+              <tr><td>220 &Omega;</td><td>Red&ndash;Red&ndash;Brown</td><td>18.2 mA</td><td><span class="status-pill safe">Bright &amp; Safe</span></td></tr>
+              <tr><td>470 &Omega;</td><td>Yellow&ndash;Violet&ndash;Brown</td><td>8.5 mA</td><td><span class="status-pill safe">Medium Glow</span></td></tr>
+              <tr><td>1 k&Omega;</td><td>Brown&ndash;Black&ndash;Red</td><td>4.0 mA</td><td><span class="status-pill safe">Soft Glow</span></td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      <!-- SECTION 7: POLARITY & WORKSHOP HABITS -->
+      <!-- SECTION 7 -->
       <section class="article-sec" id="sec-circuit">
         <div class="sec-num">Section 7 &middot; fig. 07</div>
-        <h2>Polarity, power &amp; safe workshop habits</h2>
+        <h2>Polarity, power &amp; workshop safety</h2>
         <div class="prose">
           <p>
-            Unlike a resistor, an LED has <button type="button" class="term" data-word="polarity">polarity</button>: connect its longer <button type="button" class="term" data-word="anode">anode (+)</button> toward the positive side and its shorter <button type="button" class="term" data-word="cathode">cathode (&minus;)</button> (flat edge on the epoxy rim) toward the negative side. Also check resistor <button type="button" class="term" data-word="power">power</button> (<span class="inline-eq">P = I&sup2;R</span>) against its <button type="button" class="term" data-word="rating">0.25 W rating</button>.
+            An LED has <button type="button" class="term" data-word="polarity">polarity</button>: connect its longer <button type="button" class="term" data-word="anode">anode (+)</button> to positive and shorter <button type="button" class="term" data-word="cathode">cathode (&minus;)</button> to negative. Check resistor <button type="button" class="term" data-word="power">power</button> (<span class="inline-eq">P = I&sup2;R</span>) against its <button type="button" class="term" data-word="rating">0.25 W rating</button>.
           </p>
           <p>
-            In your ATL workshop, build on a <button type="button" class="term" data-word="breadboard">breadboard</button>, avoid making a <button type="button" class="term" data-word="short">short circuit</button>, and always disconnect power before measuring resistance with a <button type="button" class="term" data-word="multimeter">multimeter</button>.
+            Build on a <button type="button" class="term" data-word="breadboard">breadboard</button>, avoid a <button type="button" class="term" data-word="short">short circuit</button>, and turn power OFF before measuring with a <button type="button" class="term" data-word="multimeter">multimeter</button>.
           </p>
         </div>
       </section>
 
-      <!-- SECTION 8: CONCEPT CHECK -->
+      <!-- SECTION 8 -->
       <section class="article-sec" id="sec-check">
         <div class="sec-num">Section 8 &middot; fig. 08</div>
         <h2>Check your understanding</h2>
-        <div class="prose"><p>Choose an answer for each question and explain why before moving on.</p></div>
-
         <div class="quiz-grid" id="quiz-grid">
           <fieldset class="quiz-card">
             <legend>1. Which value is 1 k&Omega;?</legend>
@@ -1647,51 +1241,222 @@
             <button type="button" class="sci-btn" data-quiz="0,2,1" data-reason="kilo means 1,000.">10 &Omega;</button>
             <p class="quiz-feedback" id="q0" aria-live="polite"></p>
           </fieldset>
-
           <fieldset class="quiz-card">
-            <legend>2. At 6 V with a 2 V red LED, which resistor gives ~18 mA?</legend>
-            <button type="button" class="sci-btn" data-quiz="1,0,1" data-reason="(6 − 2) ÷ 220 ≈ 0.0182 A (18.2 mA).">10 &Omega;</button>
-            <button type="button" class="sci-btn" data-quiz="1,1,1" data-reason="(6 − 2) ÷ 220 ≈ 0.0182 A (18.2 mA).">220 &Omega;</button>
-            <button type="button" class="sci-btn" data-quiz="1,2,1" data-reason="(6 − 2) ÷ 220 ≈ 0.0182 A (18.2 mA).">1 k&Omega;</button>
+            <legend>2. At 6 V with a 2 V red LED, which gives ~18 mA?</legend>
+            <button type="button" class="sci-btn" data-quiz="1,0,1" data-reason="(6 − 2) ÷ 220 ≈ 18.2 mA.">10 &Omega;</button>
+            <button type="button" class="sci-btn" data-quiz="1,1,1" data-reason="(6 − 2) ÷ 220 ≈ 18.2 mA.">220 &Omega;</button>
+            <button type="button" class="sci-btn" data-quiz="1,2,1" data-reason="(6 − 2) ÷ 220 ≈ 18.2 mA.">1 k&Omega;</button>
             <p class="quiz-feedback" id="q1" aria-live="polite"></p>
           </fieldset>
-
           <fieldset class="quiz-card">
-            <legend>3. An ordinary fixed resistor is reversed. What happens?</legend>
-            <button type="button" class="sci-btn" data-quiz="2,0,2" data-reason="An ordinary fixed resistor has no polarity.">It stops current</button>
-            <button type="button" class="sci-btn" data-quiz="2,1,2" data-reason="An ordinary fixed resistor has no polarity.">It explodes</button>
-            <button type="button" class="sci-btn" data-quiz="2,2,2" data-reason="An ordinary fixed resistor has no polarity.">It behaves the same</button>
+            <legend>3. A fixed resistor is flipped backwards. What happens?</legend>
+            <button type="button" class="sci-btn" data-quiz="2,0,2" data-reason="Fixed resistors have no polarity.">It stops current</button>
+            <button type="button" class="sci-btn" data-quiz="2,1,2" data-reason="Fixed resistors have no polarity.">It overheats</button>
+            <button type="button" class="sci-btn" data-quiz="2,2,2" data-reason="Fixed resistors have no polarity.">It behaves the same</button>
             <p class="quiz-feedback" id="q2" aria-live="polite"></p>
           </fieldset>
-
           <fieldset class="quiz-card">
-            <legend>4. In a single closed series loop, current after the resistor is&hellip;</legend>
-            <button type="button" class="sci-btn" data-quiz="3,0,1" data-reason="Charge is conserved; energy is transferred into heat.">Less</button>
-            <button type="button" class="sci-btn" data-quiz="3,1,1" data-reason="Charge is conserved; energy is transferred into heat.">The same</button>
-            <button type="button" class="sci-btn" data-quiz="3,2,1" data-reason="Charge is conserved; energy is transferred into heat.">Zero</button>
+            <legend>4. In a series loop, current after the resistor is&hellip;</legend>
+            <button type="button" class="sci-btn" data-quiz="3,0,1" data-reason="Charge is conserved in a single series loop.">Less</button>
+            <button type="button" class="sci-btn" data-quiz="3,1,1" data-reason="Charge is conserved in a single series loop.">The same</button>
+            <button type="button" class="sci-btn" data-quiz="3,2,1" data-reason="Charge is conserved in a single series loop.">Zero</button>
             <p class="quiz-feedback" id="q3" aria-live="polite"></p>
           </fieldset>
         </div>
       </section>
 
-      <!-- SECTION 9: NOTEBOOK SUMMARY -->
+      <!-- SECTION 9 -->
       <section class="article-sec" id="sec-notes">
         <div class="sec-num">Section 9 &middot; fig. 09</div>
         <h2>Notebook: key points to copy</h2>
         <div class="notebook-card">
           <ol>
-            <li><strong>Resistor:</strong> a component that provides resistance and limits electric current.</li>
-            <li><strong>Current (I):</strong> charge flow per second, measured in A or mA (<span class="inline-eq">1 A = 1,000 mA</span>).</li>
-            <li><strong>Voltage (V):</strong> energy per unit charge. Resistance (R) is measured in &Omega; (<span class="inline-eq">1 k&Omega; = 1,000 &Omega;</span>).</li>
-            <li><strong>Ohm's Law:</strong> <span class="inline-eq">V = I &times; R</span> and <span class="inline-eq">I = V &divide; R</span>. Subtract LED forward voltage first: <span class="inline-eq">(6 &minus; 2) &divide; 220 &approx; 18.2 mA</span>.</li>
-            <li><strong>Color Code:</strong> Red&ndash;Red&ndash;Brown&ndash;Gold = <span class="inline-eq">220 &Omega; &plusmn;5%</span>.</li>
-            <li><strong>LED Polarity:</strong> Anode (+) = longer leg; Cathode (&minus;) = shorter leg &amp; flat rim edge. Switch off before changing parts.</li>
+            <li><strong>Resistor:</strong> limits electric current and transfers energy into heat.</li>
+            <li><strong>Units:</strong> Voltage in V, Current in A/mA (<span class="inline-eq">1 A = 1,000 mA</span>), Resistance in &Omega; (<span class="inline-eq">1 k&Omega; = 1,000 &Omega;</span>).</li>
+            <li><strong>Ohm's Law:</strong> <span class="inline-eq">V = I &times; R</span> and <span class="inline-eq">I = (V &minus; Vf) &divide; R</span>.</li>
+            <li><strong>4-Band Code:</strong> Red&ndash;Red&ndash;Brown&ndash;Gold = <span class="inline-eq">220 &Omega; &plusmn;5%</span>.</li>
+            <li><strong>LED Polarity:</strong> Anode (+) = longer leg; Cathode (&minus;) = shorter leg / flat rim edge.</li>
           </ol>
-          <p style="margin:0;"><strong>Takeaway:</strong> Choose the right resistor to control current safely without exceeding the LED or resistor ratings.</p>
+          <p style="margin:0;"><strong>Takeaway:</strong> Pick the right resistor to protect the LED and stay within the resistor's 0.25&nbsp;W rating.</p>
         </div>
       </section>
-
     </main>
+
+    <!-- RIGHT SIDE: STICKY ALL-IN-ONE INTERACTIVE 3D LAB WORKBENCH -->
+    <aside class="lab-workbench" id="sec-lab-stage" aria-label="Interactive 3D Resistor and Circuit Workbench">
+      <div class="workbench-header">
+        <h3 class="widget-title">Interactive 3D Lab &amp; Real-Time Workbench</h3>
+        <span class="badge-mint" id="stage-mode-badge">LED Safety Circuit &middot; Cutaway</span>
+      </div>
+
+      <div class="widget-controls">
+        <button type="button" class="sci-btn" id="btn-mode-closeup">3D Resistor</button>
+        <button type="button" class="sci-btn active" id="btn-mode-circuit">LED Circuit</button>
+        <button type="button" class="sci-btn" id="btn-mode-schematic">2D Schematic</button>
+        <span class="ctrl-divider"></span>
+        <button type="button" class="sci-btn active" id="btn-view-cutaway">Cutaway</button>
+        <button type="button" class="sci-btn" id="btn-view-xray">X-Ray</button>
+        <button type="button" class="sci-btn" id="btn-view-outer">Outer</button>
+        <span class="ctrl-divider"></span>
+        <button type="button" class="sci-btn active" id="btn-power">Switch: ON</button>
+        <button type="button" class="sci-btn" id="btn-reverse">Reverse LED</button>
+        <button type="button" class="sci-btn" id="btn-flow-dir">+ &rarr; &minus;</button>
+        <button type="button" class="sci-btn" id="btn-flow-pause">Pause</button>
+        <button type="button" class="sci-btn danger-btn" id="btn-reset-led" style="display:none;">Replace LED</button>
+      </div>
+
+      <!-- 3D / 2D STAGE -->
+      <div class="stage-box" id="stage-box">
+        <canvas id="three-canvas"></canvas>
+        <div id="schematic-wrap"></div>
+        <div id="labels-layer"></div>
+        <div id="hover-tooltip" role="tooltip"></div>
+        <div class="stage-cam-bar" id="stage-cam-bar">
+          <button type="button" class="cam-pill" id="cam-left">&larr;</button>
+          <button type="button" class="cam-pill" id="cam-right">&rarr;</button>
+          <button type="button" class="cam-pill" id="cam-zin">+</button>
+          <button type="button" class="cam-pill" id="cam-zout">&minus;</button>
+          <button type="button" class="cam-pill" id="cam-reset">Reset</button>
+        </div>
+        <div class="stage-hint">Drag to orbit &middot; Hover or click any part for pop-up</div>
+      </div>
+
+      <!-- LIVE TELEMETRY STRIP -->
+      <div class="telemetry-strip" aria-live="polite">
+        <div>
+          <span class="tele-cell-k">Resistance (R)</span>
+          <span class="tele-cell-v" id="tele-r">220 &Omega;</span>
+        </div>
+        <div>
+          <span class="tele-cell-k">Current (I)</span>
+          <span class="tele-cell-v" id="tele-i">18.2 mA</span>
+        </div>
+        <div>
+          <span class="tele-cell-k">Power (P = I&sup2;R)</span>
+          <span class="tele-cell-v" id="tele-p">73 mW</span>
+        </div>
+        <div>
+          <span class="tele-cell-k">LED State</span>
+          <span class="tele-cell-v" id="tele-status">SAFE (GLOWING)</span>
+        </div>
+      </div>
+
+      <!-- INTEGRATED REAL-TIME TABS (NO SCROLLING NEEDED!) -->
+      <div class="wb-tabs" role="tablist">
+        <button type="button" class="wb-tab active" data-tab="colors" role="tab" aria-selected="true">Color Code &amp; Voltage</button>
+        <button type="button" class="wb-tab" data-tab="calc" role="tab" aria-selected="false">Ohm's Law Calculator</button>
+        <button type="button" class="wb-tab" data-tab="inspect" role="tab" aria-selected="false">Inspector &amp; Scope</button>
+      </div>
+
+      <!-- TAB 1: REAL-TIME COLOR CODE & BATTERY SLIDER -->
+      <div class="wb-panel active" id="panel-colors">
+        <div class="slider-row">
+          <label for="voltage-slider"><strong>Battery Pack:</strong> <span id="voltage-val">6.0 V (4 &times; 1.5 V)</span></label>
+          <input type="range" id="voltage-slider" min="1.5" max="9.0" step="1.5" value="6.0" />
+          <button type="button" class="sci-btn" id="preset-10">10 &Omega; (Overload!)</button>
+          <button type="button" class="sci-btn" id="preset-220">220 &Omega; (Safe)</button>
+          <button type="button" class="sci-btn" id="preset-1k">1 k&Omega; (Dim)</button>
+        </div>
+
+        <div class="widget-controls" style="margin-bottom:8px;">
+          <button type="button" class="sci-btn active" id="btn-band4">4-Band</button>
+          <button type="button" class="sci-btn" id="btn-band5">5-Band</button>
+          <span class="badge-lemon" id="decoder-readout">220 &Omega; &plusmn;5%</span>
+          <span id="decoder-range" style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);"></span>
+        </div>
+
+        <div class="bands-grid">
+          <div class="band-group">
+            <div class="band-label"><span>Band 1 (1st Digit)</span><span id="lbl-b1">Red (2)</span></div>
+            <div class="swatch-strip" id="strip-b1"></div>
+          </div>
+          <div class="band-group">
+            <div class="band-label"><span>Band 2 (2nd Digit)</span><span id="lbl-b2">Red (2)</span></div>
+            <div class="swatch-strip" id="strip-b2"></div>
+          </div>
+          <div class="band-group" id="group-b3-digit" style="display:none;">
+            <div class="band-label"><span>Band 3 (3rd Digit)</span><span id="lbl-b3d">Black (0)</span></div>
+            <div class="swatch-strip" id="strip-b3d"></div>
+          </div>
+          <div class="band-group">
+            <div class="band-label"><span id="title-mul">Band 3 (Multiplier)</span><span id="lbl-mul">Brown (&times;10)</span></div>
+            <div class="swatch-strip" id="strip-mul"></div>
+          </div>
+          <div class="band-group">
+            <div class="band-label"><span id="title-tol">Band 4 (Tolerance)</span><span id="lbl-tol">Gold (&plusmn;5%)</span></div>
+            <div class="swatch-strip" id="strip-tol"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: REAL-TIME OHM'S LAW CALCULATOR -->
+      <div class="wb-panel" id="panel-calc">
+        <div class="widget-controls" style="margin-bottom:8px;">
+          <button type="button" class="sci-btn active" id="calc-solve-i">Solve Current (I)</button>
+          <button type="button" class="sci-btn" id="calc-solve-r">Solve Resistor (R)</button>
+          <button type="button" class="sci-btn" id="calc-solve-v">Solve Voltage (V)</button>
+          <label style="font-family:var(--font-mono); font-size:11px; display:inline-flex; align-items:center; gap:5px; margin-left:auto; cursor:pointer;">
+            <input type="checkbox" id="calc-autosync" checked /> Live-sync 3D lab
+          </label>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-field">
+            <label for="calc-v">Supply Voltage (V)</label>
+            <input type="number" id="calc-v" value="6" min="0" max="24" step="0.5" />
+          </div>
+          <div class="calc-field">
+            <label for="calc-r">Resistance R (&Omega;)</label>
+            <input type="number" id="calc-r" value="220" min="1" max="1000000" step="10" />
+          </div>
+          <div class="calc-field">
+            <label for="calc-i">Current (mA)</label>
+            <input type="number" id="calc-i" value="18.2" min="0.1" max="1000" step="1" disabled />
+          </div>
+          <div class="calc-field">
+            <label for="calc-vf">Load / LED Drop</label>
+            <select id="calc-vf">
+              <option value="2.0" selected>Red LED (Vf = 2.0 V)</option>
+              <option value="3.2">Blue/White LED (Vf = 3.2 V)</option>
+              <option value="0">Resistor Only (Vf = 0 V)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="calc-output" id="calc-output" aria-live="polite"></div>
+      </div>
+
+      <!-- TAB 3: PART INSPECTOR & LIVE OSCILLOSCOPE -->
+      <div class="wb-panel" id="panel-inspect">
+        <div class="widget-controls" style="margin-bottom:8px;">
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Pop-up inspect:</span>
+          <button type="button" class="sci-btn" data-inspect="battery">Battery</button>
+          <button type="button" class="sci-btn" data-inspect="resistor">Resistor</button>
+          <button type="button" class="sci-btn" data-inspect="spiral">Carbon Spiral</button>
+          <button type="button" class="sci-btn" data-inspect="led">LED (+/-)</button>
+          <button type="button" class="sci-btn" data-inspect="switch">Switch</button>
+        </div>
+        <div class="lab-split">
+          <div class="inspector-card" id="inspector-box" aria-live="polite">
+            <div class="inspector-head">
+              <span id="inspector-tag">Part Inspector</span>
+              <span>Hover/Click 3D</span>
+            </div>
+            <h4 class="inspector-name" id="inspector-name">Click any 3D part</h4>
+            <p class="inspector-desc" id="inspector-desc">Click any component in the 3D scene above to open its concise pop-up card with circuit symbol and Ohm's law math.</p>
+            <div class="inspector-tip" id="inspector-tip">Try clicking the Brass Knife Switch in 3D!</div>
+          </div>
+          <div class="scope-card">
+            <div class="inspector-head">
+              <span>Current Scope (0&ndash;45 mA)</span>
+              <span>LIVE</span>
+            </div>
+            <canvas id="scope-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </aside>
+
   </div>
 
   <!-- COMPONENT CLICK POPUP DIALOG -->
@@ -1702,7 +1467,7 @@
       <div id="popup-svg" style="flex-shrink:0;"></div>
       <div id="popup-math" style="color:var(--text-primary);"></div>
     </div>
-    <p id="popup-desc" style="margin:0 0 10px; font-size:1.02rem; color:var(--text-secondary);"></p>
+    <p id="popup-desc" style="margin:0 0 10px; font-size:1rem; color:var(--text-secondary);"></p>
     <p id="popup-tip" class="example-callout" style="margin:0 0 14px;"></p>
     <div style="display:flex; justify-content:flex-end;">
       <button type="button" class="sci-btn active" id="close-part-popup">Got it &times;</button>
@@ -1713,7 +1478,7 @@
   <dialog id="gloss">
     <div class="sec-num" style="margin-bottom:4px;">Word Explorer</div>
     <h2 id="word" style="margin:0 0 8px; font-family:var(--font-serif); color:var(--accent-primary);"></h2>
-    <p id="meaning" style="margin:0 0 10px; font-size:1.04rem; color:var(--text-primary);"></p>
+    <p id="meaning" style="margin:0 0 10px; font-size:1rem; color:var(--text-primary);"></p>
     <p id="example" class="example-callout" style="margin:0 0 14px;"></p>
     <div id="wordlist" class="dictionary-chips" hidden></div>
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1731,14 +1496,12 @@
   <script>
     (function () {
       /* -----------------------------------------------------------------------
-         1. THEME TOGGLE (LIGHT / DARK)
+         1. THEME TOGGLE & WORKBENCH TABS
          ----------------------------------------------------------------------- */
       const rootEl = document.documentElement;
       const themeBtn = document.getElementById('theme-toggle');
       const savedTheme = localStorage.getItem('mvc-theme');
-      if (savedTheme === 'dark' || savedTheme === 'light') {
-        rootEl.setAttribute('data-theme', savedTheme);
-      }
+      if (savedTheme === 'dark' || savedTheme === 'light') rootEl.setAttribute('data-theme', savedTheme);
       function syncThemeBtn() {
         const isDark = rootEl.getAttribute('data-theme') === 'dark';
         themeBtn.innerHTML = isDark ? '&#9728; Light' : '&#9680; Dark';
@@ -1751,8 +1514,29 @@
         syncThemeBtn();
       });
 
+      function switchWbTab(tabName) {
+        document.querySelectorAll('.wb-tab').forEach(b => {
+          const on = b.dataset.tab === tabName;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        document.querySelectorAll('.wb-panel').forEach(p => {
+          p.classList.toggle('active', p.id === 'panel-' + tabName);
+        });
+      }
+      document.querySelectorAll('.wb-tab').forEach(b => b.addEventListener('click', () => switchWbTab(b.dataset.tab)));
+
+      document.getElementById('lesson-open-closeup').addEventListener('click', () => {
+        state.mode = 'closeup'; state.view = 'cutaway'; rebuildAndSync();
+      });
+      document.getElementById('lesson-open-xray').addEventListener('click', () => {
+        state.mode = 'closeup'; state.view = 'x-ray'; rebuildAndSync();
+      });
+      document.getElementById('lesson-tab-colors').addEventListener('click', () => switchWbTab('colors'));
+      document.getElementById('lesson-tab-calc').addEventListener('click', () => switchWbTab('calc'));
+
       /* -----------------------------------------------------------------------
-         2. WORD EXPLORER & QUIZ
+         2. WORD EXPLORER, POPUP MODAL & QUIZ
          ----------------------------------------------------------------------- */
       const vocab = {
         electricity: ['Electricity', 'Energy and effects associated with electric charge. A battery transfers energy through a closed circuit.', 'A torch uses electrical energy to make light.'],
@@ -1761,13 +1545,11 @@
         circuit: ['Circuit', 'A connected path through which current can flow when it is complete.', 'Battery → resistor → LED → switch → battery.'],
         battery: ['Battery', 'A source that uses chemical energy to create a voltage between two terminals.', 'Four 1.5 V AA cells in series supply 6.0 V.'],
         voltage: ['Voltage (V)', 'Energy transferred per unit of charge; the electrical push between two points.', 'A fresh AA cell supplies about 1.5 V.'],
-        V: ['Volt (V)', 'The unit used to measure voltage.', '6 V means six volts.'],
         current: ['Current (I)', 'How much electric charge passes a point each second.', 'More current makes a correctly connected LED brighter, within its rating.'],
         A: ['Ampere (A)', 'The unit of electric current.', '1 A = 1,000 mA.'],
         mA: ['Milliampere (mA)', 'One thousandth of an ampere; convenient for small LED currents.', '18.2 mA = 0.0182 A.'],
         resistor: ['Resistor', 'A component designed to provide a chosen amount of resistance.', 'A 220 Ω resistor limits current through a small LED.'],
         resistance: ['Resistance (R)', 'How strongly a material or component opposes electric current.', 'A 1,000 Ω resistor carries less current than 220 Ω at the same voltage.'],
-        R: ['R — resistance', 'The letter R represents resistance in equations.', 'R = 220 Ω describes its resistance.'],
         ohm: ['Ohm (Ω)', 'The unit of resistance. The Greek letter omega (Ω) is its symbol.', '220 Ω is read as 220 ohms.'],
         kohm: ['Kilohm (kΩ)', 'One thousand ohms.', '1 kΩ = 1,000 Ω.'],
         LED: ['LED — light-emitting diode', 'A component that emits light when current passes from anode (+) to cathode (−).', 'A red indicator light on a device.'],
@@ -1790,10 +1572,8 @@
         rating: ['Rating', 'Safe operating limit from the manufacturer.', 'Standard 5 mm LED: 20 mA; axial resistor: 0.25 W.'],
         multimeter: ['Multimeter', 'Instrument to measure voltage, current, and resistance.', 'Measure resistance only when power is OFF.'],
         breadboard: ['Breadboard', 'Reusable board with spring clips inside for building circuits without soldering.', 'Plug leads into separate rows.'],
-        short: ['Short circuit', 'A low-resistance accidental path bypassing the load, causing dangerous current.', 'Never connect battery + directly to −.'],
-        pot: ['Potentiometer', 'Adjustable three-terminal resistor.', 'Used in volume or brightness knobs.'],
-        fixed: ['Fixed resistor', 'Resistor with a set nominal value.', 'A 220 Ω carbon-film resistor.'],
-        smd: ['Surface-mount resistor', 'Tiny rectangular resistor soldered flat on circuit boards.', 'Found inside phones and laptops.']
+        short: ['Short circuit', 'A low-resistance accidental path bypassing the load, causing dangerous current.', "Never connect battery + directly to −."],
+        fixed: ['Fixed resistor', 'Resistor with a set nominal value.', 'A 220 Ω carbon-film resistor.']
       };
 
       const gloss = document.getElementById('gloss');
@@ -1819,9 +1599,6 @@
       document.getElementById('allwords').addEventListener('click', openAllWords);
       document.getElementById('close-gloss').addEventListener('click', () => gloss.close());
 
-      /* -----------------------------------------------------------------------
-         3. COMPONENT POPUP MODAL (ON CLICK) & HOVER TOOLTIP
-         ----------------------------------------------------------------------- */
       const partPopup = document.getElementById('part-popup');
       document.getElementById('close-part-popup').addEventListener('click', () => partPopup.close());
 
@@ -1859,11 +1636,11 @@
         if (inspBtn) {
           const phys = computePhysics();
           const map = {
-            battery: { tag: 'POWER SOURCE', sym: 'battery', name: `AA Battery Pack (${phys.V.toFixed(1)} V)`, math: `<strong>${Math.round(phys.V / 1.5)} &times; 1.5 V AA cells in series</strong><br/>V = ${phys.V.toFixed(1)} Volts`, desc: 'Chemical cells connected end-to-end push electric charge out of the + red terminal and draw it back into the − black terminal.', tip: 'Drag the Battery Pack slider to add or remove 1.5 V AA cells!' },
-            resistor: { tag: 'CURRENT LIMITER', sym: 'resistor', name: `Carbon-Film Resistor (${formatOhms(phys.R)})`, math: `<strong>V<sub>R</sub> = I &times; R</strong><br/>P = I&sup2;R = ${(phys.powerMw).toFixed(1)} mW (Limit: 250 mW)`, desc: 'Slows down electric current to a safe level. Colored stripes encode its resistance in Ohms (Ω). Has no + or − polarity!', tip: 'Use Cutaway or X-Ray mode to see the laser-cut carbon spiral inside.' },
-            spiral: { tag: 'INTERNAL ELEMENT', sym: 'resistor', name: 'Laser-Cut Carbon Film Spiral', math: `<strong>Longer &amp; narrower path = Higher R (&Omega;)</strong><br/>Current R = ${formatOhms(phys.R)}`, desc: 'A thin carbon coating on an insulating white ceramic rod. A helical groove forces charges along a narrow winding path.', tip: 'Increase resistance in the Color Decoder and watch the spiral wrap tighter!' },
+            battery: { tag: 'POWER SOURCE', sym: 'battery', name: `AA Battery Pack (${phys.V.toFixed(1)} V)`, math: `<strong>${Math.round(phys.V / 1.5)} &times; 1.5 V AA cells in series</strong><br/>V = ${phys.V.toFixed(1)} Volts`, desc: 'Chemical cells connected end-to-end push electric charge out of the red + terminal and draw it back into the black − terminal.', tip: 'Drag the Battery Pack slider to add or remove 1.5 V AA cells!' },
+            resistor: { tag: 'CURRENT LIMITER', sym: 'resistor', name: `Carbon-Film Resistor (${formatOhms(phys.R)})`, math: `<strong>V<sub>R</sub> = I &times; R</strong><br/>P = I&sup2;R = ${phys.powerMw.toFixed(1)} mW (Limit: 250 mW)`, desc: 'Slows down electric current to a safe level. Colored stripes encode its resistance in Ohms (Ω). Has no polarity!', tip: 'Click any color swatch below the 3D view to change bands in real time.' },
+            spiral: { tag: 'INTERNAL ELEMENT', sym: 'resistor', name: 'Laser-Cut Carbon Film Spiral', math: `<strong>Longer &amp; narrower path = Higher R (&Omega;)</strong><br/>Current R = ${formatOhms(phys.R)}`, desc: 'A thin carbon coating on an insulating white ceramic rod. A helical groove forces charges along a narrow winding path.', tip: 'Increase resistance and watch the spiral wrap tighter!' },
             led: { tag: 'POLARIZED LIGHT SOURCE', sym: 'led', name: '5 mm Red LED (Anode + / Cathode −)', math: `<strong>V<sub>f</sub> &approx; 2.0 V &middot; Safe I: 10–20 mA</strong><br/>Current I = ${phys.currentMa.toFixed(1)} mA`, desc: 'Emits light only when Anode (+ longer leg) faces Battery + and Cathode (− shorter leg / flat rim) faces Battery −. Over 35 mA burns it out!', tip: 'Click "Reverse LED" to see the diode block current when backwards.' },
-            switch: { tag: 'CIRCUIT CONTROL', sym: 'switch', name: 'Brass Knife Switch', math: `<strong>State: ${state.powerOn ? 'CLOSED (0 Ω)' : 'OPEN (∞ Ω)'}</strong><br/>Current = ${state.powerOn ? phys.currentMa.toFixed(1) : '0.0'} mA`, desc: 'Swings a copper blade into brass jaws to complete the metal path, or lifts it to create an insulating air gap.', tip: 'Click directly on the 3D knife switch or the Switch button to flip it!' }
+            switch: { tag: 'CIRCUIT CONTROL', sym: 'switch', name: 'Brass Knife Switch', math: `<strong>State: ${state.powerOn ? 'CLOSED (0 Ω)' : 'OPEN (∞ Ω)'}</strong><br/>Current = ${state.powerOn ? phys.currentMa.toFixed(1) : '0.0'} mA`, desc: 'Swings a copper blade into brass jaws to complete the metal path, or lifts it to create an insulating air gap.', tip: 'Click directly on the 3D switch anytime to flip it!' }
           };
           const info = map[inspBtn.dataset.inspect];
           setInspector(info);
@@ -1872,7 +1649,7 @@
       });
 
       /* -----------------------------------------------------------------------
-         4. WATER PIPE ANALOGY
+         3. WATER PIPE ANALOGY
          ----------------------------------------------------------------------- */
       const btnWide = document.getElementById('btn-pipe-wide');
       const btnNarrow = document.getElementById('btn-pipe-narrow');
@@ -1894,19 +1671,19 @@
       btnNarrow.addEventListener('click', () => setPipe(false));
 
       /* -----------------------------------------------------------------------
-         5. COLOR CODE DATA & DECODER (4-BAND & 5-BAND)
+         4. COLOR CODE DATA & DECODER (4-BAND & 5-BAND)
          ----------------------------------------------------------------------- */
       const COLOR_DIGITS = [
-        { name: 'Black',  hex: '#1c1c1e', num: 0, mult: 1,       multStr: '×1' },
-        { name: 'Brown',  hex: '#7c4324', num: 1, mult: 10,      multStr: '×10' },
-        { name: 'Red',    hex: '#dc2626', num: 2, mult: 100,     multStr: '×100' },
-        { name: 'Orange', hex: '#f97316', num: 3, mult: 1000,    multStr: '×1k' },
-        { name: 'Yellow', hex: '#eab308', num: 4, mult: 10000,   multStr: '×10k' },
-        { name: 'Green',  hex: '#16a34a', num: 5, mult: 100000,  multStr: '×100k' },
-        { name: 'Blue',   hex: '#2563eb', num: 6, mult: 1000000, multStr: '×1M' },
-        { name: 'Violet', hex: '#7c3aed', num: 7, mult: null,    multStr: '' },
-        { name: 'Grey',   hex: '#6b7280', num: 8, mult: null,    multStr: '' },
-        { name: 'White',  hex: '#f8fafc', num: 9, mult: null,    multStr: '' }
+        { name: 'Black',  hex: '#1c1c1e', num: 0 },
+        { name: 'Brown',  hex: '#7c4324', num: 1 },
+        { name: 'Red',    hex: '#dc2626', num: 2 },
+        { name: 'Orange', hex: '#f97316', num: 3 },
+        { name: 'Yellow', hex: '#eab308', num: 4 },
+        { name: 'Green',  hex: '#16a34a', num: 5 },
+        { name: 'Blue',   hex: '#2563eb', num: 6 },
+        { name: 'Violet', hex: '#7c3aed', num: 7 },
+        { name: 'Grey',   hex: '#6b7280', num: 8 },
+        { name: 'White',  hex: '#f8fafc', num: 9 }
       ];
 
       const MUL_OPTIONS = [
@@ -1929,7 +1706,6 @@
         { name: 'Green',  hex: '#16a34a', pct: 0.5, str: '±0.5%' }
       ];
 
-      // Build Reference Color Chart
       const chartBody = document.getElementById('color-chart-body');
       COLOR_DIGITS.forEach((c) => {
         const m = MUL_OPTIONS.find(x => x.name === c.name);
@@ -1940,20 +1716,17 @@
       chartBody.innerHTML += `<tr><td><span class="swatch-inline" style="background:#9ca3af"></span>Silver</td><td>—</td><td>×0.01</td><td>±10%</td></tr>`;
 
       const state = {
-        mode: 'circuit', // 'closeup' | 'circuit' | 'schematic'
-        view: 'cutaway', // 'cutaway' | 'x-ray' | 'outer'
+        mode: 'circuit',
+        view: 'cutaway',
         bandCount: 4,
-        b1: 2,
-        b2: 2,
-        b3d: 0,
-        mulIdx: 3, // Brown x10
-        tolIdx: 0, // Gold ±5%
+        b1: 2, b2: 2, b3d: 0,
+        mulIdx: 3, tolIdx: 0,
         voltage: 6.0,
         powerOn: true,
         reverseLed: false,
         ledBurnt: false,
         flowPaused: false,
-        flowDir: 1 // 1 = conventional (+ -> -), -1 = electrons (- -> +)
+        flowDir: 1
       };
 
       function getResistanceValue() {
@@ -2013,13 +1786,11 @@
         document.getElementById('lbl-mul').textContent = `${MUL_OPTIONS[state.mulIdx].name} (${MUL_OPTIONS[state.mulIdx].str})`;
         document.getElementById('lbl-tol').textContent = `${tol.name} (${tol.str})`;
         document.getElementById('decoder-readout').textContent = `${formatOhms(R)} ${tol.str}`;
-        const minR = formatOhms(R * (1 - tol.pct / 100));
-        const maxR = formatOhms(R * (1 + tol.pct / 100));
-        document.getElementById('decoder-range').textContent = `Allowed tolerance range (${tol.str}): ${minR} to ${maxR}`;
+        document.getElementById('decoder-range').textContent = `Range: ${formatOhms(R * (1 - tol.pct / 100))} – ${formatOhms(R * (1 + tol.pct / 100))}`;
       }
 
       /* -----------------------------------------------------------------------
-         6. REALISTIC THREE.JS 3D COMPONENTS & LAB SCENE
+         5. REALISTIC THREE.JS 3D COMPONENTS
          ----------------------------------------------------------------------- */
       const canvas = document.getElementById('three-canvas');
       const schematicWrap = document.getElementById('schematic-wrap');
@@ -2050,8 +1821,7 @@
         g.addColorStop(0.28, 'rgba(239, 50, 45, 0.65)');
         g.addColorStop(0.62, 'rgba(224, 40, 36, 0.18)');
         g.addColorStop(1, 'rgba(224, 40, 36, 0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, 128, 128);
+        ctx.fillStyle = g; ctx.fillRect(0, 0, 128, 128);
         return new THREE.CanvasTexture(c);
       }
 
@@ -2064,7 +1834,6 @@
         }
         renderer.setClearColor(0xf6fbfa, 1);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0xf6fbfa);
 
@@ -2072,25 +1841,13 @@
         camera = new THREE.PerspectiveCamera(35, Math.max(1, rect.width) / Math.max(1, rect.height), 0.1, 120);
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-        const keyLight = new THREE.DirectionalLight(0xffffff, 0.78);
-        keyLight.position.set(7, 14, 9);
-        scene.add(keyLight);
-        const fillLight = new THREE.DirectionalLight(0xdff4f2, 0.42);
-        fillLight.position.set(-9, 6, -6);
-        scene.add(fillLight);
-        const rimLight = new THREE.DirectionalLight(0xfff6e5, 0.28);
-        rimLight.position.set(0, 5, -11);
-        scene.add(rimLight);
+        const keyLight = new THREE.DirectionalLight(0xffffff, 0.78); keyLight.position.set(7, 14, 9); scene.add(keyLight);
+        const fillLight = new THREE.DirectionalLight(0xdff4f2, 0.42); fillLight.position.set(-9, 6, -6); scene.add(fillLight);
+        pointGlowLight = new THREE.PointLight(0xff3b30, 0, 6); scene.add(pointGlowLight);
 
-        pointGlowLight = new THREE.PointLight(0xff3b30, 0, 6);
-        scene.add(pointGlowLight);
-
-        // Lab Grid + Workbench Surface
         benchGroup = new THREE.Group();
         const half = 9, verts = [];
-        for (let i = -half; i <= half; i++) {
-          verts.push(-half, 0, i, half, 0, i, i, 0, -half, i, 0, half);
-        }
+        for (let i = -half; i <= half; i++) verts.push(-half, 0, i, half, 0, i, i, 0, -half, i, 0, half);
         const gGeo = new THREE.BufferGeometry();
         gGeo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
         benchGroup.add(new THREE.LineSegments(gGeo, new THREE.LineBasicMaterial({ color: 0xcbe5e2, transparent: true, opacity: 0.75 })));
@@ -2104,17 +1861,13 @@
         const pointer = new THREE.Vector2();
 
         canvas.addEventListener('pointerdown', (e) => {
-          orbit.isDragging = true;
-          orbit.lastPos = { x: e.clientX, y: e.clientY };
-          orbit.movedDist = 0;
-          canvas.classList.add('dragging');
-          tooltipEl.style.display = 'none';
+          orbit.isDragging = true; orbit.lastPos = { x: e.clientX, y: e.clientY }; orbit.movedDist = 0;
+          canvas.classList.add('dragging'); tooltipEl.style.display = 'none';
         });
 
         window.addEventListener('pointermove', (e) => {
           if (orbit.isDragging) {
-            const dx = e.clientX - orbit.lastPos.x;
-            const dy = e.clientY - orbit.lastPos.y;
+            const dx = e.clientX - orbit.lastPos.x, dy = e.clientY - orbit.lastPos.y;
             orbit.movedDist += Math.hypot(dx, dy);
             orbit.targetTheta -= dx * 0.008;
             orbit.targetPhi = Math.max(0.26, Math.min(Math.PI / 2 - 0.08, orbit.targetPhi - dy * 0.007));
@@ -2122,8 +1875,7 @@
           } else {
             const rect = canvas.getBoundingClientRect();
             if (state.mode === 'schematic' || e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
-              tooltipEl.style.display = 'none';
-              return;
+              tooltipEl.style.display = 'none'; return;
             }
             pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
             pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -2134,10 +1886,8 @@
               const info = hits[0].object.userData.inspectInfo;
               tooltipEl.innerHTML = `<strong>${info.name}</strong>${info.short || info.tag}<span class="tip-sub">Click for concise pop-up &amp; math</span>`;
               tooltipEl.style.display = 'block';
-              const lx = Math.min(rect.width - 250, Math.max(10, e.clientX - rect.left + 14));
-              const ly = Math.min(rect.height - 90, Math.max(10, e.clientY - rect.top - 10));
-              tooltipEl.style.left = lx + 'px';
-              tooltipEl.style.top = ly + 'px';
+              tooltipEl.style.left = Math.min(rect.width - 240, Math.max(10, e.clientX - rect.left + 12)) + 'px';
+              tooltipEl.style.top = Math.min(rect.height - 80, Math.max(10, e.clientY - rect.top - 10)) + 'px';
             } else {
               tooltipEl.style.display = 'none';
             }
@@ -2146,8 +1896,7 @@
 
         window.addEventListener('pointerup', (e) => {
           if (!orbit.isDragging) return;
-          orbit.isDragging = false;
-          canvas.classList.remove('dragging');
+          orbit.isDragging = false; canvas.classList.remove('dragging');
           if (orbit.movedDist < 6) {
             const rect = canvas.getBoundingClientRect();
             pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -2184,17 +1933,11 @@
         return mesh;
       }
 
-      function addLabelAnchor(text, posVec3, className = '', infoObj = null) {
+      function addLabelAnchor(text, posVec3, className = '') {
         const el = document.createElement('button');
         el.type = 'button';
         el.className = 'scene-label ' + className;
         el.textContent = text;
-        if (infoObj) {
-          el.addEventListener('click', () => {
-            setInspector(infoObj);
-            openComponentPopup(infoObj);
-          });
-        }
         labelsLayer.appendChild(el);
         labelAnchors.push({ el, pos: posVec3.clone() });
       }
@@ -2212,311 +1955,179 @@
             }
           });
         }
-        clickableMeshes = [];
-        labelAnchors = [];
-        labelsLayer.innerHTML = '';
-        animatedActors = {};
+        clickableMeshes = []; labelAnchors = []; labelsLayer.innerHTML = ''; animatedActors = {};
         if (pointGlowLight) pointGlowLight.intensity = 0;
       }
 
-      /* --- Realistic Contoured Carbon-Film Resistor --- */
       function buildRealisticResistor(options) {
         const { scale = 1, viewMode = 'cutaway', resistance = 220 } = options;
         const root = new THREE.Group();
         root.scale.setScalar(scale);
 
-        // 1. Tinned copper leads
         const leadMat = new THREE.MeshStandardMaterial({ color: 0xd0d7e0, metalness: 0.85, roughness: 0.22 });
         const leadGeo = new THREE.CylinderGeometry(0.068, 0.068, 2.35, 16);
         const leadL = new THREE.Mesh(leadGeo, leadMat); leadL.rotation.z = Math.PI / 2; leadL.position.x = -2.65;
         const leadR = new THREE.Mesh(leadGeo, leadMat); leadR.rotation.z = Math.PI / 2; leadR.position.x = 2.65;
         root.add(leadL, leadR);
-        const leadInfo = { tag: 'CONDUCTOR', sym: 'resistor', name: 'Tinned Copper Leads', short: 'Metal legs (no polarity)', math: '<strong>Resistance &approx; 0 &Omega;</strong><br/>Non-polarized: plug in either direction', desc: 'Stiff tinned copper wires that connect the resistor to your breadboard or circuit.', tip: 'Resistors work identically in both directions.' };
+        const leadInfo = { tag: 'CONDUCTOR', sym: 'resistor', name: 'Tinned Copper Leads', short: 'Metal legs (no polarity)', math: '<strong>Resistance &approx; 0 &Omega;</strong><br/>Plug in either direction', desc: 'Stiff tinned copper wires that connect the resistor to your circuit.', tip: 'Resistors work identically in both directions.' };
         registerClickable(leadL, leadInfo); registerClickable(leadR, leadInfo);
 
-        // 2. Metallic end caps
         const capMat = new THREE.MeshStandardMaterial({ color: 0xaab4c0, metalness: 0.88, roughness: 0.24 });
         const capGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.36, 28);
         const capL = new THREE.Mesh(capGeo, capMat); capL.rotation.z = Math.PI / 2; capL.position.x = -1.42;
         const capR = new THREE.Mesh(capGeo, capMat); capR.rotation.z = Math.PI / 2; capR.position.x = 1.42;
         root.add(capL, capR);
-        const capInfo = { tag: 'END CAP', sym: 'resistor', name: 'Metal End Caps', short: 'Crimped onto ceramic rod', math: '<strong>Joins leads to carbon film</strong>', desc: 'Conductive metal cups pressed tightly onto both ends of the ceramic rod to pass current into the carbon layer.', tip: 'Notice how both ends widen slightly into the peanut-shaped body.' };
-        registerClickable(capL, capInfo); registerClickable(capR, capInfo);
 
-        // 3. White insulating ceramic core
-        const ceramic = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.32, 0.32, 2.62, 28),
-          new THREE.MeshStandardMaterial({ color: 0xf7f4ec, roughness: 0.78 })
-        );
+        const ceramic = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 2.62, 28), new THREE.MeshStandardMaterial({ color: 0xf7f4ec, roughness: 0.78 }));
         ceramic.rotation.z = Math.PI / 2;
         root.add(ceramic);
         registerClickable(ceramic, { tag: 'INSULATOR', sym: 'resistor', name: 'Insulating Ceramic Core', short: 'Heat-proof inner skeleton', math: '<strong>Does NOT conduct electricity</strong>', desc: 'A solid white ceramic rod that supports the thin carbon film and safely absorbs heat.', tip: 'Current flows only through the dark carbon film wrapped around this core.' });
 
-        // 4. Thin carbon film + laser-cut helical groove
         const logR = Math.log10(Math.max(10, resistance));
         const spiralTurns = Math.round(Math.min(14, Math.max(3, 1.8 + logR * 2.1)));
-        const film = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.335, 0.335, 2.38, 28),
-          new THREE.MeshStandardMaterial({ color: 0x2c3036, roughness: 0.55, metalness: 0.2 })
-        );
+        const film = new THREE.Mesh(new THREE.CylinderGeometry(0.335, 0.335, 2.38, 28), new THREE.MeshStandardMaterial({ color: 0x2c3036, roughness: 0.55, metalness: 0.2 }));
         film.rotation.z = Math.PI / 2;
         root.add(film);
 
         class HelixCurve extends THREE.Curve {
           getPoint(t) {
-            const x = -1.16 + t * 2.32;
-            const a = t * Math.PI * 2 * spiralTurns;
+            const x = -1.16 + t * 2.32, a = t * Math.PI * 2 * spiralTurns;
             return new THREE.Vector3(x, Math.sin(a) * 0.342, Math.cos(a) * 0.342);
           }
         }
         const helixCurve = new HelixCurve();
-        const groove = new THREE.Mesh(
-          new THREE.TubeGeometry(helixCurve, spiralTurns * 22, 0.032, 8, false),
-          new THREE.MeshStandardMaterial({ color: 0xf0e9d8, roughness: 0.85 })
-        );
+        const groove = new THREE.Mesh(new THREE.TubeGeometry(helixCurve, spiralTurns * 22, 0.032, 8, false), new THREE.MeshStandardMaterial({ color: 0xf0e9d8, roughness: 0.85 }));
         root.add(groove);
+        const spiralInfo = { tag: 'RESISTIVE ELEMENT', sym: 'resistor', name: `Carbon Film & Helical Cut (${spiralTurns} turns)`, short: `R = ${formatOhms(resistance)}`, math: `<strong>More turns = Longer &amp; narrower path = Higher R</strong>`, desc: `At ${formatOhms(resistance)}, charges wind around ${spiralTurns} laser-cut spiral turns.`, tip: 'Pick higher color band values below and watch the spiral turns increase!' };
+        registerClickable(film, spiralInfo); registerClickable(groove, spiralInfo);
 
-        const spiralInfo = {
-          tag: 'RESISTIVE ELEMENT', sym: 'resistor',
-          name: `Carbon Film & Helical Cut (${spiralTurns} turns)`,
-          short: `R = ${formatOhms(resistance)}`,
-          math: `<strong>More spiral turns = Longer &amp; narrower path = Higher R</strong>`,
-          desc: `A laser cuts a pale spiral groove into the dark carbon film. At ${formatOhms(resistance)}, charges must wind around ${spiralTurns} turns, creating resistance.`,
-          tip: 'Change the resistance in the Color Decoder below and watch the spiral turns update!'
-        };
-        registerClickable(film, spiralInfo);
-        registerClickable(groove, spiralInfo);
-
-        // 5. Smooth contoured peanut outer coating (LatheGeometry)
-        const isCut = viewMode === 'cutaway';
-        const isXray = viewMode === 'x-ray';
+        const isCut = viewMode === 'cutaway', isXray = viewMode === 'x-ray';
         const pts = [
-          new THREE.Vector2(0.08, -1.58),
-          new THREE.Vector2(0.32, -1.52),
-          new THREE.Vector2(0.50, -1.36),
-          new THREE.Vector2(0.51, -1.12),
-          new THREE.Vector2(0.45, -0.95),
-          new THREE.Vector2(0.45,  0.95),
-          new THREE.Vector2(0.51,  1.12),
-          new THREE.Vector2(0.50,  1.36),
-          new THREE.Vector2(0.32,  1.52),
-          new THREE.Vector2(0.08,  1.58)
+          new THREE.Vector2(0.08, -1.58), new THREE.Vector2(0.32, -1.52), new THREE.Vector2(0.50, -1.36),
+          new THREE.Vector2(0.51, -1.12), new THREE.Vector2(0.45, -0.95), new THREE.Vector2(0.45, 0.95),
+          new THREE.Vector2(0.51, 1.12), new THREE.Vector2(0.50, 1.36), new THREE.Vector2(0.32, 1.52), new THREE.Vector2(0.08, 1.58)
         ];
-        const phiStart = isCut ? 0.55 : 0;
-        const phiLen = isCut ? Math.PI * 1.28 : Math.PI * 2;
-        const coatGeo = new THREE.LatheGeometry(pts, 32, phiStart, phiLen);
-        const coatMat = new THREE.MeshStandardMaterial({
-          color: 0xe6cfa8,
-          roughness: 0.52,
-          transparent: isXray,
-          opacity: isXray ? 0.22 : 1.0,
-          side: isCut ? THREE.DoubleSide : THREE.FrontSide
-        });
-        const coat = new THREE.Mesh(coatGeo, coatMat);
+        const phiStart = isCut ? 0.55 : 0, phiLen = isCut ? Math.PI * 1.28 : Math.PI * 2;
+        const coat = new THREE.Mesh(
+          new THREE.LatheGeometry(pts, 32, phiStart, phiLen),
+          new THREE.MeshStandardMaterial({ color: 0xe6cfa8, roughness: 0.52, transparent: isXray, opacity: isXray ? 0.22 : 1.0, side: isCut ? THREE.DoubleSide : THREE.FrontSide })
+        );
         coat.rotation.z = -Math.PI / 2;
         root.add(coat);
 
-        // 6. Flush color bands (4 or 5 bands)
-        const bands = [];
-        if (state.bandCount === 4) {
-          bands.push(
-            { x: -0.78, hex: COLOR_DIGITS[state.b1].hex, label: `Band 1: ${COLOR_DIGITS[state.b1].name} (${COLOR_DIGITS[state.b1].num})` },
-            { x: -0.34, hex: COLOR_DIGITS[state.b2].hex, label: `Band 2: ${COLOR_DIGITS[state.b2].name} (${COLOR_DIGITS[state.b2].num})` },
-            { x:  0.10, hex: COLOR_DIGITS[state.mulIdx === 0 ? 0 : state.mulIdx].hex || MUL_OPTIONS[state.mulIdx].hex, hexReal: MUL_OPTIONS[state.mulIdx].hex, label: `Band 3 (Multiplier): ${MUL_OPTIONS[state.mulIdx].name} (${MUL_OPTIONS[state.mulIdx].str})` },
-            { x:  0.76, hexReal: TOL_COLORS[state.tolIdx].hex, label: `Band 4 (Tolerance): ${TOL_COLORS[state.tolIdx].name} (${TOL_COLORS[state.tolIdx].str})` }
-          );
-        } else {
-          bands.push(
-            { x: -0.82, hexReal: COLOR_DIGITS[state.b1].hex, label: `Band 1: ${COLOR_DIGITS[state.b1].name} (${COLOR_DIGITS[state.b1].num})` },
-            { x: -0.46, hexReal: COLOR_DIGITS[state.b2].hex, label: `Band 2: ${COLOR_DIGITS[state.b2].name} (${COLOR_DIGITS[state.b2].num})` },
-            { x: -0.10, hexReal: COLOR_DIGITS[state.b3d].hex, label: `Band 3: ${COLOR_DIGITS[state.b3d].name} (${COLOR_DIGITS[state.b3d].num})` },
-            { x:  0.26, hexReal: MUL_OPTIONS[state.mulIdx].hex, label: `Band 4 (Multiplier): ${MUL_OPTIONS[state.mulIdx].name} (${MUL_OPTIONS[state.mulIdx].str})` },
-            { x:  0.78, hexReal: TOL_COLORS[state.tolIdx].hex, label: `Band 5 (Tolerance): ${TOL_COLORS[state.tolIdx].name} (${TOL_COLORS[state.tolIdx].str})` }
-          );
-        }
+        const bands = state.bandCount === 4 ? [
+          { x: -0.78, col: COLOR_DIGITS[state.b1].hex, label: `Band 1: ${COLOR_DIGITS[state.b1].name} (${COLOR_DIGITS[state.b1].num})` },
+          { x: -0.34, col: COLOR_DIGITS[state.b2].hex, label: `Band 2: ${COLOR_DIGITS[state.b2].name} (${COLOR_DIGITS[state.b2].num})` },
+          { x:  0.10, col: MUL_OPTIONS[state.mulIdx].hex, label: `Band 3 (Multiplier): ${MUL_OPTIONS[state.mulIdx].name} (${MUL_OPTIONS[state.mulIdx].str})` },
+          { x:  0.76, col: TOL_COLORS[state.tolIdx].hex, label: `Band 4 (Tolerance): ${TOL_COLORS[state.tolIdx].name} (${TOL_COLORS[state.tolIdx].str})` }
+        ] : [
+          { x: -0.82, col: COLOR_DIGITS[state.b1].hex, label: `Band 1: ${COLOR_DIGITS[state.b1].name} (${COLOR_DIGITS[state.b1].num})` },
+          { x: -0.46, col: COLOR_DIGITS[state.b2].hex, label: `Band 2: ${COLOR_DIGITS[state.b2].name} (${COLOR_DIGITS[state.b2].num})` },
+          { x: -0.10, col: COLOR_DIGITS[state.b3d].hex, label: `Band 3: ${COLOR_DIGITS[state.b3d].name} (${COLOR_DIGITS[state.b3d].num})` },
+          { x:  0.26, col: MUL_OPTIONS[state.mulIdx].hex, label: `Band 4 (Multiplier): ${MUL_OPTIONS[state.mulIdx].name} (${MUL_OPTIONS[state.mulIdx].str})` },
+          { x:  0.78, col: TOL_COLORS[state.tolIdx].hex, label: `Band 5 (Tolerance): ${TOL_COLORS[state.tolIdx].name} (${TOL_COLORS[state.tolIdx].str})` }
+        ];
         bands.forEach((b) => {
-          const col = b.hexReal || b.hex;
-          const bGeo = new THREE.CylinderGeometry(0.456, 0.456, 0.19, 32, 1, true, phiStart, phiLen);
           const bMesh = new THREE.Mesh(
-            bGeo,
-            new THREE.MeshStandardMaterial({ color: col, roughness: 0.38, transparent: isXray, opacity: isXray ? 0.55 : 1.0, side: THREE.DoubleSide })
+            new THREE.CylinderGeometry(0.456, 0.456, 0.19, 32, 1, true, phiStart, phiLen),
+            new THREE.MeshStandardMaterial({ color: b.col, roughness: 0.38, transparent: isXray, opacity: isXray ? 0.55 : 1.0, side: THREE.DoubleSide })
           );
-          bMesh.rotation.z = -Math.PI / 2;
-          bMesh.position.x = b.x;
+          bMesh.rotation.z = -Math.PI / 2; bMesh.position.x = b.x;
           root.add(bMesh);
-          registerClickable(bMesh, {
-            tag: 'COLOR BAND', sym: 'resistor', name: b.label, short: `Total = ${formatOhms(resistance)}`,
-            math: `<strong>Decoded Value = ${formatOhms(resistance)} ${TOL_COLORS[state.tolIdx].str}</strong>`,
-            desc: 'Colored paint bands let engineers read the exact resistance from any angle.',
-            tip: 'Use the Interactive Color Decoder below to test other values!'
-          });
+          registerClickable(bMesh, { tag: 'COLOR BAND', sym: 'resistor', name: b.label, short: `Total = ${formatOhms(resistance)}`, math: `<strong>Decoded Value = ${formatOhms(resistance)} ${TOL_COLORS[state.tolIdx].str}</strong>`, desc: 'Colored stripes encode the exact resistance in Ohms.', tip: 'Click any color swatch below to see this stripe update live!' });
         });
 
         return { root, helixCurve, spiralTurns };
       }
 
-      /* --- Realistic AA Battery Pack Holder --- */
       function buildRealisticBatteryPack(voltage) {
         const grp = new THREE.Group();
         const numCells = Math.max(1, Math.min(6, Math.round(voltage / 1.5)));
         const holderW = Math.max(0.95, numCells * 0.42 + 0.18);
-
-        // Black plastic battery holder tray + walls
         const plasticMat = new THREE.MeshStandardMaterial({ color: 0x1e2428, roughness: 0.65 });
-        const tray = new THREE.Mesh(new THREE.BoxGeometry(holderW, 0.14, 2.05), plasticMat);
-        tray.position.y = 0.07;
-        const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.42, 2.05), plasticMat);
-        wallL.position.set(-holderW / 2 + 0.04, 0.25, 0);
-        const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.42, 2.05), plasticMat);
-        wallR.position.set(holderW / 2 - 0.04, 0.25, 0);
-        const endF = new THREE.Mesh(new THREE.BoxGeometry(holderW, 0.42, 0.09), plasticMat);
-        endF.position.set(0, 0.25, 0.98);
-        const endB = new THREE.Mesh(new THREE.BoxGeometry(holderW, 0.42, 0.09), plasticMat);
-        endB.position.set(0, 0.25, -0.98);
+        const tray = new THREE.Mesh(new THREE.BoxGeometry(holderW, 0.14, 2.05), plasticMat); tray.position.y = 0.07;
+        const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.42, 2.05), plasticMat); wallL.position.set(-holderW / 2 + 0.04, 0.25, 0);
+        const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.42, 2.05), plasticMat); wallR.position.set(holderW / 2 - 0.04, 0.25, 0);
+        const endF = new THREE.Mesh(new THREE.BoxGeometry(holderW, 0.42, 0.09), plasticMat); endF.position.set(0, 0.25, 0.98);
+        const endB = new THREE.Mesh(new THREE.BoxGeometry(holderW, 0.42, 0.09), plasticMat); endB.position.set(0, 0.25, -0.98);
         grp.add(tray, wallL, wallR, endF, endB);
 
-        // Individual AA cells (dark body + copper/gold top + silver nub)
         const cellDark = new THREE.MeshStandardMaterial({ color: 0x1a1e22, roughness: 0.38, metalness: 0.15 });
         const cellCopper = new THREE.MeshStandardMaterial({ color: 0xd9822b, roughness: 0.28, metalness: 0.65 });
         const cellSilver = new THREE.MeshStandardMaterial({ color: 0xd1d8e0, roughness: 0.22, metalness: 0.85 });
-
         for (let i = 0; i < numCells; i++) {
           const cx = (i - (numCells - 1) / 2) * 0.40;
-          const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.28, 20), cellDark);
-          body.rotation.x = Math.PI / 2; body.position.set(cx, 0.34, 0.22);
-          const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.182, 0.182, 0.48, 20), cellCopper);
-          cap.rotation.x = Math.PI / 2; cap.position.set(cx, 0.34, -0.64);
-          const nub = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.09, 14), cellSilver);
-          nub.rotation.x = Math.PI / 2; nub.position.set(cx, 0.34, -0.90);
+          const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.28, 20), cellDark); body.rotation.x = Math.PI / 2; body.position.set(cx, 0.34, 0.22);
+          const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.182, 0.182, 0.48, 20), cellCopper); cap.rotation.x = Math.PI / 2; cap.position.set(cx, 0.34, -0.64);
+          const nub = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.09, 14), cellSilver); nub.rotation.x = Math.PI / 2; nub.position.set(cx, 0.34, -0.90);
           grp.add(body, cap, nub);
         }
 
-        // Raised + (Red) and - (Black) Binding Posts
         const posPost = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.22, 14), new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.35 }));
         posPost.position.set(-holderW / 2 + 0.18, 0.52, -0.98);
         const negPost = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.22, 14), new THREE.MeshStandardMaterial({ color: 0x111417, roughness: 0.4 }));
         negPost.position.set(-holderW / 2 + 0.18, 0.52, 0.98);
         grp.add(posPost, negPost);
 
-        const info = {
-          tag: 'POWER SOURCE', sym: 'battery',
-          name: `AA Battery Pack (${voltage.toFixed(1)} V)`,
-          short: `${numCells} × 1.5 V AA cells`,
-          math: `<strong>${numCells} cells &times; 1.5 V = ${voltage.toFixed(1)} V</strong>`,
-          desc: 'Cells wired in series inside a plastic holder push charge out of the red + terminal and pull it back into the black − terminal.',
-          tip: 'Use the Battery Pack slider below to adjust voltage from 1.5 V to 9.0 V.'
-        };
+        const info = { tag: 'POWER SOURCE', sym: 'battery', name: `AA Battery Pack (${voltage.toFixed(1)} V)`, short: `${numCells} × 1.5 V AA cells`, math: `<strong>${numCells} cells &times; 1.5 V = ${voltage.toFixed(1)} V</strong>`, desc: 'Cells wired in series inside a plastic holder push charge out of the red + terminal and pull it back into the black − terminal.', tip: 'Drag the Battery Pack slider below to adjust voltage.' };
         grp.children.forEach(c => registerClickable(c, info));
         return { grp, posAnchor: new THREE.Vector3(-holderW / 2 + 0.18, 0.56, -0.98), negAnchor: new THREE.Vector3(-holderW / 2 + 0.18, 0.56, 0.98) };
       }
 
-      /* --- Realistic Brass Knife Switch --- */
       function buildRealisticSwitch(isOn, onToggle) {
         const grp = new THREE.Group();
         const base = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.18, 0.78), new THREE.MeshStandardMaterial({ color: 0x1b4344, roughness: 0.55 }));
-        base.position.y = 0.09;
-        grp.add(base);
-
+        base.position.y = 0.09; grp.add(base);
         const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4a438, metalness: 0.82, roughness: 0.24 });
-        const hingePost = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.32, 16), brassMat);
-        hingePost.position.set(0.50, 0.26, 0);
-        const jawL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.30, 0.05), brassMat);
-        jawL.position.set(-0.50, 0.26, 0.07);
-        const jawR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.30, 0.05), brassMat);
-        jawR.position.set(-0.50, 0.26, -0.07);
+        const hingePost = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.32, 16), brassMat); hingePost.position.set(0.50, 0.26, 0);
+        const jawL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.30, 0.05), brassMat); jawL.position.set(-0.50, 0.26, 0.07);
+        const jawR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.30, 0.05), brassMat); jawR.position.set(-0.50, 0.26, -0.07);
         grp.add(hingePost, jawL, jawR);
 
-        const pivot = new THREE.Group();
-        pivot.position.set(0.50, 0.34, 0);
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.06, 0.10), brassMat);
-        blade.position.x = -0.52;
+        const pivot = new THREE.Group(); pivot.position.set(0.50, 0.34, 0);
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.06, 0.10), brassMat); blade.position.x = -0.52;
         const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.34, 16), new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.35 }));
-        handle.rotation.z = Math.PI / 2;
-        handle.position.x = -1.16;
-        pivot.add(blade, handle);
-        pivot.rotation.z = isOn ? 0 : -0.68;
-        grp.add(pivot);
+        handle.rotation.z = Math.PI / 2; handle.position.x = -1.16;
+        pivot.add(blade, handle); pivot.rotation.z = isOn ? 0 : -0.68; grp.add(pivot);
 
-        const info = {
-          tag: 'INTERACTIVE SWITCH', sym: 'switch',
-          name: `Brass Knife Switch (${isOn ? 'CLOSED' : 'OPEN'})`,
-          short: 'Click in 3D to flip ON / OFF',
-          math: `<strong>${isOn ? 'Closed loop → Current flows' : 'Air gap → Current = 0 mA'}</strong>`,
-          desc: 'Pushing the copper blade into the brass jaws completes the metal circuit. Lifting it creates an insulating air gap that stops current.',
-          tip: 'Click directly on the 3D switch anytime to open or close the circuit!'
-        };
+        const info = { tag: 'INTERACTIVE SWITCH', sym: 'switch', name: `Brass Knife Switch (${isOn ? 'CLOSED' : 'OPEN'})`, short: 'Click in 3D to flip ON / OFF', math: `<strong>${isOn ? 'Closed loop → Current flows' : 'Air gap → Current = 0 mA'}</strong>`, desc: 'Copper blade inside brass jaws completes or breaks the circuit.', tip: 'Click directly on the 3D switch anytime!' };
         [base, hingePost, jawL, jawR, blade, handle].forEach(m => registerClickable(m, info, onToggle, true));
         return { grp, pivot };
       }
 
-      /* --- Realistic 5mm Red LED (Anode/Cathode, Flat Rim, Internal Cup, Soft Glow, Smoke) --- */
       function buildRealisticLED(reversed, burnt) {
         const grp = new THREE.Group();
-
-        // Stepped Epoxy Rim with flat cathode side indicator & Domed Lens
         const col = burnt ? 0x2a2a2e : 0xef3330;
-        const lensMat = new THREE.MeshPhysicalMaterial({
-          color: col, roughness: 0.15, metalness: 0.05, transparent: true, opacity: burnt ? 0.85 : 0.72,
-          emissive: new THREE.Color(col), emissiveIntensity: burnt ? 0 : 0.18
-        });
-        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.54, 28), lensMat);
-        cyl.position.y = 0.50;
-        const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2), lensMat);
-        dome.position.y = 0.77;
-        const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.10, 28), lensMat);
-        rim.position.y = 0.22;
+        const lensMat = new THREE.MeshPhysicalMaterial({ color: col, roughness: 0.15, metalness: 0.05, transparent: true, opacity: burnt ? 0.85 : 0.72, emissive: new THREE.Color(col), emissiveIntensity: burnt ? 0 : 0.18 });
+        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.54, 28), lensMat); cyl.position.y = 0.50;
+        const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2), lensMat); dome.position.y = 0.77;
+        const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.10, 28), lensMat); rim.position.y = 0.22;
         grp.add(cyl, dome, rim);
 
-        // Internal Lead Frame: Small Anode Post (+) vs Wide Reflective Cathode Cup (−)
         const metalMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.88, roughness: 0.2 });
-        const xAnode = reversed ? 0.14 : -0.14;
-        const xCathode = -xAnode;
-
-        const legAnode = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.65, 10), metalMat);
-        legAnode.position.set(xAnode, -0.05, 0);
-        const legCathode = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.48, 10), metalMat);
-        legCathode.position.set(xCathode, 0.03, 0);
-
-        const postAnode = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.34, 0.05), metalMat);
-        postAnode.position.set(xAnode, 0.45, 0);
-        const anvilCathode = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.38, 0.06), metalMat);
-        anvilCathode.position.set(xCathode, 0.47, 0);
+        const xAnode = reversed ? 0.14 : -0.14, xCathode = -xAnode;
+        const legAnode = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.65, 10), metalMat); legAnode.position.set(xAnode, -0.05, 0);
+        const legCathode = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.48, 10), metalMat); legCathode.position.set(xCathode, 0.03, 0);
+        const postAnode = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.34, 0.05), metalMat); postAnode.position.set(xAnode, 0.45, 0);
+        const anvilCathode = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.38, 0.06), metalMat); anvilCathode.position.set(xCathode, 0.47, 0);
         grp.add(legAnode, legCathode, postAnode, anvilCathode);
 
-        // Soft Additive Radial Glow Sprite (replaces ugly flat sphere!)
-        const glowMat = new THREE.SpriteMaterial({
-          map: makeSoftGlowTexture(), color: 0xff453a, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false
-        });
-        const glowSprite = new THREE.Sprite(glowMat);
-        glowSprite.position.set(0, 0.68, 0);
-        glowSprite.scale.set(2.4, 2.4, 1);
+        const glowMat = new THREE.SpriteMaterial({ map: makeSoftGlowTexture(), color: 0xff453a, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+        const glowSprite = new THREE.Sprite(glowMat); glowSprite.position.set(0, 0.68, 0); glowSprite.scale.set(2.4, 2.4, 1);
         grp.add(glowSprite);
 
-        // Smoke puffs for burnt-out overload state
         const smokePuffs = [];
         for (let i = 0; i < 6; i++) {
-          const sm = new THREE.Mesh(
-            new THREE.SphereGeometry(0.11 + i * 0.02, 10, 10),
-            new THREE.MeshBasicMaterial({ color: 0x52525b, transparent: true, opacity: 0 })
-          );
+          const sm = new THREE.Mesh(new THREE.SphereGeometry(0.11 + i * 0.02, 10, 10), new THREE.MeshBasicMaterial({ color: 0x52525b, transparent: true, opacity: 0 }));
           sm.position.set((i % 2 ? 0.08 : -0.08), 1.15 + i * 0.22, 0);
-          grp.add(sm);
-          smokePuffs.push(sm);
+          grp.add(sm); smokePuffs.push(sm);
         }
 
-        const ledInfo = {
-          tag: 'SEMICONDUCTOR DIODE', sym: 'led',
-          name: `5 mm Red LED (${reversed ? 'REVERSED!' : 'Anode + → Cathode −'})`,
-          short: 'Safe limit: 10–20 mA (V_f ≈ 2.0 V)',
-          math: '<strong>I = (V<sub>supply</sub> − 2.0 V) ÷ R</strong><br/>Anode (+) is the longer leg; Cathode (−) has the larger internal cup.',
-          desc: 'A Light-Emitting Diode conducts electric current in one direction only. Exceeding ~35 mA overheats and burns out the chip inside.',
-          tip: 'Click "Reverse LED" to flip Anode & Cathode and test diode polarity!'
-        };
+        const ledInfo = { tag: 'SEMICONDUCTOR DIODE', sym: 'led', name: `5 mm Red LED (${reversed ? 'REVERSED!' : 'Anode + → Cathode −'})`, short: 'Safe limit: 10–20 mA (Vf ≈ 2.0 V)', math: '<strong>I = (V<sub>supply</sub> − 2.0 V) ÷ R</strong><br/>Longer leg = Anode (+); larger cup = Cathode (−).', desc: 'Emits light when current flows from Anode (+) to Cathode (−). Over ~35 mA burns it out!', tip: 'Click "Reverse LED" to flip polarity!' };
         [cyl, dome, rim].forEach(m => registerClickable(m, ledInfo));
         return { grp, lensMat, glowMat, glowSprite, smokePuffs };
       }
 
-      /* --- Build Full Scene --- */
       function buildScene() {
         if (!webglReady) return;
         clearSceneGroup();
@@ -2550,35 +2161,20 @@
           orbit.targetTheta = 0.34; orbit.targetPhi = 0.90; orbit.targetRadius = 11.4; orbit.desiredTarget.set(0, 0.05, 0);
 
           const batt = buildRealisticBatteryPack(state.voltage);
-          batt.grp.position.set(-3.4, -1.25, 0.0);
-          activeGroup.add(batt.grp);
-
-          const sw = buildRealisticSwitch(state.powerOn, () => {
-            state.powerOn = !state.powerOn;
-            if (!state.powerOn) state.ledBurnt = false;
-            syncControls();
-          });
-          sw.grp.position.set(0.0, -1.25, 2.0);
-          activeGroup.add(sw.grp);
-
+          batt.grp.position.set(-3.4, -1.25, 0.0); activeGroup.add(batt.grp);
+          const sw = buildRealisticSwitch(state.powerOn, () => { state.powerOn = !state.powerOn; if (!state.powerOn) state.ledBurnt = false; syncControls(); });
+          sw.grp.position.set(0.0, -1.25, 2.0); activeGroup.add(sw.grp);
           const resAsm = buildRealisticResistor({ scale: 0.72, viewMode: state.view, resistance: R });
-          resAsm.root.position.set(0.0, -0.25, -1.9);
-          activeGroup.add(resAsm.root);
-
+          resAsm.root.position.set(0.0, -0.25, -1.9); activeGroup.add(resAsm.root);
           const led = buildRealisticLED(state.reverseLed, state.ledBurnt);
-          led.grp.position.set(3.4, -0.85, 0.0);
-          activeGroup.add(led.grp);
+          led.grp.position.set(3.4, -0.85, 0.0); activeGroup.add(led.grp);
 
-          // Insulated color-coded bench jumper wires
           const makeWire = (pts, col) => {
             const c = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.12);
-            const m = new THREE.Mesh(new THREE.TubeGeometry(c, 36, 0.05, 10, false), new THREE.MeshStandardMaterial({ color: col, roughness: 0.42 }));
-            activeGroup.add(m);
-            return c;
+            activeGroup.add(new THREE.Mesh(new THREE.TubeGeometry(c, 36, 0.05, 10, false), new THREE.MeshStandardMaterial({ color: col, roughness: 0.42 })));
           };
           const bPos = new THREE.Vector3(-3.4 + batt.posAnchor.x, -1.25 + batt.posAnchor.y, batt.posAnchor.z);
           const bNeg = new THREE.Vector3(-3.4 + batt.negAnchor.x, -1.25 + batt.negAnchor.y, batt.negAnchor.z);
-
           makeWire([bPos, new THREE.Vector3(-3.4, -0.25, -1.9), new THREE.Vector3(-2.5, -0.25, -1.9)], 0xdc2626);
           makeWire([new THREE.Vector3(2.5, -0.25, -1.9), new THREE.Vector3(3.26, -0.25, -1.9), new THREE.Vector3(3.26, -0.9, 0)], 0xd97706);
           makeWire([new THREE.Vector3(3.54, -0.9, 0), new THREE.Vector3(3.54, -1.1, 2.0), new THREE.Vector3(0.50, -1.0, 2.0)], 0x1e293b);
@@ -2608,12 +2204,11 @@
       }
 
       /* -----------------------------------------------------------------------
-         7. 2D SCHEMATIC RENDERER (SYNCS WITH LIVE STATE)
+         6. 2D SCHEMATIC RENDERER & PHYSICS
          ----------------------------------------------------------------------- */
       function renderSchematicView(phys) {
         const R = formatOhms(phys.R);
         const ledCol = state.ledBurnt ? '#52525b' : (phys.currentMa > 0 ? '#dc2626' : '#94a3b8');
-        // Vertical LED on right leg (x=560): normal points downward (+ at top 130, - at bottom 175)
         const ledPoly = state.reverseLed ? '538,175 582,175 560,130' : '538,130 582,130 560,175';
         const ledBar = state.reverseLed ? 130 : 175;
         const swLine = state.powerOn ? 'M295 255 H365' : 'M295 255 L355 225';
@@ -2622,14 +2217,10 @@
         schematicWrap.innerHTML = `<svg viewBox="0 0 720 315" role="img" aria-label="2D Circuit Schematic Diagram">
           <g fill="none" stroke="#063839" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M120 130 V60 H280 M440 60 H560 V130 M560 175 V255 H365 M295 255 H120 V178"/>
-            <!-- Zigzag Resistor Symbol -->
             <path d="M280 60 l13 -16 13 32 13 -32 13 32 13 -32 13 32 13 -32 13 32 13 -16 h13" stroke="#065758"/>
-            <!-- Battery Symbol -->
             <path d="M92 130 H148 M104 146 H136 M92 162 H148 M104 178 H136"/>
-            <!-- Switch Symbol -->
             <circle cx="295" cy="255" r="4.5" fill="#065758"/><circle cx="365" cy="255" r="4.5" fill="#065758"/>
             <path d="${swLine}" stroke="#00999F"/>
-            <!-- Vertical LED Symbol -->
             <polygon points="${ledPoly}" fill="${ledCol}" stroke="#063839"/>
             <path d="M538 ${ledBar} H582"/>
             <path d="M590 142 L610 122 M598 162 L618 142" stroke="${ledCol}"/>
@@ -2645,34 +2236,24 @@
         </svg>`;
       }
 
-      /* -----------------------------------------------------------------------
-         8. LIVE PHYSICS, OSCILLOSCOPE & CALCULATOR
-         ----------------------------------------------------------------------- */
       function computePhysics() {
-        const R = getResistanceValue();
-        const V = state.voltage;
+        const R = getResistanceValue(), V = state.voltage;
         let currentMa = 0, status = 'OFF';
         if (state.powerOn) {
-          if (state.mode === 'closeup') {
-            currentMa = (V / R) * 1000;
-            status = 'FLOWING';
-          } else if (state.reverseLed) {
-            currentMa = 0;
-            status = 'REVERSED (BLOCKED)';
-          } else {
-            const vDrop = Math.max(0, V - 2.0);
-            currentMa = (vDrop / R) * 1000;
+          if (state.mode === 'closeup') { currentMa = (V / R) * 1000; status = 'FLOWING'; }
+          else if (state.reverseLed) { currentMa = 0; status = 'REVERSED'; }
+          else {
+            currentMa = (Math.max(0, V - 2.0) / R) * 1000;
             if (currentMa > 35) state.ledBurnt = true;
             if (state.ledBurnt) { currentMa = 0; status = 'BURNT OUT!'; }
-            else if (V <= 2.0) status = 'BELOW 2.0 V TURN-ON';
+            else if (V <= 2.0) status = 'BELOW 2.0 V';
             else if (currentMa < 2) status = 'VERY DIM';
             else if (currentMa <= 22) status = 'SAFE (GLOWING)';
             else status = 'HOT (NEAR LIMIT)';
           }
         }
         const iAmps = currentMa / 1000;
-        const powerMw = iAmps * iAmps * R * 1000;
-        return { R, V, currentMa, powerMw, status };
+        return { R, V, currentMa, powerMw: iAmps * iAmps * R * 1000, status };
       }
 
       function syncControls() {
@@ -2691,10 +2272,10 @@
         schematicWrap.style.display = (isSchem || !webglReady) ? 'flex' : 'none';
         if (isSchem || !webglReady) renderSchematicView(phys);
 
+        const inCircuit = state.mode !== 'closeup';
         const pwrBtn = document.getElementById('btn-power');
         const revBtn = document.getElementById('btn-reverse');
         const rstBtn = document.getElementById('btn-reset-led');
-        const inCircuit = state.mode !== 'closeup';
         pwrBtn.style.display = inCircuit ? 'inline-flex' : 'none';
         revBtn.style.display = inCircuit ? 'inline-flex' : 'none';
         pwrBtn.textContent = state.powerOn ? 'Switch: ON' : 'Switch: OFF';
@@ -2702,13 +2283,14 @@
         revBtn.classList.toggle('active', state.reverseLed);
         rstBtn.style.display = (inCircuit && state.ledBurnt) ? 'inline-flex' : 'none';
 
-        document.getElementById('btn-flow-dir').textContent = state.flowDir === 1 ? 'Current: + → −' : 'Electrons: − → +';
-        document.getElementById('btn-flow-pause').textContent = state.flowPaused ? 'Resume Flow' : 'Pause Flow';
+        document.getElementById('btn-flow-dir').textContent = state.flowDir === 1 ? '+ → −' : '− → +';
+        document.getElementById('btn-flow-pause').textContent = state.flowPaused ? 'Resume' : 'Pause';
         document.getElementById('btn-flow-pause').classList.toggle('active', state.flowPaused);
 
         document.getElementById('stage-mode-badge').textContent =
-          (state.mode === 'closeup' ? '3D Closeup' : state.mode === 'schematic' ? '2D Schematic' : 'LED Safety Circuit') + ' · ' + state.view.toUpperCase();
+          (state.mode === 'closeup' ? '3D Resistor' : state.mode === 'schematic' ? '2D Schematic' : 'LED Circuit') + ' · ' + state.view.toUpperCase();
         document.getElementById('voltage-val').textContent = `${phys.V.toFixed(1)} V (${Math.round(phys.V / 1.5)} × 1.5 V)`;
+        document.getElementById('voltage-slider').value = phys.V;
 
         const iStr = phys.currentMa >= 100 ? phys.currentMa.toFixed(0) + ' mA' : phys.currentMa.toFixed(1) + ' mA';
         document.getElementById('tele-r').textContent = formatOhms(phys.R);
@@ -2716,14 +2298,7 @@
         document.getElementById('tele-p').textContent = phys.powerMw.toFixed(0) + ' mW';
         const stEl = document.getElementById('tele-status');
         stEl.textContent = phys.status;
-        stEl.className = 'tele-cell-v' + (state.ledBurnt ? ' burn' : phys.currentMa > 22 ? ' warn' : '');
-
-        document.getElementById('toc-r').textContent = formatOhms(phys.R);
-        document.getElementById('toc-v').textContent = phys.V.toFixed(1) + ' V';
-        document.getElementById('toc-i').textContent = iStr;
-        const tocLed = document.getElementById('toc-led');
-        tocLed.textContent = state.ledBurnt ? 'BURNT' : (state.reverseLed ? 'BLOCKED' : (state.powerOn ? 'SAFE' : 'OFF'));
-        tocLed.className = 'stat-val ' + (state.ledBurnt || state.reverseLed ? 'danger' : 'safe');
+        stEl.className = 'tele-cell-v' + (state.ledBurnt || state.reverseLed ? ' burn' : phys.currentMa > 22 ? ' warn' : '');
       }
 
       function rebuildAndSync() {
@@ -2749,7 +2324,6 @@
       document.getElementById('preset-220').addEventListener('click', () => { state.mode = 'circuit'; state.bandCount = 4; state.b1 = 2; state.b2 = 2; state.mulIdx = 3; state.powerOn = true; state.reverseLed = false; state.ledBurnt = false; rebuildAndSync(); });
       document.getElementById('preset-1k').addEventListener('click', () => { state.mode = 'circuit'; state.bandCount = 4; state.b1 = 1; state.b2 = 0; state.mulIdx = 4; state.powerOn = true; state.reverseLed = false; state.ledBurnt = false; rebuildAndSync(); });
 
-      // Camera pills
       document.getElementById('cam-left').addEventListener('click', () => { orbit.targetTheta += 0.35; });
       document.getElementById('cam-right').addEventListener('click', () => { orbit.targetTheta -= 0.35; });
       document.getElementById('cam-zin').addEventListener('click', () => { orbit.targetRadius = Math.max(4.8, orbit.targetRadius - 1.4); });
@@ -2759,21 +2333,18 @@
         else { orbit.targetTheta = 0.34; orbit.targetPhi = 0.90; orbit.targetRadius = 11.4; }
       });
 
-      // Decoder presets
       document.getElementById('btn-band4').addEventListener('click', () => { state.bandCount = 4; rebuildAndSync(); });
       document.getElementById('btn-band5').addEventListener('click', () => { state.bandCount = 5; rebuildAndSync(); });
-      document.getElementById('btn-ex-220').addEventListener('click', () => { state.b1 = 2; state.b2 = 2; state.b3d = 0; state.mulIdx = state.bandCount === 4 ? 3 : 2; rebuildAndSync(); });
-      document.getElementById('btn-ex-470').addEventListener('click', () => { state.b1 = 4; state.b2 = 7; state.b3d = 0; state.mulIdx = state.bandCount === 4 ? 3 : 2; rebuildAndSync(); });
-      document.getElementById('btn-ex-1k').addEventListener('click', () => { state.b1 = 1; state.b2 = 0; state.b3d = 0; state.mulIdx = state.bandCount === 4 ? 4 : 3; rebuildAndSync(); });
 
       /* -----------------------------------------------------------------------
-         9. OHM'S LAW & POWER CALCULATOR
+         7. REAL-TIME OHM'S LAW CALCULATOR (AUTO-SYNCS TO 3D LAB)
          ----------------------------------------------------------------------- */
       let calcMode = 'i';
       const calcV = document.getElementById('calc-v');
       const calcR = document.getElementById('calc-r');
       const calcI = document.getElementById('calc-i');
       const calcVf = document.getElementById('calc-vf');
+      const calcAuto = document.getElementById('calc-autosync');
       const calcOut = document.getElementById('calc-output');
 
       function setCalcMode(m) {
@@ -2781,50 +2352,13 @@
         document.getElementById('calc-solve-i').classList.toggle('active', m === 'i');
         document.getElementById('calc-solve-r').classList.toggle('active', m === 'r');
         document.getElementById('calc-solve-v').classList.toggle('active', m === 'v');
-        calcV.disabled = (m === 'v');
-        calcR.disabled = (m === 'r');
-        calcI.disabled = (m === 'i');
-        runCalc();
+        calcV.disabled = (m === 'v'); calcR.disabled = (m === 'r'); calcI.disabled = (m === 'i');
+        runCalc(false);
       }
 
-      function runCalc() {
-        const vf = parseFloat(calcVf.value) || 0;
-        let V = Math.max(0, parseFloat(calcV.value) || 0);
-        let R = Math.max(1, parseFloat(calcR.value) || 1);
-        let Ima = Math.max(0.1, parseFloat(calcI.value) || 1);
-
-        if (calcMode === 'i') {
-          const vRes = Math.max(0, V - vf);
-          Ima = (vRes / R) * 1000;
-          calcI.value = Ima.toFixed(1);
-        } else if (calcMode === 'r') {
-          const vRes = Math.max(0, V - vf);
-          R = vRes / (Ima / 1000);
-          calcR.value = Math.max(1, Math.round(R));
-        } else {
-          V = vf + (Ima / 1000) * R;
-          calcV.value = V.toFixed(2);
-        }
-
-        const vRes = Math.max(0, V - vf);
-        const Ia = Ima / 1000;
-        const P = Ia * Ia * R;
-        const warn = P > 0.25 ? ' (Exceeds 0.25 W resistor rating!)' : (vf > 0 && Ima > 22 ? ' (High current for a 5 mm LED!)' : ' (Safe operating range)');
-        calcOut.innerHTML = `<div class="calc-big">I = ${Ima.toFixed(2)} mA (${Ia.toFixed(4)} A) &middot; R = ${formatOhms(R)} &middot; P = ${(P * 1000).toFixed(1)} mW</div>
-          <div>Step 1 &middot; Voltage across resistor: <strong>V<sub>R</sub> = ${V.toFixed(1)} V &minus; ${vf.toFixed(1)} V = ${vRes.toFixed(2)} V</strong></div>
-          <div>Step 2 &middot; Ohm's Law: <strong>I = V<sub>R</sub> &divide; R = ${vRes.toFixed(2)} &divide; ${R.toFixed(0)} = ${Ia.toFixed(4)} A (${Ima.toFixed(1)} mA)</strong></div>
-          <div>Step 3 &middot; Resistor Heat Power: <strong>P = I&sup2; &times; R = ${P.toFixed(3)} W${warn}</strong></div>`;
-      }
-
-      document.getElementById('calc-solve-i').addEventListener('click', () => setCalcMode('i'));
-      document.getElementById('calc-solve-r').addEventListener('click', () => setCalcMode('r'));
-      document.getElementById('calc-solve-v').addEventListener('click', () => setCalcMode('v'));
-      [calcV, calcR, calcI, calcVf].forEach(el => el.addEventListener('input', runCalc));
-      document.getElementById('calc-apply-btn').addEventListener('click', () => {
-        const v = Math.min(9, Math.max(1.5, Math.round((parseFloat(calcV.value) || 6) / 1.5) * 1.5));
-        state.voltage = v;
-        document.getElementById('voltage-slider').value = v;
-        const r = Math.max(10, parseFloat(calcR.value) || 220);
+      function applyValuesTo3D(V, R) {
+        state.voltage = Math.min(9, Math.max(1.5, Math.round(V / 1.5) * 1.5));
+        const r = Math.max(10, R);
         const exp = Math.max(-2, Math.floor(Math.log10(r)) - 1);
         const twoDigits = Math.min(99, Math.max(10, Math.round(r / Math.pow(10, exp))));
         state.bandCount = 4;
@@ -2834,30 +2368,58 @@
         state.mulIdx = mIdx >= 0 ? mIdx : 3;
         state.ledBurnt = false;
         rebuildAndSync();
-        document.getElementById('sec-lab-stage').scrollIntoView({ behavior: 'smooth' });
-      });
+      }
+
+      function runCalc(shouldSync = true) {
+        const vf = parseFloat(calcVf.value) || 0;
+        let V = Math.max(0, parseFloat(calcV.value) || 0);
+        let R = Math.max(1, parseFloat(calcR.value) || 1);
+        let Ima = Math.max(0.1, parseFloat(calcI.value) || 1);
+
+        if (calcMode === 'i') {
+          Ima = (Math.max(0, V - vf) / R) * 1000;
+          calcI.value = Ima.toFixed(1);
+        } else if (calcMode === 'r') {
+          R = Math.max(1, Math.round(Math.max(0, V - vf) / (Ima / 1000)));
+          calcR.value = R;
+        } else {
+          V = vf + (Ima / 1000) * R;
+          calcV.value = V.toFixed(2);
+        }
+
+        const vRes = Math.max(0, V - vf), Ia = Ima / 1000, P = Ia * Ia * R;
+        const warn = P > 0.25 ? ' (Exceeds 0.25 W!)' : (vf > 0 && Ima > 22 ? ' (High LED current!)' : ' (Safe range)');
+        calcOut.innerHTML = `<div class="calc-big">I = ${Ima.toFixed(2)} mA &middot; R = ${formatOhms(R)} &middot; P = ${(P * 1000).toFixed(1)} mW</div>
+          <div>Step 1: <strong>V<sub>R</sub> = ${V.toFixed(1)} &minus; ${vf.toFixed(1)} = ${vRes.toFixed(2)} V</strong></div>
+          <div>Step 2: <strong>I = ${vRes.toFixed(2)} &divide; ${R.toFixed(0)} = ${Ia.toFixed(4)} A (${Ima.toFixed(1)} mA)</strong></div>
+          <div>Step 3: <strong>P = I&sup2;R = ${P.toFixed(3)} W${warn}</strong></div>`;
+
+        if (shouldSync && calcAuto.checked) applyValuesTo3D(V, R);
+      }
+
+      document.getElementById('calc-solve-i').addEventListener('click', () => setCalcMode('i'));
+      document.getElementById('calc-solve-r').addEventListener('click', () => setCalcMode('r'));
+      document.getElementById('calc-solve-v').addEventListener('click', () => setCalcMode('v'));
+      [calcV, calcR, calcI, calcVf].forEach(el => el.addEventListener('input', () => runCalc(true)));
 
       /* -----------------------------------------------------------------------
-         10. SCOPE & ANIMATION LOOP
+         8. SCOPE & ANIMATION LOOP
          ----------------------------------------------------------------------- */
       const scopeCanvas = document.getElementById('scope-canvas');
       const scopeCtx = scopeCanvas.getContext('2d');
       let scopePhase = 0;
 
       function drawScope(currentMa) {
-        const w = scopeCanvas.clientWidth || 300, h = scopeCanvas.clientHeight || 115;
+        const w = scopeCanvas.clientWidth || 260, h = scopeCanvas.clientHeight || 100;
         if (scopeCanvas.width !== w || scopeCanvas.height !== h) { scopeCanvas.width = w; scopeCanvas.height = h; }
-        scopeCtx.fillStyle = '#041d1e';
-        scopeCtx.fillRect(0, 0, w, h);
-        scopeCtx.strokeStyle = 'rgba(129, 210, 227, 0.15)';
-        scopeCtx.lineWidth = 1;
-        for (let y = 20; y < h; y += 22) { scopeCtx.beginPath(); scopeCtx.moveTo(0, y); scopeCtx.lineTo(w, y); scopeCtx.stroke(); }
-        const yVal = h - 14 - Math.min(0.88, currentMa / 45) * (h - 28);
+        scopeCtx.fillStyle = '#041d1e'; scopeCtx.fillRect(0, 0, w, h);
+        scopeCtx.strokeStyle = 'rgba(129, 210, 227, 0.15)'; scopeCtx.lineWidth = 1;
+        for (let y = 18; y < h; y += 20) { scopeCtx.beginPath(); scopeCtx.moveTo(0, y); scopeCtx.lineTo(w, y); scopeCtx.stroke(); }
+        const yVal = h - 12 - Math.min(0.88, currentMa / 45) * (h - 24);
         scopeCtx.strokeStyle = state.ledBurnt ? '#ff7b72' : (currentMa > 22 ? '#FEEE30' : '#BCEDD8');
-        scopeCtx.lineWidth = 2.4;
-        scopeCtx.beginPath();
+        scopeCtx.lineWidth = 2.2; scopeCtx.beginPath();
         for (let x = 0; x < w; x++) {
-          const y = yVal + (currentMa > 0 && !state.flowPaused ? Math.sin(x * 0.08 + scopePhase) * 2.2 : 0);
+          const y = yVal + (currentMa > 0 && !state.flowPaused ? Math.sin(x * 0.08 + scopePhase) * 2.0 : 0);
           if (x === 0) scopeCtx.moveTo(x, y); else scopeCtx.lineTo(x, y);
         }
         scopeCtx.stroke();
@@ -2866,13 +2428,11 @@
       let flowT = 0, lastTime = performance.now(), smokeTime = 0;
       function animate(now) {
         requestAnimationFrame(animate);
-        const dt = Math.min(0.05, (now - lastTime) / 1000);
-        lastTime = now;
+        const dt = Math.min(0.05, (now - lastTime) / 1000); lastTime = now;
         const phys = computePhysics();
         const speed = (!state.flowPaused && phys.currentMa > 0) ? Math.min(1.7, 0.08 + phys.currentMa * 0.015) : 0;
         flowT = (flowT + dt * speed * state.flowDir + 1) % 1;
-        scopePhase += dt * (2 + speed * 5);
-        smokeTime += dt;
+        scopePhase += dt * (2 + speed * 5); smokeTime += dt;
         drawScope(phys.currentMa);
 
         if (webglReady && state.mode !== 'schematic') {
@@ -2901,30 +2461,17 @@
           } else if (animatedActors.kind === 'circuit') {
             animatedActors.sw.pivot.rotation.z += ((state.powerOn ? 0 : -0.68) - animatedActors.sw.pivot.rotation.z) * 0.16;
             animatedActors.dMat.color.setHex(state.flowDir === 1 ? 0x00b8bf : 0x2563eb);
-            animatedActors.dots.forEach((s) => {
-              s.visible = phys.currentMa > 0;
-              s.position.copy(animatedActors.loopCurve.getPointAt((s.userData.offset + flowT) % 1));
-            });
+            animatedActors.dots.forEach((s) => { s.visible = phys.currentMa > 0; s.position.copy(animatedActors.loopCurve.getPointAt((s.userData.offset + flowT) % 1)); });
             const led = animatedActors.led;
             if (state.ledBurnt) {
-              led.lensMat.color.setHex(0x27272a);
-              led.lensMat.emissiveIntensity = 0;
-              led.glowMat.opacity = 0;
-              pointGlowLight.intensity = 0;
-              led.smokePuffs.forEach((sm, idx) => {
-                const ph = (smokeTime * 0.65 + idx * 0.17) % 1;
-                sm.position.y = 1.05 + ph * 1.4;
-                sm.material.opacity = (1 - ph) * 0.45;
-              });
+              led.lensMat.color.setHex(0x27272a); led.lensMat.emissiveIntensity = 0; led.glowMat.opacity = 0; pointGlowLight.intensity = 0;
+              led.smokePuffs.forEach((sm, idx) => { const ph = (smokeTime * 0.65 + idx * 0.17) % 1; sm.position.y = 1.05 + ph * 1.4; sm.material.opacity = (1 - ph) * 0.45; });
             } else {
               led.smokePuffs.forEach(sm => { sm.material.opacity = 0; });
               const b = (state.powerOn && !state.reverseLed) ? Math.min(1, phys.currentMa / 20) : 0;
-              led.lensMat.color.setHex(0xef3330);
-              led.lensMat.emissiveIntensity = 0.15 + b * 1.15;
-              led.glowMat.opacity = b * 0.85;
-              led.glowSprite.scale.set(1.6 + b * 1.4, 1.6 + b * 1.4, 1);
-              pointGlowLight.position.set(3.4, -0.1, 0);
-              pointGlowLight.intensity = b * 1.4;
+              led.lensMat.color.setHex(0xef3330); led.lensMat.emissiveIntensity = 0.15 + b * 1.15;
+              led.glowMat.opacity = b * 0.85; led.glowSprite.scale.set(1.6 + b * 1.4, 1.6 + b * 1.4, 1);
+              pointGlowLight.position.set(3.4, -0.1, 0); pointGlowLight.intensity = b * 1.4;
             }
           }
           const w = rect.width, h = rect.height;
@@ -2933,17 +2480,15 @@
             if (p.z > 1) lbl.el.style.display = 'none';
             else {
               lbl.el.style.display = 'block';
-              const px = Math.min(w - 76, Math.max(76, (p.x * 0.5 + 0.5) * w));
-              const py = Math.min(h - 24, Math.max(24, (-p.y * 0.5 + 0.5) * h));
-              lbl.el.style.left = px + 'px';
-              lbl.el.style.top = py + 'px';
+              lbl.el.style.left = Math.min(w - 72, Math.max(72, (p.x * 0.5 + 0.5) * w)) + 'px';
+              lbl.el.style.top = Math.min(h - 22, Math.max(22, (-p.y * 0.5 + 0.5) * h)) + 'px';
             }
           });
           renderer.render(scene, camera);
         }
       }
 
-      runCalc();
+      runCalc(false);
       rebuildAndSync();
       requestAnimationFrame(animate);
     })();
