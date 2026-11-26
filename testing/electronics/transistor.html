@@ -804,6 +804,7 @@
          4. THREE.JS CORE SCENE, CAMERA & SMOOTH ORBIT CONTROLLER
          ----------------------------------------------------------------------- */
       const canvas = document.getElementById('three-canvas');
+      if(typeof THREE==='undefined'){document.getElementById('viewport-wrap').innerHTML='<div style="position:absolute;top:45%;left:35%;right:8%;padding:20px;background:white;color:#065758">The 3D library could not load. Check the internet connection and reload this page.</div>';return;}
       const labelsLayer = document.getElementById('labels-layer');
 
       const isSoftwareGl = (() => {
@@ -817,7 +818,9 @@
         return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
       })();
 
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isSoftwareGl, powerPreference: 'high-performance' });
+      let renderer;
+      try {renderer = new THREE.WebGLRenderer({canvas,antialias:!isSoftwareGl,powerPreference:'high-performance'});}
+      catch(err){document.getElementById('viewport-wrap').innerHTML='<div style="position:absolute;top:45%;left:35%;right:8%;padding:20px;border:1px solid #c8e5e2;background:#fff;color:#065758">3D requires WebGL. Enable browser hardware acceleration or try another browser. The lesson notes remain available on the left.</div>';return;}
       renderer.setClearColor(0xf4faf9, 1);
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.shadowMap.enabled = !isSoftwareGl;
@@ -1404,9 +1407,9 @@
           if(exploded)bodyMesh.position.z=-1.35;
           root.add(bodyMesh);
           addEdgeOutline(bodyMesh,0x102822,xray?.15:.23);
-          if(!isCut||exploded)printedPlate(root,type==='npn'?'BC547':'PNP','TO-92 • BJT',1.27,.64,0,.88,exploded?-.96:.409,'#202228');
+          if(!isCut||exploded)printedPlate(root,type==='npn'?'BC547':'BC557','TO-92 • BJT',1.27,.64,0,.88,exploded?-.96:.409,'#202228');
           registerClickable(bodyMesh, {
-            name: type === 'npn' ? 'NPN BJT Package (TO-92 · BC547)' : 'PNP BJT Package (TO-92 · teaching orientation)',
+            name: type === 'npn' ? 'NPN BJT Package (TO-92 · BC547)' : 'PNP BJT Package (TO-92 · BC557)',
             desc: type === 'npn'
               ? 'Black epoxy TO-92 housing protecting a tiny silicon crystal. NPN is the most common classroom transistor — give its Base a small positive push to turn ON!'
               : 'Black epoxy TO-92 housing for a PNP transistor — the opposite twin of NPN. Pulling its Base LOW lets current flow from Emitter to Collector.',
@@ -1494,9 +1497,9 @@
                 { x: 0.58,  code: 'E', full: 'Emitter Pin (E)', desc: 'The exit leg connected to Ground (−). All current leaves through the Emitter.', color: '#374151' }
               ]
             : [
-                { x: -0.58, code: 'E', full: 'Emitter Pin (E)', desc: 'Connected to positive supply (+) in a PNP transistor. Current enters here.', color: '#e04836' },
+                { x: 0.58, code: 'E', full: 'Emitter Pin (E)', desc: 'Connected to positive supply (+) in a PNP transistor. Current enters here.', color: '#e04836' },
                 { x: 0.0,   code: 'B', full: 'Base Pin (B)', desc: 'Pull this Base pin LOW (toward ground) to switch a PNP transistor ON!', color: '#2563eb' },
-                { x: 0.58,  code: 'C', full: 'Collector Pin (C)', desc: 'Main output leg that feeds current down to the load when the PNP opens.', color: '#374151' }
+                { x: -0.58,  code: 'C', full: 'Collector Pin (C)', desc: 'Main output leg that feeds current down to the load when the PNP opens.', color: '#374151' }
               ];
 
           pinNames.forEach((p) => {
@@ -1751,8 +1754,8 @@
                 new THREE.Vector3(0.68, 0.56, 0.18),
                 new THREE.Vector3(0.68, -1.85, 0.12)
               ];
-          const mainCurve = new THREE.CatmullRomCurve3(mainPts);
-          const mainFlow = createFlowParticles(mainCurve, 14, 0xe04836, 0.088);
+          const mainCurve = new THREE.CatmullRomCurve3(mainPts.map(p=>{p.z+=.23;return p;}));
+          const mainFlow = createFlowParticles(mainCurve, 14, 0xffb55c, 0.088);
           activeGroup.add(mainFlow.group);
           // The flow is a magnified schematic overlay, intentionally in front of the die.
 
@@ -1760,8 +1763,8 @@
           if (type !== 'photo' && type !== 'mosfet') {
             const basePts = type === 'mosfet'
               ? [new THREE.Vector3(-0.73, -1.85, 0.18), new THREE.Vector3(-0.73, 1.55, 0.22), new THREE.Vector3(0.0, 1.62, 0.24)]
-              : [new THREE.Vector3(0.0, -1.85, 0.18), new THREE.Vector3(0.0, 1.02, 0.26), new THREE.Vector3(type==='pnp'?-0.68:0.68, 0.56, 0.22), new THREE.Vector3(type==='pnp'?-0.68:0.68, -1.85, 0.18)];
-            baseFlow = createFlowParticles(new THREE.CatmullRomCurve3(basePts), 6, 0x2563eb, 0.062);
+              : [new THREE.Vector3(0.0, -1.85, 0.18), new THREE.Vector3(0.0, 1.02, 0.26), new THREE.Vector3(0.68, 0.56, 0.22), new THREE.Vector3(0.68, -1.85, 0.18)];
+            baseFlow = createFlowParticles(new THREE.CatmullRomCurve3(basePts.map(p=>{p.z+=.25;return p;})), 6, 0x77b7ff, 0.062);
             activeGroup.add(baseFlow.group);
           }
 
@@ -1774,9 +1777,9 @@
               addLabelAnchor('P-type gatekeeper', new THREE.Vector3(1.38, 1.02, 0.1), 'red');
             }
           } else if (type === 'pnp') {
-            addLabelAnchor('E · emitter (+)', new THREE.Vector3(-0.85, -1.95, 0.2), 'red');
+            addLabelAnchor('E · emitter (+)', new THREE.Vector3(0.85, -1.95, 0.2), 'red');
             addLabelAnchor('B · base (pull low)', new THREE.Vector3(0.0, -2.2, 0.2), 'blue');
-            addLabelAnchor('C · collector', new THREE.Vector3(0.85, -1.95, 0.2), 'dark');
+            addLabelAnchor('C · collector', new THREE.Vector3(-0.85, -1.95, 0.2), 'dark');
             if (state.tr.view !== 'outer') {
               addLabelAnchor('P-type silicon', new THREE.Vector3(1.28, 1.48, 0.1), 'red');
               addLabelAnchor('N-type base', new THREE.Vector3(1.32, 1.02, 0.1), 'blue');
@@ -1823,8 +1826,8 @@
           trModel.root.position.set(1.85,-.15,.2);activeGroup.add(trModel.root);
           const pin=(x,y)=>v(1.85+x*.68,-.15+y*.68,.2);
           const bjt=type==='npn'||type==='pnp', pnp=type==='pnp', mos=type==='mosfet', photo=type==='photo';
-          const mainIn=pin(photo?-.36:mos?0:-.58,photo?-1.455:mos?-1.605:-1.55);
-          const mainOut=pin(photo?.36:mos?.62:.58,photo?-1.455:mos?-1.605:-1.55);
+          const mainIn=pin(photo?-.36:mos?0:pnp?.58:-.58,photo?-1.455:mos?-1.605:-1.55);
+          const mainOut=pin(photo?.36:mos?.62:pnp?-.58:.58,photo?-1.455:mos?-1.605:-1.55);
           const control=pin(mos?-.62:0,mos?-1.605:-1.55);
           const digits=state.tr.loadOhms===220?[2,2,1]:state.tr.loadOhms===1000?[1,0,2]:[4,7,1];
           const rColl=buildCircuitResistor({scale:.31,b1:digits[0],b2:digits[1],b3:digits[2],label:state.tr.loadOhms+' Ω Load Resistor',desc:'Limits the load current; a higher resistance reduces LED brightness.'});
@@ -1869,6 +1872,14 @@
               connect([swOut,v(-2.28,.55,1.9),left],0x2563eb,mos?'gate':'base');
               connect([right,rl],0x2563eb,mos?'gate':'base');
               connect([rr,v(control.x,-.92,1.9),control],0x2563eb,mos?'gate':'base');
+            }
+            if(mos){
+              const pull=buildCircuitResistor({scale:.19,b1:1,b2:0,b3:4,label:'100 kΩ gate pull-down',desc:'Discharges the gate when the control switch opens so it does not float.'});
+              pull.root.position.set(2.1,-1.16,2.25);activeGroup.add(pull.root);
+              const a=v(2.1-3.85*.19,-1.16,2.25),b=v(2.1+3.85*.19,-1.16,2.25);
+              connect([control,v(control.x,-1.42,2.25),a],0x2563eb,'gate');
+              connect([b,v(2.83,-1.55,2.25),v(-3.72,-1.55,2.25),batteryNeg],0x3f3f46,'gate');
+              addLabelAnchor('100 kΩ pull-down',v(2.1,-1.4,2.5),'muted');
             }
             addLabelAnchor(mos?'10 kΩ gate resistor':'10 kΩ base resistor',v(.15,-1.35,2.15),'muted');
           }else{
@@ -1965,25 +1976,24 @@
           streetR.root.position.set(1.35,.95,-1.55);activeGroup.add(streetR.root);
           addLabelAnchor('470 Ω load',new THREE.Vector3(1.35,1.45,-1.55),'muted');
           const v=(x,y,z)=>new THREE.Vector3(x,y,z);
-          const mainFlows=[],senseFlows=[];
+          const mainFlows=[],senseFlows=[],dividerFlows=[],ldrFlows=[];
           function link(pts,hex,kind){
-            const w=createWire(pts,hex,.045,{name:kind==='sense'?'Light sensor divider':'Streetlight current path',desc:kind==='sense'?'The divider supplies a base signal that changes with light.':'Current powers the LED when the transistor conducts.',tip:'Compare daylight and collector current.',color:kind==='sense'?'#2563eb':'#e04836',tag:'CIRCUIT CONNECTION'});
-            activeGroup.add(w.mesh);(kind==='sense'?senseFlows:mainFlows).push(wireFlow(w,kind==='sense'?0x77b7ff:0xffb55c));
+            const w=createWire(pts,hex,.045,{name:kind!=='main'?'Light sensor divider':'Streetlight current path',desc:kind!=='main'?'The divider supplies a base signal that changes with light.':'Current powers the LED when the transistor conducts.',tip:'Compare daylight and collector current.',color:kind==='sense'?'#2563eb':'#e04836',tag:'CIRCUIT CONNECTION'});
+            activeGroup.add(w.mesh);(kind==='sense'?senseFlows:kind==='divider'?dividerFlows:kind==='ldr'?ldrFlows:mainFlows).push(wireFlow(w,kind!=='main'?0x77b7ff:0xffb55c));
           }
           const plus=v(-4.28,.92,.2),minus=v(-3.72,.9,.2);
           const c=v(1.15-.58*.68,-.15-1.55*.68,.2),b=v(1.15,-.15-1.55*.68,.2),e=v(1.15+.58*.68,-.15-1.55*.68,.2);
-          const junction=v(-1.12,-.98,1.55);
+          const junction=v(-1.12,-1.14,1.55);
           const lampA=v(2.618,2.34,-.9),lampK=v(2.422,2.26,-.9);
           link([plus,v(-4.28,.95,-1.55),v(.2335,.95,-1.55)],0xe04836,'main');
           link([v(2.4665,.95,-1.55),v(3.55,.95,-1.55),v(3.55,1.75,-.9),lampA],0xe04836,'main');
           link([lampK,v(3.38,1.5,-.9),v(3.38,-1.35,-.9),v(c.x,-1.35,.2),c],0xe04836,'main');
           link([e,v(e.x,-1.58,.2),v(-3.72,-1.58,.2),minus],0x3f3f46,'main');
-          link([plus,v(-4.28,1.2,-1.55),v(-2.686,.95,-1.55)],0x2563eb,'sense');
-          link([v(.086,.95,-1.55),v(-1.12,.5,.1),junction],0x2563eb,'sense');
+          link([plus,v(-4.28,1.2,-1.55),v(-2.686,.95,-1.55)],0x2563eb,'divider');
+          link([v(.086,.95,-1.55),v(-1.12,.5,.1),junction],0x2563eb,'divider');
           link([junction,b],0x2563eb,'sense');
-          link([junction,v(-1.12,-1.14,1.55),v(-1.48,-1.14,1.55)],0x2563eb,'sense');
           // Separate LDR return; keep wire endpoints physically distinct.
-          link([v(-1.48,-1.14,1.55),v(-1.48,-1.62,1.55),v(-3.72,-1.62,.2),minus],0x3f3f46,'sense');
+          link([v(-1.48,-1.14,1.55),v(-1.48,-1.62,1.55),v(-3.72,-1.62,.2),minus],0x3f3f46,'ldr');
 
           addLabelAnchor('daylight', new THREE.Vector3(-1.3, 2.9, 1.55), 'red', 'lbl-sun');
           addLabelAnchor('ldr sensor', new THREE.Vector3(-1.3, -1.05, 2.05), 'blue');
@@ -2000,7 +2010,7 @@
             streetLed,
             coneMat,
             mainFlows,
-            senseFlows
+            senseFlows,dividerFlows,ldrFlows
           };
 
         } else if (proj === 'amp') {
@@ -2132,7 +2142,7 @@
           }
         } else if (proj === 'switch') {
           baseSig=power&&state.tr.baseOn?1:0;
-          gateV=type==='mosfet'?state.tr.supply*baseSig:0;
+          gateV=type==='mosfet'?state.tr.supply*baseSig*100/110:0;
           baseUa=(type==='npn'||type==='pnp')?baseSig*Math.max(0,(state.tr.supply-.7)/10000)*1e6:0;
           const limit=Math.max(0,(state.tr.supply-2-.2)/state.tr.loadOhms)*1000;
           collectorMa=type==='mosfet'?limit*Math.max(0,Math.min(1,(gateV-2)/5)):type==='photo'?limit*.65*baseSig:Math.min(limit,baseUa*.1);
@@ -2195,7 +2205,7 @@
             });
           }
 
-          animateFlow(mainFlow,state.tr.view==='outer'?0:collectorMa,dt);
+          animateFlow(mainFlow,state.tr.view==='outer'?0:collectorMa,dt,type==='pnp'?-1:1);
           animateFlow(baseFlow,state.tr.view==='outer'?0:baseUa/1000,dt,type==='pnp'?-1:1);
         } else if (animatedActors.kind === 'tr-switch') {
           const {trModel,baseSw,powerSw,led,mainFlows,baseFlows,controlWires}=animatedActors;
@@ -2205,11 +2215,11 @@
           setLamp(led,collectorMa);
           mainFlows.forEach(f=>animateFlow(f,collectorMa,dt));
           baseFlows.forEach(f=>animateFlow(f,baseUa/1000,dt));
-          controlWires.forEach(w=>{w.material.emissive.setHex(0x2563eb);w.material.emissiveIntensity=gateV>0?.5:0;});
+          controlWires.forEach(w=>{w.material.emissive.setHex(0x2563eb);w.material.emissiveIntensity=gateV>0&&w.material.color.getHex()!==0x3f3f46?.5:0;});
           const label=labelAnchors.find(l=>l.id==='lbl-load');
           if(label)label.el.textContent='LED · '+collectorMa.toFixed(1)+' mA';
         } else if (animatedActors.kind === 'tr-dark') {
-          const {sun,sunMat,sunRays,streetLed,coneMat,mainFlows,senseFlows}=animatedActors;
+          const {sun,sunMat,sunRays,streetLed,coneMat,mainFlows,senseFlows,dividerFlows,ldrFlows}=animatedActors;
           const day=state.tr.daylight;
           sunMat.color.setHSL(.11,.2+day*.75,.65-(1-day)*.15);
           sun.scale.setScalar(.65+day*.55);
@@ -2218,7 +2228,9 @@
           setLamp(streetLed,collectorMa);
           coneMat.opacity=Math.min(.16,collectorMa/20*.16);
           mainFlows.forEach(f=>animateFlow(f,collectorMa,dt));
-          senseFlows.forEach(f=>animateFlow(f,power?Math.max(.03,baseUa/1000):0,dt));
+          senseFlows.forEach(f=>animateFlow(f,baseUa/1000,dt));
+          dividerFlows.forEach(f=>animateFlow(f,power?(9-state.metrics.baseVoltage)/10:0,dt));
+          ldrFlows.forEach(f=>animateFlow(f,power?state.metrics.baseVoltage/state.metrics.ldrKohm:0,dt));
           const lblSun=labelAnchors.find(l=>l.id==='lbl-sun');
           if(lblSun)lblSun.el.textContent=day>.55?'bright sun (day)':day>.28?'sunset (dusk)':'pitch dark (night)';
           const lblLamp=labelAnchors.find(l=>l.id==='lbl-lamp');
@@ -2272,7 +2284,7 @@
           readoutEl.textContent = (on ? 'ON · ' : 'OFF · ') + cMa.toFixed(1) + ' mA';
         }
 
-        const typeLabel = { npn: 'NPN BJT (BC547)', pnp: 'PNP BJT (illustrated E-B-C)', mosfet: 'N-MOSFET (IRF540)', photo: 'Phototransistor' }[type];
+        const typeLabel = { npn: 'NPN BJT (BC547)', pnp: 'PNP BJT (BC557)', mosfet: 'N-MOSFET (IRF540)', photo: 'Phototransistor' }[type];
         const ctrlKey = type === 'mosfet' ? 'gate Vgs' : type === 'photo' ? 'light input' : 'base Ib';
         const ctrlVal = type === 'mosfet'
           ? state.metrics.gateVoltage.toFixed(1) + ' V (≈0 µA steady)'
@@ -2282,7 +2294,7 @@
 
         const extraRow = proj === 'switch' ? `<div class="telemetry-row"><span class="k">supply / load</span><span class="v">${state.tr.supply} V · ${state.tr.loadOhms} Ω</span></div>` : proj === 'dark'
           ? `<div class="telemetry-row"><span class="k">ldr ohms</span><span class="v">${state.metrics.ldrKohm.toFixed(1)} kΩ</span></div>`
-          : `<div class="telemetry-row"><span class="k">pinout</span><span class="v">${type === 'npn' ? 'C · B · E' : type === 'pnp' ? 'E · B · C' : type === 'mosfet' ? 'G · D · S' : 'C · E (Light)'}</span></div>`;
+          : `<div class="telemetry-row"><span class="k">pinout</span><span class="v">${type === 'npn' ? 'C · B · E' : type === 'pnp' ? 'C · B · E' : type === 'mosfet' ? 'G · D · S' : 'C · E (Light)'}</span></div>`;
 
         rowsEl.innerHTML = `
           <div class="telemetry-row"><span class="k">type</span><span class="v">${typeLabel}</span></div>
@@ -2511,7 +2523,7 @@
         action('zoom +',()=>{orbit.targetRadius=Math.max(5.2,orbit.targetRadius-1.2);});
         action('zoom −',()=>{orbit.targetRadius=Math.min(19,orbit.targetRadius+1.2);});
         const note=document.getElementById('motion-note');
-        note.textContent=state.tr.project==='switch'?'Model: 2 V LED, 0.2 V switch drop, β ≈ 100; gate and light response illustrative.':state.tr.project==='dark'?'NPN example · 9 V, 10 kΩ divider, 470 Ω load · simplified base loading.':state.tr.project==='amp'?'NPN signal illustration; not a complete audio amplifier circuit.':'Enlarged schematic cutaway · not to scale. Arrows show conventional current, not electron speed.';
+        note.textContent=state.tr.project==='switch'?'Model: 2 V LED, 0.2 V switch drop, β ≈ 100; gate and light response illustrative (not SPICE).':state.tr.project==='dark'?'NPN example · 9 V, 10 kΩ divider, 470 Ω load · simplified base loading.':state.tr.project==='amp'?'NPN signal illustration; not a complete audio amplifier circuit.':'Enlarged schematic cutaway · not to scale. Arrows show conventional current, not electron speed.';
       }
 
       /* -----------------------------------------------------------------------
