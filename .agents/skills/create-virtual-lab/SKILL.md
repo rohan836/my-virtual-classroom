@@ -21,6 +21,8 @@ Reuse the approved page's interaction patterns, typography, shell, responsive CS
 
 Use the correct subject and slug per AGENTS.md. Include title, description and lab-formula metadata expected by the catalog. Preserve the existing source path when revising. Use subject-appropriate demos: physical behaviour and safe circuits, sensing and control, AI input/learning/output where relevant, or actual Python execution and values when relevant. Use the appropriate depth, not mandatory formulas, telemetry, x-ray, 3D or code on every lesson.
 
+For electronics and robotics with physical components, read [electronics realism and simulation](references/electronics-realism.md) before building the illustrations and experiments. Use the reference's source, physics, interaction and browser QA workflow.
+
 ## 5. Test and deliver
 Apply the [quality checklist](references/quality-checklist.md) in full. Fix discovered problems. Run repository checks and browser tests for lesson changes, and distinguish passed checks from unverified ones. Deliver or update the requested HTML path, not a PDF or a separate teacher document unless requested. Report what changed and actual verification. When updating documentation only, verify links and rules instead of pretending to test a lesson.
 
