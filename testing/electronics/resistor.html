@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,32 +7,80 @@
   <meta name="description" content="Electricity wants to race through a wire. Explore how a carbon-film resistor slows current, decode 4-band color codes, and test a live LED safety circuit in 3D." />
   <meta name="lab-formula" content="V = I × R" />
 
-  <!-- Google Fonts: Inter (editorial sans), Newsreader (italic serif), IBM Plex Mono (technical UI) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
 
-  <!-- Three.js r128 for interactive 3D rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
     /* =========================================================================
-       SWISS-EDITORIAL SCIENTIFIC DESIGN SYSTEM (/electronics studies — Resistor)
+       VIBE DISCOVERY THEME — /electronics studies: Interactive 3D Resistor Lab
        ========================================================================= */
     :root {
-      --bg: #ffffff;
-      --ink: #111111;
-      --muted: #6e6e73;
-      --faint: #9a9aa0;
-      --border: #e5e5e5;
-      --border-strong: #d4d4d8;
-      --red: #e04836;
-      --red-soft: #fff6f5;
-      --blue: #2563eb;
-      --blue-soft: #f0f5ff;
-      --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-      --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --serif: 'Newsreader', Georgia, serif;
+      --c-pine: #065758;
+      --c-teal: #00999F;
+      --c-mint: #BCEDD8;
+      --c-lemon: #FEEE30;
+      --c-sky: #81D2E3;
+
+      --bg-page: #f4faf9;
+      --bg-surface: #ffffff;
+      --bg-subtle: #e7f4f2;
+      --bg-code: #e4f3f0;
+      --bg-canvas: #041d1e;
+
+      --text-primary: #063839;
+      --text-secondary: #1e5355;
+      --text-muted: #4b797b;
+
+      --border-subtle: #c8e5e2;
+      --border-strong: #8fc8cc;
+
+      --accent-primary: #065758;
+      --accent-hover: #00999F;
+      --accent-copper: #008288;
+      --accent-ochre: #7d6f00;
+
+      --danger: #c62828;
+      --danger-soft: #fdecec;
+      --safe: #0b6e4f;
+      --safe-soft: #e3f7ef;
+
+      --hero-grad: linear-gradient(180deg, #d8efec 0%, #eaf7f5 55%, #f4faf9 100%);
+      --masthead-bg: rgba(244, 250, 249, 0.88);
+      --top-strip: linear-gradient(90deg, #065758 0%, #00999F 28%, #BCEDD8 56%, #FEEE30 78%, #81D2E3 100%);
+
+      --font-serif: 'Newsreader', 'Computer Modern Serif', Georgia, serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #041718;
+      --bg-surface: #072325;
+      --bg-subtle: #0a2e31;
+      --bg-code: #0b3033;
+      --bg-canvas: #031112;
+
+      --text-primary: #eefaf8;
+      --text-secondary: #bce2df;
+      --text-muted: #7cb4b7;
+
+      --border-subtle: #134447;
+      --border-strong: #1e6266;
+
+      --accent-primary: #81D2E3;
+      --accent-hover: #BCEDD8;
+      --accent-copper: #00b8bf;
+      --accent-ochre: #FEEE30;
+
+      --danger: #ff7b72;
+      --danger-soft: #3a1414;
+      --safe: #56d39b;
+      --safe-soft: #0b3528;
+
+      --hero-grad: linear-gradient(180deg, #062b2d 0%, #051e20 55%, #041718 100%);
+      --masthead-bg: rgba(4, 23, 24, 0.88);
     }
 
     * {
@@ -41,27 +89,513 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    html, body {
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-size: 17px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-serif);
+      line-height: 1.72;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* 1. STICKY TRANSLUCENT MASTHEAD */
+    .masthead {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 62px;
+      background: var(--masthead-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      gap: 16px;
+    }
+
+    .masthead::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--top-strip);
+    }
+
+    .masthead-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .masthead-brand {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .masthead-crumb {
+      color: var(--text-muted);
+      text-decoration: none;
+      white-space: nowrap;
+      padding: 4px 8px;
+      border-radius: 5px;
+    }
+
+    .masthead-crumb:hover {
+      background: var(--bg-subtle);
+      color: var(--accent-primary);
+    }
+
+    .masthead-formula {
+      background: var(--bg-subtle);
+      color: var(--accent-copper);
+      border: 1px solid var(--border-subtle);
+      padding: 3px 9px;
+      border-radius: 4px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .masthead-clean {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-solid {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--accent-primary);
+      background: var(--accent-primary);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+
+    [data-theme="dark"] .btn-solid {
+      color: #041718;
+    }
+
+    .btn-solid:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-subtle);
+      border-color: var(--accent-hover);
+    }
+
+    /* 2. HERO FRONTMATTER */
+    .paper-hero {
+      background: var(--hero-grad);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 46px 24px 40px;
+    }
+
+    .paper-hero-inner {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--accent-copper);
+      margin-bottom: 10px;
+    }
+
+    h1.paper-title {
+      margin: 0 0 8px;
+      font-family: var(--font-serif);
+      font-size: clamp(2.0rem, 3.6vw, 2.85rem);
+      font-weight: 700;
+      line-height: 1.14;
+      letter-spacing: -0.02em;
+      color: var(--c-pine);
+    }
+
+    [data-theme="dark"] h1.paper-title {
+      color: var(--c-mint);
+    }
+
+    .paper-authors {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+    }
+
+    .abstract-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 2px solid var(--c-mint);
+      border-left: 4px solid var(--c-pine);
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 18px rgba(6, 56, 57, 0.04);
+    }
+
+    [data-theme="dark"] .abstract-box {
+      border-top-color: var(--c-teal);
+      border-left-color: var(--c-sky);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    .badge-lemon {
+      display: inline-block;
+      background: var(--c-lemon);
+      color: #063839;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-bottom: 8px;
+    }
+
+    .badge-mint {
+      display: inline-block;
+      background: var(--c-mint);
+      color: #063839;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-bottom: 6px;
+    }
+
+    .abstract-box p,
+    .subthreshold-hero-box p {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .subthreshold-hero-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--c-teal);
+      border-radius: 6px;
+      padding: 14px 20px;
+      margin-bottom: 22px;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* 3. WORKSPACE GRID (STICKY TOC + EDITORIAL ARTICLE) */
+    .workspace-grid {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 38px 24px 64px;
+      display: grid;
+      grid-template-columns: 235px minmax(0, 1fr);
+      gap: 52px;
+      align-items: start;
+    }
+
+    .toc-sidebar {
+      position: sticky;
+      top: 84px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .toc-group-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--accent-copper);
+      margin: 0 0 6px;
+    }
+
+    .toc-list {
+      list-style: none;
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background-color: var(--bg);
-      color: var(--ink);
-      font-family: var(--mono);
-      user-select: none;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
-    /* Full-bleed 3D canvas behind editorial overlays */
-    #viewport-wrap {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
+    .toc-link {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .toc-link:hover,
+    .toc-link.active {
+      background: var(--bg-subtle);
+      color: var(--accent-primary);
+      border-left-color: var(--c-teal);
+      font-weight: 600;
+    }
+
+    .toc-summary-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 3px solid var(--c-teal);
+      border-radius: 6px;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .toc-stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      border-bottom: 1px dashed var(--border-subtle);
+      gap: 8px;
+    }
+
+    .toc-stat-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .toc-stat-label {
+      color: var(--text-muted);
+    }
+
+    .stat-val {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+
+    .stat-val.danger {
+      color: var(--danger);
+    }
+
+    .stat-val.safe {
+      color: var(--safe);
+    }
+
+    /* 4. ARTICLE PROSE & SECTIONS */
+    .article-main {
+      min-width: 0;
+    }
+
+    .article-sec {
+      margin-bottom: 46px;
+      scroll-margin-top: 84px;
+    }
+
+    .sec-num {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--accent-copper);
+      margin-bottom: 4px;
+    }
+
+    .article-sec h2 {
+      margin: 0 0 14px;
+      font-family: var(--font-serif);
+      font-size: clamp(1.52rem, 2.3vw, 1.92rem);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--c-pine);
+    }
+
+    [data-theme="dark"] .article-sec h2 {
+      color: var(--c-mint);
+    }
+
+    .prose p {
+      margin: 0 0 16px;
+      font-size: 1.06rem;
+      line-height: 1.78;
+      max-width: 740px;
+      color: var(--text-secondary);
+    }
+
+    .prose a {
+      color: var(--accent-primary);
+      text-decoration: underline;
+      text-decoration-color: var(--c-teal);
+      text-underline-offset: 3px;
+    }
+
+    .prose strong {
+      color: var(--text-primary);
+    }
+
+    .inline-eq {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      background: var(--bg-code);
+      color: var(--accent-primary);
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* 5. INTERACTIVE 3D WIDGET CARD */
+    .widget-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 3px solid var(--c-teal);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 22px 0 36px;
+      box-shadow: 0 6px 24px rgba(6, 56, 57, 0.06);
+      scroll-margin-top: 84px;
+    }
+
+    .widget-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .widget-title {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--c-pine);
+    }
+
+    [data-theme="dark"] .widget-title {
+      color: var(--c-mint);
+    }
+
+    .widget-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .sci-btn {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 5px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-page);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+
+    .sci-btn:hover {
+      border-color: var(--accent-hover);
+      background: var(--bg-subtle);
+    }
+
+    .sci-btn.active {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] .sci-btn.active {
+      color: #041718;
+    }
+
+    .sci-btn.danger-btn {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .sci-btn.danger-btn.active {
+      background: var(--danger);
+      color: #ffffff;
+    }
+
+    /* 3D Stage Container */
+    .stage-box {
+      position: relative;
+      width: 100%;
+      height: 470px;
       background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      overflow: hidden;
     }
 
-    #three-canvas {
+    #three-canvas,
+    #fallback-canvas {
       display: block;
       width: 100%;
       height: 100%;
@@ -77,11 +611,9 @@
       cursor: pointer;
     }
 
-    /* 2D projected floating 3D annotations */
     #labels-layer {
-      position: fixed;
+      position: absolute;
       inset: 0;
-      z-index: 5;
       pointer-events: none;
       overflow: hidden;
     }
@@ -89,775 +621,747 @@
     .scene-label {
       position: absolute;
       transform: translate(-50%, -50%);
-      font-family: var(--mono);
+      font-family: var(--font-mono);
       font-size: 11px;
       line-height: 1.25;
-      letter-spacing: -0.01em;
       white-space: nowrap;
-      padding: 2px 5px;
-      background: rgba(255, 255, 255, 0.88);
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #c8e5e2;
       border-radius: 3px;
-      transition: opacity 0.18s ease;
+      color: #063839;
     }
 
-    .scene-label.red { color: var(--red); }
-    .scene-label.blue { color: var(--blue); }
-    .scene-label.dark { color: #333333; }
-    .scene-label.muted { color: #707076; }
+    .scene-label.red { color: #c62828; border-color: #f3b5b5; }
+    .scene-label.blue { color: #006d72; border-color: #8fc8cc; }
+    .scene-label.muted { color: #4b797b; }
     .scene-label.alert {
       color: #ffffff;
-      background: var(--red);
-      font-weight: 600;
-      padding: 3px 7px;
+      background: #c62828;
+      border-color: #c62828;
+      font-weight: 700;
     }
 
-    /* Top Navigation Bar (44px high, hairline bottom border) */
-    #top-nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 44px;
-      z-index: 30;
-      background: rgba(255, 255, 255, 0.98);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11.5px;
-      padding: 0 18px;
-    }
-
-    .nav-group {
-      display: flex;
-      align-items: center;
-      height: 100%;
-    }
-
-    .nav-cell {
-      display: flex;
-      align-items: center;
-      height: 100%;
-      padding: 0 16px;
-      border-right: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    .nav-cell:first-child {
-      padding-left: 0;
-    }
-
-    .nav-switcher {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      height: 100%;
-    }
-
-    .nav-link-btn {
-      background: transparent;
-      border: none;
-      font-family: var(--mono);
-      font-size: 11.5px;
-      color: var(--muted);
-      text-decoration: none;
-      cursor: pointer;
-      padding: 6px 8px;
-      border-radius: 3px;
-      transition: color 0.15s ease, background 0.15s ease;
-    }
-
-    .nav-link-btn:hover {
-      color: var(--ink);
-      background: #f5f5f5;
-    }
-
-    /* Left Minimal Editorial Panel (~325px wide) */
-    #left-panel {
-      position: fixed;
-      top: 54px;
-      left: 24px;
-      bottom: 88px;
-      width: 325px;
-      z-index: 20;
-      pointer-events: auto;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding-right: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: #dcdcdc transparent;
-      background: linear-gradient(90deg, rgba(255,255,255,0.96) 86%, rgba(255,255,255,0) 100%);
-    }
-
-    #left-panel::-webkit-scrollbar { width: 4px; }
-    #left-panel::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
-
-    .breadcrumb {
+    .stage-hint {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      background: rgba(244, 250, 249, 0.92);
+      border: 1px solid #c8e5e2;
+      color: #063839;
+      font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--faint);
-      letter-spacing: 0.01em;
-      margin-bottom: 7px;
-    }
-
-    .editorial-headline {
-      margin: 0 0 9px 0;
-      line-height: 1.08;
-      letter-spacing: -0.025em;
-    }
-
-    .headline-line1 {
-      display: block;
-      font-family: var(--sans);
-      font-weight: 500;
-      font-size: 26px;
-      color: var(--ink);
-    }
-
-    .headline-line2 {
-      display: block;
-      font-family: var(--serif);
-      font-style: italic;
-      font-weight: 400;
-      font-size: 28px;
-      color: var(--ink);
-      margin-top: 1px;
-    }
-
-    .editorial-intro {
-      font-family: var(--mono);
-      font-size: 11px;
-      line-height: 1.54;
-      color: #3a3a40;
-      margin: 0 0 10px 0;
-    }
-
-    .hairline-rule {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 2px 0 10px 0;
-    }
-
-    .notes-table {
-      display: grid;
-      grid-template-columns: 62px 1fr;
-      row-gap: 7px;
-      column-gap: 12px;
-      font-size: 11px;
-      line-height: 1.48;
-      margin-bottom: 12px;
-    }
-
-    .notes-key {
-      color: var(--faint);
-      font-weight: 400;
-    }
-
-    .notes-val {
-      color: #3f3f46;
-    }
-
-    /* Part Inspector Box (crisp hairline) */
-    #inspector-box {
-      border: 1px solid #dcdcdc;
-      background: rgba(255, 255, 255, 0.96);
+      padding: 4px 9px;
       border-radius: 4px;
-      padding: 9px 11px;
-      margin-top: auto;
-      transition: border-color 0.2s ease;
-    }
-
-    #inspector-box.highlighted {
-      border-color: var(--red);
-    }
-
-    .inspector-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      color: var(--faint);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 6px;
-      margin-bottom: 8px;
-    }
-
-    .inspector-title {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 5px;
-    }
-
-    .inspector-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--red);
-      flex-shrink: 0;
-    }
-
-    .inspector-desc {
-      font-size: 11px;
-      line-height: 1.5;
-      color: #3f3f46;
-      margin: 0 0 7px 0;
-    }
-
-    .inspector-tip {
-      font-size: 10.5px;
-      line-height: 1.45;
-      color: var(--muted);
-      background: #fafafa;
-      border-left: 2px solid var(--blue);
-      padding: 5px 8px;
-      border-radius: 0 3px 3px 0;
-    }
-
-    /* Top-Right Floating Telemetry Box (248px wide) */
-    #telemetry-box {
-      position: fixed;
-      top: 64px;
-      right: 24px;
-      width: 248px;
-      z-index: 20;
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid #dcdcdc;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .telemetry-head {
-      padding: 9px 13px;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .telemetry-readout {
-      padding: 12px 13px 10px 13px;
-      font-size: 22px;
-      font-weight: 500;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .telemetry-readout.danger {
-      color: var(--red);
-    }
-
-    .telemetry-scope-wrap {
-      position: relative;
-      height: 76px;
-      border-bottom: 1px solid var(--border);
-      background: #ffffff;
-    }
-
-    #scope-canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    .telemetry-rows {
-      padding: 10px 13px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      font-size: 10.5px;
-    }
-
-    .telemetry-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .telemetry-row .k {
-      color: var(--faint);
-    }
-
-    .telemetry-row .v {
-      color: #27272a;
-      font-weight: 500;
-      text-align: right;
-    }
-
-    /* Bottom Interactive Control Bar */
-    #bottom-bar {
-      position: fixed;
-      left: 24px;
-      right: 24px;
-      bottom: 14px;
-      z-index: 25;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 16px;
       pointer-events: none;
     }
 
-    .controls-stack {
-      pointer-events: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-width: calc(100vw - 245px);
-    }
-
-    .legend-line {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      font-size: 10.5px;
-      color: var(--muted);
-    }
-
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .legend-swatch {
-      display: inline-block;
-      width: 10px;
-      height: 2px;
-      border-radius: 1px;
-    }
-
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 7px;
-      background: rgba(255, 255, 255, 0.94);
-      padding: 2px 0;
-    }
-
-    /* Hairline Rectangular Buttons */
-    .sci-btn {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: #222222;
-      background: #ffffff;
-      border: 1px solid #d4d4d8;
-      border-radius: 3px;
-      padding: 6px 11px;
-      cursor: pointer;
-      transition: all 0.14s ease;
-      white-space: nowrap;
-      line-height: 1.2;
-    }
-
-    .sci-btn:hover {
-      border-color: #888888;
-      background: #fafafa;
-    }
-
-    .sci-btn.active {
-      border-color: var(--red);
-      color: var(--ink);
-      background: var(--red-soft);
-    }
-
-    .sci-btn.active-blue {
-      border-color: var(--blue);
-      color: var(--blue);
-      background: var(--blue-soft);
-    }
-
-    /* Minimal Vermilion Sliders */
-    .slider-group {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 4px;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .slider-val {
-      color: var(--ink);
-      min-width: 38px;
-      font-size: 10.5px;
-    }
-
-    input[type="range"].sci-slider {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 84px;
-      height: 4px;
-      background: #e5e5e5;
-      border-radius: 999px;
-      outline: none;
-      cursor: pointer;
-    }
-
-    input[type="range"].sci-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      background: var(--red);
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 0 1px rgba(224, 72, 54, 0.45);
-      cursor: pointer;
-      transition: transform 0.12s ease;
-    }
-
-    input[type="range"].sci-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-    }
-
-    input[type="range"].sci-slider::-moz-range-thumb {
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      background: var(--red);
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 0 1px rgba(224, 72, 54, 0.45);
-      cursor: pointer;
-    }
-
-    /* Color Band Popover Panel */
-    #color-band-popover {
-      position: fixed;
-      left: 24px;
-      bottom: 84px;
-      z-index: 28;
-      background: rgba(255, 255, 255, 0.98);
-      border: 1px solid #d4d4d8;
-      border-radius: 4px;
-      padding: 12px 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-      display: none;
-      flex-direction: column;
+    /* Telemetry Strip + Part Inspector */
+    .telemetry-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
-      max-width: min(680px, calc(100vw - 48px));
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--bg-canvas);
+      color: #eefaf8;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
     }
 
-    #color-band-popover.open {
+    .tele-cell-k {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #81D2E3;
+    }
+
+    .tele-cell-v {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #BCEDD8;
+    }
+
+    .tele-cell-v.warn {
+      color: #FEEE30;
+    }
+
+    .tele-cell-v.burn {
+      color: #ff7b72;
+    }
+
+    .lab-split {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .inspector-card,
+    .scope-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+
+    .inspector-head {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-copper);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 6px;
     }
 
-    .band-row {
+    .inspector-name {
+      margin: 0 0 6px;
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .inspector-desc {
+      margin: 0 0 8px;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+
+    .inspector-tip {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--accent-primary);
+      background: var(--bg-surface);
+      border-left: 3px solid var(--c-teal);
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+
+    #scope-canvas {
+      width: 100%;
+      height: 110px;
+      display: block;
+      background: var(--bg-canvas);
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+
+    /* Sliders & Band Decoder */
+    .slider-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
-      font-size: 10.5px;
+      gap: 14px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1 1 200px;
+      accent-color: var(--c-teal);
+      cursor: pointer;
+    }
+
+    .bands-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .band-group {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px 14px;
     }
 
     .band-label {
-      width: 82px;
-      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
     }
 
     .swatch-strip {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 6px;
     }
 
-    .color-chip {
-      width: 22px;
-      height: 20px;
-      border-radius: 3px;
-      border: 1px solid rgba(0, 0, 0, 0.2);
+    .swatch-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      border: 2px solid rgba(6, 56, 57, 0.2);
       cursor: pointer;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-family: var(--mono);
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
 
-    .color-chip:hover {
+    .swatch-btn:hover {
       transform: translateY(-1px);
     }
 
-    .color-chip.selected {
-      box-shadow: 0 0 0 2px #ffffff, 0 0 0 3.5px var(--red);
-      z-index: 2;
+    .swatch-btn.selected {
+      border-color: var(--c-pine);
+      box-shadow: 0 0 0 2px var(--c-lemon);
+      transform: scale(1.08);
     }
 
-    /* Bottom-right muted monospace hint */
-    #hint-block {
-      pointer-events: none;
-      text-align: right;
-      font-size: 10.5px;
-      line-height: 1.55;
-      color: var(--faint);
-      white-space: nowrap;
+    /* 6. KPI GRID & LEDGER TABLE */
+    .subthreshold-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0 24px;
     }
 
-    /* Mobile / Tablet Adaptive Adjustments */
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 3px solid var(--c-teal);
+      border-radius: 6px;
+      padding: 16px 18px;
+    }
+
+    .kpi-val {
+      font-family: var(--font-mono);
+      font-size: 1.55rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--c-pine);
+    }
+
+    [data-theme="dark"] .kpi-val {
+      color: var(--c-mint);
+    }
+
+    .kpi-label {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+    }
+
+    .subthreshold-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+    }
+
+    .subthreshold-table th,
+    .subthreshold-table td {
+      text-align: left;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .subthreshold-table th {
+      background: var(--bg-subtle);
+      color: var(--accent-copper);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .subthreshold-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-pill.safe {
+      background: var(--safe-soft);
+      color: var(--safe);
+    }
+
+    .status-pill.warn {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    /* 7. FOOTER */
+    .paper-footer {
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border-subtle);
+      padding: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .paper-footer a {
+      color: var(--accent-primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .paper-footer a:hover {
+      text-decoration: underline;
+    }
+
     @media (max-width: 1024px) {
-      #left-panel {
-        width: 270px;
-        left: 14px;
+      .workspace-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
       }
-      #telemetry-box {
-        width: 215px;
-        right: 14px;
+      .toc-sidebar {
+        position: static;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 16px;
       }
-      #bottom-bar {
-        left: 14px;
-        right: 14px;
+      .toc-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
       }
-      .controls-stack {
-        max-width: 100%;
-      }
-      #hint-block {
-        display: none;
+      .toc-link {
+        border-left: none;
+        border: 1px solid var(--border-subtle);
       }
     }
 
-    @media (max-width: 768px) {
-      #left-panel {
-        width: calc(100vw - 28px);
-        max-height: 28vh;
-        bottom: auto;
-        top: 50px;
-        background: rgba(255, 255, 255, 0.94);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 10px 12px;
+    @media (max-width: 720px) {
+      .hide-sm { display: none; }
+      .lab-split,
+      .bands-grid,
+      .subthreshold-kpi-grid {
+        grid-template-columns: 1fr;
       }
-      .notes-table { display: none; }
-      #telemetry-box {
-        top: auto;
-        bottom: 104px;
-        right: 12px;
-        width: 185px;
+      .telemetry-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .telemetry-scope-wrap { height: 48px; }
-      .nav-cell.hide-sm { display: none; }
+      .stage-box {
+        height: 360px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- 1. TOP NAVIGATION BAR -->
-  <header id="top-nav">
-    <div class="nav-group">
-      <div class="nav-cell" style="font-weight:600; color:#111;"><a href="./" style="color:inherit; text-decoration:none;" title="Back to Electronics Studies (press /)">/electronics studies</a></div>
-      <div class="nav-cell">
-        <span id="nav-fig-badge" style="color:var(--red); font-weight:500; margin-right:8px;">fig. 01</span>
-        <span id="nav-fig-sub" style="color:var(--muted);">slowing the rush of electric current</span>
-      </div>
-      <div class="nav-cell hide-sm" id="nav-equation" style="color:var(--muted);">V = I &times; R</div>
+  <!-- 1. STICKY TRANSLUCENT MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-left">
+      <a class="masthead-brand" href="../../">My Virtual Classroom</a>
+      <a class="masthead-crumb hide-sm" href="./">/electronics</a>
+      <span class="masthead-formula hide-sm" id="nav-equation">V = I &times; R</span>
     </div>
-
-    <div class="nav-switcher">
-      <a href="./" class="nav-link-btn hide-sm" title="Back to Electronics Index (press /)">&larr; /electronics</a>
-      <a href="./transistor.html" class="nav-link-btn" title="Open Transistor Lab (Right Arrow)">next: transistor &rarr;</a>
+    <div class="masthead-clean">
+      <a class="btn-solid hide-sm" href="#sec-lab-stage">Launch 3D Lab &darr;</a>
+      <button type="button" class="btn-outline" id="theme-toggle" aria-label="Toggle dark mode">&#9680; Dark</button>
     </div>
   </header>
 
-  <!-- 2. FULL-BLEED 3D VIEWPORT & FLOATING LABELS -->
-  <div id="viewport-wrap">
-    <canvas id="three-canvas"></canvas>
+  <!-- 2. HERO FRONTMATTER -->
+  <section class="paper-hero" aria-labelledby="resistor-title">
+    <div class="paper-hero-inner">
+      <div class="hero-eyebrow">Electronics &amp; Robotics &middot; Interactive Study [fig. 01 &ndash; fig. 04]</div>
+      <h1 class="paper-title" id="resistor-title">Slowing the Rush of Electric Current</h1>
+      <div class="paper-authors">Atal Tinkering Lab (Grades 5&ndash;9) &middot; Carbon-Film Resistor, 4-Band Color Code &amp; LED Safety Circuit</div>
+
+      <div class="abstract-box">
+        <span class="badge-lemon">Summary</span>
+        <p id="editorial-intro">
+          Electricity wants to race through a wire as fast as it can. Connect an LED straight to a 5&nbsp;V battery and too much current rushes through, burning it out in a flash. A <strong>resistor</strong> acts like a narrow winding hallway inside the wire &mdash; slowing electric charge down to a safe, steady flow.
+        </p>
+      </div>
+
+      <div class="subthreshold-hero-box">
+        <span class="badge-mint">Key Equation &middot; Ohm's Law</span>
+        <p>
+          Current depends on battery push (<strong>Voltage, V</strong>) divided by opposition (<strong>Resistance, R</strong>):
+          <span class="inline-eq">I = V &divide; R</span>. Double the resistance and the current drops in half.
+        </p>
+      </div>
+
+      <div class="hero-cta-row">
+        <a class="btn-solid" href="#sec-lab-stage">Open Interactive 3D Resistor &darr;</a>
+        <a class="btn-outline" href="#sec-bands">4-Band Color Decoder &darr;</a>
+        <a class="btn-outline" href="#sec-ohms">Ohm's Law Table &darr;</a>
+        <a class="btn-outline" href="./">&larr; Back to Electronics</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. WORKSPACE GRID -->
+  <div class="workspace-grid">
+    <!-- Sticky Left TOC & Live Telemetry -->
+    <aside class="toc-sidebar" aria-label="Table of Contents and Live Telemetry">
+      <div>
+        <h2 class="toc-group-label">Article</h2>
+        <ul class="toc-list">
+          <li><a class="toc-link active" href="#sec-intro">Introduction (fig. 01)</a></li>
+          <li><a class="toc-link" href="#sec-inside">1 &middot; Inside the Resistor (fig. 02)</a></li>
+          <li><a class="toc-link" href="#sec-bands">2 &middot; 4-Band Color Code (fig. 03)</a></li>
+          <li><a class="toc-link" href="#sec-ohms">3 &middot; Ohm's Law &amp; Table (fig. 04)</a></li>
+          <li><a class="toc-link" href="#sec-circuit">4 &middot; LED Safety Circuit</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="toc-group-label">Interactive Lab</h2>
+        <ul class="toc-list">
+          <li><a class="toc-link" href="#sec-lab-stage">3D Resistor &amp; Circuit Stage</a></li>
+          <li><a class="toc-link" href="#sec-decoder-widget">Color Band Selector</a></li>
+        </ul>
+      </div>
+
+      <div class="toc-summary-card" aria-live="polite">
+        <h2 class="toc-group-label">Live Telemetry</h2>
+        <div class="toc-stat-row">
+          <span class="toc-stat-label">Resistance</span>
+          <span class="stat-val" id="toc-r">220 &Omega;</span>
+        </div>
+        <div class="toc-stat-row">
+          <span class="toc-stat-label">Supply</span>
+          <span class="stat-val" id="toc-v">6.0 V</span>
+        </div>
+        <div class="toc-stat-row">
+          <span class="toc-stat-label">Current</span>
+          <span class="stat-val" id="toc-i">27.3 mA</span>
+        </div>
+        <div class="toc-stat-row">
+          <span class="toc-stat-label">LED Status</span>
+          <span class="stat-val safe" id="toc-led">SAFE</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Editorial Content & Interactive Widgets -->
+    <main class="article-main">
+
+      <section class="article-sec" id="sec-intro">
+        <div class="sec-num">Introduction &middot; fig. 01</div>
+        <h2>Why every circuit needs a speed limit</h2>
+        <div class="prose">
+          <p>
+            Imagine opening a dam with no narrow channel to slow the water down: everything downstream gets flooded. Electric charge behaves the same way. A copper wire has almost zero resistance, so a battery pushes a huge rush of electrons through it.
+          </p>
+          <p>
+            To protect delicate parts like LEDs and microcontrollers, engineers place a <strong>resistor</strong> in the path. In <a href="#sec-lab-stage">fig. 01 below</a>, switch between the zoomed-in 3D resistor and the full LED safety circuit to see how changing resistance controls the speed of flowing charge.
+          </p>
+        </div>
+      </section>
+
+      <section class="article-sec" id="sec-inside">
+        <div class="sec-num">Section 1 &middot; fig. 02</div>
+        <h2>Inside a carbon-film resistor</h2>
+        <div class="prose">
+          <p>
+            From the outside, a resistor looks like a tiny tan peanut with colored stripes. Cut open the protective ceramic paint (<strong>Cutaway</strong> or <strong>X-Ray</strong> mode in the 3D stage below) and you will see four distinct layers:
+          </p>
+          <p>
+            <strong>1. Tinned copper leads</strong> plug into your breadboard (resistors have no + or &minus; polarity). <strong>2. Metallic end caps</strong> press onto a <strong>3. white insulating ceramic core</strong>. <strong>4. A laser-cut carbon spiral</strong> wraps around the core &mdash; more spiral turns make the path longer and skinnier, raising the resistance in Ohms (&Omega;).
+          </p>
+        </div>
+      </section>
+
+      <!-- INTERACTIVE 3D STAGE WIDGET -->
+      <section class="widget-card" id="sec-lab-stage" aria-label="Interactive 3D Resistor and LED Circuit">
+        <div class="widget-header">
+          <h3 class="widget-title">Interactive 3D Resistor &amp; LED Safety Circuit</h3>
+          <span class="badge-mint" id="stage-mode-badge">3D Closeup &middot; Cutaway</span>
+        </div>
+
+        <div class="widget-controls">
+          <button type="button" class="sci-btn active" id="btn-mode-closeup">Resistor Closeup</button>
+          <button type="button" class="sci-btn" id="btn-mode-circuit">LED Safety Circuit</button>
+          <button type="button" class="sci-btn active" id="btn-view-cutaway">Cutaway</button>
+          <button type="button" class="sci-btn" id="btn-view-xray">X-Ray</button>
+          <button type="button" class="sci-btn" id="btn-view-outer">Outer Coat</button>
+          <button type="button" class="sci-btn active" id="btn-power" style="display:none;">Switch: ON</button>
+          <button type="button" class="sci-btn danger-btn" id="btn-reset-led" style="display:none;">Replace Burnt LED</button>
+        </div>
+
+        <div class="stage-box" id="stage-box">
+          <canvas id="three-canvas"></canvas>
+          <canvas id="fallback-canvas" style="display:none;"></canvas>
+          <div id="labels-layer"></div>
+          <div class="stage-hint">Drag to orbit &middot; Scroll to zoom &middot; Click any 3D part</div>
+        </div>
+
+        <div class="slider-row">
+          <label for="voltage-slider"><strong>Supply Voltage:</strong> <span id="voltage-val">6.0 V</span></label>
+          <input type="range" id="voltage-slider" min="1.5" max="9.0" step="0.5" value="6.0" />
+          <button type="button" class="sci-btn" id="preset-10">Test 10 &Omega; (Burnout)</button>
+          <button type="button" class="sci-btn" id="preset-220">Test 220 &Omega; (Safe)</button>
+          <button type="button" class="sci-btn" id="preset-1k">Test 1 k&Omega; (Dim)</button>
+        </div>
+
+        <div class="telemetry-strip" aria-live="polite">
+          <div>
+            <span class="tele-cell-k">Resistance (R)</span>
+            <span class="tele-cell-v" id="tele-r">220 &Omega;</span>
+          </div>
+          <div>
+            <span class="tele-cell-k">Current (I)</span>
+            <span class="tele-cell-v" id="tele-i">27.3 mA</span>
+          </div>
+          <div>
+            <span class="tele-cell-k">Power (P = V&times;I)</span>
+            <span class="tele-cell-v" id="tele-p">164 mW</span>
+          </div>
+          <div>
+            <span class="tele-cell-k">LED Safety</span>
+            <span class="tele-cell-v" id="tele-status">SAFE (GLOWING)</span>
+          </div>
+        </div>
+
+        <div class="lab-split">
+          <div class="inspector-card" id="inspector-box" aria-live="polite">
+            <div class="inspector-head">
+              <span id="inspector-tag">Part Inspector</span>
+              <span>Click 3D Model</span>
+            </div>
+            <h4 class="inspector-name" id="inspector-name">Click any 3D part to inspect it</h4>
+            <p class="inspector-desc" id="inspector-desc">
+              Click the copper leads, silver end caps, ceramic core, carbon spiral, or any colored band on the 3D resistor to learn what it does.
+            </p>
+            <div class="inspector-tip" id="inspector-tip">
+              Tip: Watch the spiral turns change inside the resistor as you pick larger resistance values!
+            </div>
+          </div>
+
+          <div class="scope-card">
+            <div class="inspector-head">
+              <span>Current Oscilloscope</span>
+              <span id="scope-badge">LIVE FLOW</span>
+            </div>
+            <canvas id="scope-canvas"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: 4-BAND COLOR CODE -->
+      <section class="article-sec" id="sec-bands">
+        <div class="sec-num">Section 2 &middot; fig. 03</div>
+        <h2>Reading the 4-band color code</h2>
+        <div class="prose">
+          <p>
+            A resistor is too small to print numbers clearly, so manufacturers paint <strong>four colored stripes</strong> around its body. Read them from the side where the bands are packed closer together:
+          </p>
+          <p>
+            <strong>Band 1</strong> gives the first digit, <strong>Band 2</strong> gives the second digit, <strong>Band 3</strong> multiplies by a power of 10 (how many zeros to add), and <strong>Band 4</strong> shows tolerance (&plusmn;5% Gold or &plusmn;10% Silver). For example, <strong>Red &ndash; Red &ndash; Brown</strong> means <span class="inline-eq">22 &times; 10 = 220 &Omega;</span>.
+          </p>
+        </div>
+
+        <div class="widget-card" id="sec-decoder-widget">
+          <div class="widget-header">
+            <h3 class="widget-title">Interactive 4-Band Color Decoder</h3>
+            <span class="badge-lemon" id="decoder-readout">220 &Omega; &plusmn;5%</span>
+          </div>
+          <div class="bands-grid">
+            <div class="band-group">
+              <div class="band-label"><span>Band 1 (1st Digit)</span><span id="lbl-b1">Red (2)</span></div>
+              <div class="swatch-strip" id="strip-b1"></div>
+            </div>
+            <div class="band-group">
+              <div class="band-label"><span>Band 2 (2nd Digit)</span><span id="lbl-b2">Red (2)</span></div>
+              <div class="swatch-strip" id="strip-b2"></div>
+            </div>
+            <div class="band-group">
+              <div class="band-label"><span>Band 3 (Multiplier)</span><span id="lbl-b3">Brown (&times;10)</span></div>
+              <div class="swatch-strip" id="strip-b3"></div>
+            </div>
+            <div class="band-group">
+              <div class="band-label"><span>Band 4 (Tolerance)</span><span id="lbl-b4">Gold (&plusmn;5%)</span></div>
+              <div class="swatch-strip" id="strip-b4"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: OHM'S LAW & REFERENCE TABLE -->
+      <section class="article-sec" id="sec-ohms">
+        <div class="sec-num">Section 3 &middot; fig. 04</div>
+        <h2>Ohm's Law &amp; standard classroom values</h2>
+        <div class="prose">
+          <p>
+            When a resistor is wired in series with a red LED (which uses about <span class="inline-eq">2.0 V</span>), the remaining voltage pushes current through the resistor: <span class="inline-eq">I = (V<sub>supply</sub> &minus; 2.0 V) &divide; R</span>.
+          </p>
+        </div>
+
+        <div class="subthreshold-kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-val">10&ndash;20 mA</div>
+            <div class="kpi-label">Safe current for a standard 5 mm red LED</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">220 &Omega;</div>
+            <div class="kpi-label">Go-to resistor for a 5 V Arduino / USB LED</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">&gt; 35 mA</div>
+            <div class="kpi-label">Danger zone: LED overheats and burns out</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="subthreshold-table">
+            <thead>
+              <tr>
+                <th>Resistance</th>
+                <th>4-Band Code</th>
+                <th>Current at 5 V (with LED)</th>
+                <th>Classroom Behavior</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>10 &Omega;</td>
+                <td>Brown &ndash; Black &ndash; Black</td>
+                <td>300 mA</td>
+                <td><span class="status-pill warn">Burns out LED</span></td>
+              </tr>
+              <tr>
+                <td>220 &Omega;</td>
+                <td>Red &ndash; Red &ndash; Brown</td>
+                <td>13.6 mA</td>
+                <td><span class="status-pill safe">Bright &amp; Safe</span></td>
+              </tr>
+              <tr>
+                <td>470 &Omega;</td>
+                <td>Yellow &ndash; Violet &ndash; Brown</td>
+                <td>6.4 mA</td>
+                <td><span class="status-pill safe">Medium Glow</span></td>
+              </tr>
+              <tr>
+                <td>1 k&Omega; (1,000 &Omega;)</td>
+                <td>Brown &ndash; Black &ndash; Red</td>
+                <td>3.0 mA</td>
+                <td><span class="status-pill safe">Soft Glow</span></td>
+              </tr>
+              <tr>
+                <td>10 k&Omega; (10,000 &Omega;)</td>
+                <td>Brown &ndash; Black &ndash; Orange</td>
+                <td>0.3 mA</td>
+                <td><span class="status-pill safe">Very Dim / Pull-up</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 4: LED SAFETY CIRCUIT -->
+      <section class="article-sec" id="sec-circuit">
+        <div class="sec-num">Section 4 &middot; Experiment</div>
+        <h2>Try breaking (and saving) the LED</h2>
+        <div class="prose">
+          <p>
+            Scroll back to the <a href="#sec-lab-stage">Interactive 3D Stage</a>, click <strong>LED Safety Circuit</strong>, and press <strong>Test 10 &Omega; (Burnout)</strong>. Watch the current spike and the LED smoke! Then click <strong>Replace Burnt LED</strong> and switch to <strong>Test 220 &Omega; (Safe)</strong> to see the current settle into a steady, safe glow.
+          </p>
+        </div>
+      </section>
+
+    </main>
   </div>
-  <div id="labels-layer"></div>
 
-  <!-- 3. LEFT MINIMAL EDITORIAL PANEL -->
-  <aside id="left-panel">
-    <div id="editorial-breadcrumb" class="breadcrumb">/electronics studies &middot; [ fig. 01 ] resistor</div>
-
-    <h1 class="editorial-headline">
-      <span id="headline-1" class="headline-line1">Slowing the rush</span>
-      <span id="headline-2" class="headline-line2">of electric current</span>
-    </h1>
-
-    <p id="editorial-intro" class="editorial-intro">
-      Electricity wants to race through a wire as fast as it can. A resistor adds a thin carbon path that slows the current down, protecting delicate parts like LEDs from burning out.
-    </p>
-
-    <hr class="hairline-rule" />
-
-    <div id="notes-table" class="notes-table">
-      <div class="notes-key">law</div>
-      <div class="notes-val">V = I &times; R (Ohm's Law). Raising resistance cuts the current; raising voltage pushes more current through.</div>
-      <div class="notes-key">try</div>
-      <div class="notes-val">Open the cutaway view, change the color bands, or switch to the LED circuit and drop resistance to 10 &Omega;!</div>
-      <div class="notes-key">notice</div>
-      <div class="notes-val">Higher resistance carves more spiral turns into the carbon film, making the path longer and harder for electrons to cross.</div>
-      <div class="notes-key">in life</div>
-      <div class="notes-val">Inside every phone charger, TV, LED lamp, and volume knob — billions are made every single day.</div>
-      <div class="notes-key">found by</div>
-      <div class="notes-val">Georg Simon Ohm discovered the voltage-current-resistance rule in 1827.</div>
-    </div>
-
-    <!-- Interactive Part Inspector Box -->
-    <section id="inspector-box" aria-live="polite">
-      <div class="inspector-header">
-        <span>PART INSPECTOR</span>
-        <span id="inspector-hint">CLICK 3D MODEL</span>
-      </div>
-      <div class="inspector-title">
-        <span id="inspector-dot" class="inspector-dot"></span>
-        <span id="inspector-name">Click any 3D part</span>
-      </div>
-      <p id="inspector-desc" class="inspector-desc">
-        Click the resistor's color bands, inner spiral carbon track, ceramic core, battery, switch, or LED to see how each part works.
-      </p>
-      <div id="inspector-tip" class="inspector-tip">
-        <strong>classroom tip:</strong> Drag empty white space to spin 360&deg; and zoom in with your scroll wheel.
-      </div>
-    </section>
-  </aside>
-
-  <!-- 4. TOP-RIGHT FLOATING TELEMETRY BOX -->
-  <aside id="telemetry-box">
-    <div class="telemetry-head">
-      <span id="telemetry-title">CURRENT &amp; OHM'S LAW</span>
-      <span id="telemetry-badge" style="color:var(--red);">LIVE</span>
-    </div>
-    <div id="telemetry-readout" class="telemetry-readout">27.3 mA</div>
-    <div class="telemetry-scope-wrap">
-      <canvas id="scope-canvas"></canvas>
-    </div>
-    <div id="telemetry-rows" class="telemetry-rows">
-      <!-- Populated dynamically -->
-    </div>
-  </aside>
-
-  <!-- 4-BAND COLOR CODE POPOVER (minimalist, toggled on demand) -->
-  <div id="color-band-popover">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:7px;">
-      <span style="font-size:11px; font-weight:600; color:#111;">4-BAND RESISTOR COLOR CODE</span>
-      <div style="display:flex; align-items:center; gap:5px;">
-        <span style="font-size:10px; color:var(--faint); margin-right:3px;">presets:</span>
-        <button class="sci-btn preset-btn" data-b1="1" data-b2="0" data-b3="0" style="padding:3px 7px; font-size:10px;">10 &Omega;</button>
-        <button class="sci-btn preset-btn" data-b1="2" data-b2="2" data-b3="1" style="padding:3px 7px; font-size:10px;">220 &Omega;</button>
-        <button class="sci-btn preset-btn" data-b1="1" data-b2="0" data-b3="2" style="padding:3px 7px; font-size:10px;">1 k&Omega;</button>
-        <button class="sci-btn preset-btn" data-b1="1" data-b2="0" data-b3="3" style="padding:3px 7px; font-size:10px;">10 k&Omega;</button>
-        <button id="btn-close-bands" class="sci-btn" style="padding:3px 7px; font-size:10px; margin-left:4px;">&times;</button>
-      </div>
-    </div>
-    <div class="band-row">
-      <span class="band-label">band 1 (1st)</span>
-      <div id="strip-b1" class="swatch-strip"></div>
-    </div>
-    <div class="band-row">
-      <span class="band-label">band 2 (2nd)</span>
-      <div id="strip-b2" class="swatch-strip"></div>
-    </div>
-    <div class="band-row">
-      <span class="band-label">band 3 (&times;)</span>
-      <div id="strip-b3" class="swatch-strip"></div>
-    </div>
-    <div class="band-row">
-      <span class="band-label">band 4 (&plusmn;)</span>
-      <div id="strip-b4" class="swatch-strip"></div>
-    </div>
-  </div>
-
-  <!-- 5. BOTTOM INTERACTIVE CONTROL BAR -->
-  <footer id="bottom-bar">
-    <div class="controls-stack">
-      <div id="legend-line" class="legend-line"></div>
-      <div id="controls-row" class="controls-row"></div>
-    </div>
-
-    <div id="hint-block">
-      <div>drag empty space &mdash; orbit</div>
-      <div>click any part &mdash; inspect</div>
-      <div>&rarr; transistor lab &middot; / index</div>
-    </div>
+  <!-- 4. FOOTER -->
+  <footer class="paper-footer">
+    <span>/electronics studies &middot; Interactive 3D Resistor Lab &middot; My Virtual Classroom</span>
+    <span>
+      <a href="./">&larr; Electronics Portal</a> &middot;
+      <a href="../../">Home</a>
+    </span>
   </footer>
 
   <script>
-    /* =========================================================================
-       /electronics studies — Interactive 3D Resistor Lab
-       Designed for 5th–9th grade electronics classes.
-       Pure Three.js r128 + Custom Orbital Camera + Raycast Inspector + Live Scope
-       ========================================================================= */
-
     (function () {
-      'use strict';
+      /* -----------------------------------------------------------------------
+         1. THEME TOGGLE (LIGHT / DARK)
+         ----------------------------------------------------------------------- */
+      const rootEl = document.documentElement;
+      const themeBtn = document.getElementById('theme-toggle');
+      const savedTheme = localStorage.getItem('mvc-theme');
+      if (savedTheme === 'dark' || savedTheme === 'light') {
+        rootEl.setAttribute('data-theme', savedTheme);
+      }
+      function syncThemeBtn() {
+        const isDark = rootEl.getAttribute('data-theme') === 'dark';
+        themeBtn.innerHTML = isDark ? '&#9728; Light' : '&#9680; Dark';
+      }
+      syncThemeBtn();
+      themeBtn.addEventListener('click', () => {
+        const next = rootEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        rootEl.setAttribute('data-theme', next);
+        localStorage.setItem('mvc-theme', next);
+        syncThemeBtn();
+      });
 
       /* -----------------------------------------------------------------------
-         1. RESISTOR COLOR CODE REFERENCE DATA
+         2. COLOR CODE DATA & STATE
          ----------------------------------------------------------------------- */
       const COLOR_DIGITS = [
-        { name: 'Black',  hex: '#1c1c1e', text: '#fff', digit: 0, mult: 1,       multStr: '×1 Ω' },
-        { name: 'Brown',  hex: '#7c4322', text: '#fff', digit: 1, mult: 10,      multStr: '×10 Ω' },
-        { name: 'Red',    hex: '#d93829', text: '#fff', digit: 2, mult: 100,     multStr: '×100 Ω' },
-        { name: 'Orange', hex: '#f27922', text: '#fff', digit: 3, mult: 1000,    multStr: '×1 kΩ' },
-        { name: 'Yellow', hex: '#f2c922', text: '#111', digit: 4, mult: 10000,   multStr: '×10 kΩ' },
-        { name: 'Green',  hex: '#258a47', text: '#fff', digit: 5, mult: 100000,  multStr: '×100 kΩ' },
-        { name: 'Blue',   hex: '#2563eb', text: '#fff', digit: 6, mult: 1000000, multStr: '×1 MΩ' },
-        { name: 'Violet', hex: '#7c3aed', text: '#fff', digit: 7, mult: 10000000,multStr: '×10 MΩ' },
-        { name: 'Gray',   hex: '#73737c', text: '#fff', digit: 8, mult: 1,       multStr: '×1 Ω' },
-        { name: 'White',  hex: '#f5f5f5', text: '#111', digit: 9, mult: 1,       multStr: '×1 Ω' }
+        { name: 'Black',  hex: '#1c1c1e', num: 0, mult: 1,       multStr: '×1' },
+        { name: 'Brown',  hex: '#7c4324', num: 1, mult: 10,      multStr: '×10' },
+        { name: 'Red',    hex: '#dc2626', num: 2, mult: 100,     multStr: '×100' },
+        { name: 'Orange', hex: '#f97316', num: 3, mult: 1000,    multStr: '×1k' },
+        { name: 'Yellow', hex: '#eab308', num: 4, mult: 10000,   multStr: '×10k' },
+        { name: 'Green',  hex: '#16a34a', num: 5, mult: 100000,  multStr: '×100k' },
+        { name: 'Blue',   hex: '#2563eb', num: 6, mult: 1000000, multStr: '×1M' },
+        { name: 'Violet', hex: '#7c3aed', num: 7, mult: null,    multStr: '' },
+        { name: 'Grey',   hex: '#6b7280', num: 8, mult: null,    multStr: '' },
+        { name: 'White',  hex: '#f8fafc', num: 9, mult: null,    multStr: '' }
       ];
 
-      const TOLERANCE_COLORS = [
-        { name: 'Gold',   hex: '#cfa134', text: '#111', tol: '±5%' },
-        { name: 'Silver', hex: '#b5bac2', text: '#111', tol: '±10%' },
-        { name: 'Brown',  hex: '#7c4322', text: '#fff', tol: '±1%' },
-        { name: 'Red',    hex: '#d93829', text: '#fff', tol: '±2%' }
+      const TOL_COLORS = [
+        { name: 'Gold',   hex: '#d4af37', str: '±5%' },
+        { name: 'Silver', hex: '#9ca3af', str: '±10%' },
+        { name: 'Brown',  hex: '#7c4324', str: '±1%' }
       ];
 
-      /* -----------------------------------------------------------------------
-         2. APPLICATION STATE
-         ----------------------------------------------------------------------- */
       const state = {
-        res: {
-          powerOn: true,
-          view: 'cutaway',     // 'outer' | 'cutaway' | 'x-ray'
-          mode: 'closeup',     // 'closeup' | 'circuit'
-          voltage: 6.0,        // 1.5V - 12V
-          b1: 2,               // Red (2)
-          b2: 2,               // Red (2)
-          b3: 1,               // Brown (x10) => 220 Ohm default
-          b4: 0,               // Gold (±5%)
-          bandsOpen: false,
-          ledBurnt: false
-        },
-
-        metrics: {
-          currentMa: 0,
-          powerMw: 0,
-          resistance: 220,
-          ledStatus: 'SAFE'
-        },
-
-        scopeA: new Array(140).fill(0),
-        scopeB: new Array(140).fill(0),
-        time: 0,
-
-        selectedMesh: null,
-        hoveredMesh: null
+        mode: 'closeup', // 'closeup' | 'circuit'
+        view: 'cutaway', // 'cutaway' | 'x-ray' | 'outer'
+        b1: 2,
+        b2: 2,
+        b3: 1,
+        b4: 0,
+        voltage: 6.0,
+        powerOn: true,
+        ledBurnt: false
       };
 
-      /* -----------------------------------------------------------------------
-         3. HELPER UTILITIES
-         ----------------------------------------------------------------------- */
       function getResistanceValue() {
-        const d1 = COLOR_DIGITS[state.res.b1].digit;
-        const d2 = COLOR_DIGITS[state.res.b2].digit;
-        const mult = COLOR_DIGITS[state.res.b3].mult;
-        return Math.max(1, (d1 * 10 + d2) * mult);
+        return (state.b1 * 10 + state.b2) * COLOR_DIGITS[state.b3].mult;
       }
 
       function formatOhms(val) {
@@ -867,108 +1371,69 @@
       }
 
       function setInspector(info) {
-        if (!info) return;
-        const box = document.getElementById('inspector-box');
+        document.getElementById('inspector-tag').textContent = info.tag || 'PART';
         document.getElementById('inspector-name').textContent = info.name;
         document.getElementById('inspector-desc').textContent = info.desc;
-        document.getElementById('inspector-tip').innerHTML = '<strong>classroom tip:</strong> ' + info.tip;
-        document.getElementById('inspector-dot').style.background = info.color || '#e04836';
-        document.getElementById('inspector-hint').textContent = info.tag || 'INSPECTING';
-
-        box.classList.remove('highlighted');
-        void box.offsetWidth;
-        box.classList.add('highlighted');
-      }
-
-      function resetInspectorDefault() {
-        setInspector({
-          name: 'Click any 3D part',
-          desc: "Click the resistor's color bands, inner spiral carbon track, ceramic core, battery, switch, or LED to see how each part works.",
-          tip: 'Drag empty space to orbit 360°. Toggle cutaway to peek inside solid electronic components!',
-          color: '#2563eb',
-          tag: 'READY'
-        });
-        document.getElementById('inspector-box').classList.remove('highlighted');
+        document.getElementById('inspector-tip').textContent = info.tip;
       }
 
       /* -----------------------------------------------------------------------
-         4. THREE.JS CORE SCENE, CAMERA & SMOOTH ORBIT CONTROLLER
+         3. BUILD COLOR BAND SWATCHES
          ----------------------------------------------------------------------- */
-      const canvas = document.getElementById('three-canvas');
-      const labelsLayer = document.getElementById('labels-layer');
+      function renderBandSwatches() {
+        const makeStrip = (id, items, selectedIdx, onPick) => {
+          const el = document.getElementById(id);
+          el.innerHTML = '';
+          items.forEach((item, idx) => {
+            if (!item) return;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'swatch-btn' + (idx === selectedIdx ? ' selected' : '');
+            btn.style.backgroundColor = item.hex;
+            btn.title = item.name;
+            btn.setAttribute('aria-label', item.name);
+            btn.addEventListener('click', () => onPick(idx));
+            el.appendChild(btn);
+          });
+        };
 
-      const isSoftwareGl = (() => {
-        const probe = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl');
-        if (!probe) return true;
-        const ext = probe.getExtension('WEBGL_debug_renderer_info');
-        const param = ext ? ext.UNMASKED_RENDERER_WEBGL : probe.RENDERER;
-        const gpu = String(probe.getParameter(param) || '');
-        const lose = probe.getExtension('WEBGL_lose_context');
-        if (lose) lose.loseContext();
-        return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
-      })();
+        makeStrip('strip-b1', COLOR_DIGITS.map((c, i) => i === 0 ? null : c), state.b1, (i) => {
+          state.b1 = i;
+          state.ledBurnt = false;
+          rebuildAndSync();
+        });
+        makeStrip('strip-b2', COLOR_DIGITS, state.b2, (i) => {
+          state.b2 = i;
+          state.ledBurnt = false;
+          rebuildAndSync();
+        });
+        makeStrip('strip-b3', COLOR_DIGITS.slice(0, 7), state.b3, (i) => {
+          state.b3 = i;
+          state.ledBurnt = false;
+          rebuildAndSync();
+        });
+        makeStrip('strip-b4', TOL_COLORS, state.b4, (i) => {
+          state.b4 = i;
+          rebuildAndSync();
+        });
 
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isSoftwareGl, powerPreference: 'high-performance' });
-      renderer.setClearColor(0xffffff, 1);
-      renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio || 1, 2));
-
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xffffff);
-
-      const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 120);
-
-      // Studio crisp scientific lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
-      scene.add(ambientLight);
-
-      const keyLight = new THREE.DirectionalLight(0xffffff, 0.72);
-      keyLight.position.set(8, 14, 10);
-      scene.add(keyLight);
-
-      const fillLight = new THREE.DirectionalLight(0xeef5ff, 0.38);
-      fillLight.position.set(-10, 6, -6);
-      scene.add(fillLight);
-
-      const rimLight = new THREE.DirectionalLight(0xfff4ee, 0.25);
-      rimLight.position.set(0, -6, -10);
-      scene.add(rimLight);
-
-      // Subtle architectural 3D floor grid
-      function createEditorialGrid(size = 16, divisions = 16) {
-        const group = new THREE.Group();
-        const half = size / 2;
-        const step = size / divisions;
-        const minorVerts = [];
-        const majorVerts = [];
-
-        for (let i = 0; i <= divisions; i++) {
-          const pos = -half + i * step;
-          const isMajor = (i === 0 || i === divisions || i === divisions / 2);
-          const target = isMajor ? majorVerts : minorVerts;
-          target.push(-half, 0, pos, half, 0, pos);
-          target.push(pos, 0, -half, pos, 0, half);
-        }
-
-        const minorGeo = new THREE.BufferGeometry();
-        minorGeo.setAttribute('position', new THREE.Float32BufferAttribute(minorVerts, 3));
-        const minorMat = new THREE.LineBasicMaterial({ color: 0xebedf0, transparent: true, opacity: 0.9 });
-        group.add(new THREE.LineSegments(minorGeo, minorMat));
-
-        const majorGeo = new THREE.BufferGeometry();
-        majorGeo.setAttribute('position', new THREE.Float32BufferAttribute(majorVerts, 3));
-        const majorMat = new THREE.LineBasicMaterial({ color: 0xd8dce3, transparent: true, opacity: 0.95 });
-        group.add(new THREE.LineSegments(majorGeo, majorMat));
-
-        group.position.y = -1.65;
-        return group;
+        document.getElementById('lbl-b1').textContent = `${COLOR_DIGITS[state.b1].name} (${COLOR_DIGITS[state.b1].num})`;
+        document.getElementById('lbl-b2').textContent = `${COLOR_DIGITS[state.b2].name} (${COLOR_DIGITS[state.b2].num})`;
+        document.getElementById('lbl-b3').textContent = `${COLOR_DIGITS[state.b3].name} (${COLOR_DIGITS[state.b3].multStr})`;
+        document.getElementById('lbl-b4').textContent = `${TOL_COLORS[state.b4].name} (${TOL_COLORS[state.b4].str})`;
+        document.getElementById('decoder-readout').textContent = `${formatOhms(getResistanceValue())} ${TOL_COLORS[state.b4].str}`;
       }
 
-      const floorGrid = createEditorialGrid(18, 18);
-      scene.add(floorGrid);
+      /* -----------------------------------------------------------------------
+         4. THREE.JS 3D SCENE (WITH 2D CANVAS FALLBACK IF WEBGL/CDN UNAVAILABLE)
+         ----------------------------------------------------------------------- */
+      const canvas = document.getElementById('three-canvas');
+      const fallbackCanvas = document.getElementById('fallback-canvas');
+      const labelsLayer = document.getElementById('labels-layer');
+      const stageBox = document.getElementById('stage-box');
+      const hasThree = typeof window.THREE !== 'undefined';
 
-      const activeGroup = new THREE.Group();
-      scene.add(activeGroup);
-
+      let renderer, scene, camera, activeGroup, floorGrid;
       let clickableMeshes = [];
       let labelAnchors = [];
       let animatedActors = {};
@@ -980,57 +1445,113 @@
         targetTheta: 0.42,
         targetPhi: 1.18,
         targetRadius: 9.2,
-        target: new THREE.Vector3(-0.45, 0.05, 0),
-        desiredTarget: new THREE.Vector3(-0.45, 0.05, 0),
+        target: hasThree ? new THREE.Vector3(0, 0.05, 0) : null,
+        desiredTarget: hasThree ? new THREE.Vector3(0, 0.05, 0) : null,
         isDragging: false,
-        pointerDownPos: { x: 0, y: 0 },
-        lastPointerPos: { x: 0, y: 0 },
-        movedDistance: 0
+        lastPos: { x: 0, y: 0 },
+        movedDist: 0
       };
 
-      function setCameraPreset(theta, phi, radius, tx = -0.35, ty = 0, tz = 0) {
-        orbit.targetTheta = theta;
-        orbit.targetPhi = phi;
-        orbit.targetRadius = radius;
-        orbit.desiredTarget.set(tx, ty, tz);
+      function initThree() {
+        if (!hasThree) return false;
+        try {
+          renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+        } catch {
+          return false;
+        }
+        renderer.setClearColor(0xffffff, 1);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
+
+        const rect = stageBox.getBoundingClientRect();
+        camera = new THREE.PerspectiveCamera(36, Math.max(1, rect.width) / Math.max(1, rect.height), 0.1, 120);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.74));
+        const keyLight = new THREE.DirectionalLight(0xffffff, 0.72);
+        keyLight.position.set(8, 14, 10);
+        scene.add(keyLight);
+        const fillLight = new THREE.DirectionalLight(0xeef5ff, 0.36);
+        fillLight.position.set(-10, 6, -6);
+        scene.add(fillLight);
+
+        // Floor grid
+        floorGrid = new THREE.Group();
+        const half = 9, step = 1;
+        const verts = [];
+        for (let i = -half; i <= half; i += step) {
+          verts.push(-half, 0, i, half, 0, i, i, 0, -half, i, 0, half);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+        floorGrid.add(new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0xd8ece9, transparent: true, opacity: 0.9 })));
+        floorGrid.position.y = -1.65;
+        scene.add(floorGrid);
+
+        activeGroup = new THREE.Group();
+        scene.add(activeGroup);
+
+        // Pointer interactions
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+
+        canvas.addEventListener('pointerdown', (e) => {
+          orbit.isDragging = true;
+          orbit.lastPos = { x: e.clientX, y: e.clientY };
+          orbit.movedDist = 0;
+          canvas.classList.add('dragging');
+        });
+
+        window.addEventListener('pointermove', (e) => {
+          if (orbit.isDragging) {
+            const dx = e.clientX - orbit.lastPos.x;
+            const dy = e.clientY - orbit.lastPos.y;
+            orbit.movedDist += Math.hypot(dx, dy);
+            orbit.targetTheta -= dx * 0.008;
+            orbit.targetPhi = Math.max(0.28, Math.min(Math.PI - 0.25, orbit.targetPhi - dy * 0.007));
+            orbit.lastPos = { x: e.clientX, y: e.clientY };
+          } else {
+            const rect = canvas.getBoundingClientRect();
+            if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
+            pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(pointer, camera);
+            const hits = raycaster.intersectObjects(clickableMeshes, false);
+            canvas.classList.toggle('hovering-part', hits.length > 0);
+          }
+        });
+
+        window.addEventListener('pointerup', (e) => {
+          if (!orbit.isDragging) return;
+          orbit.isDragging = false;
+          canvas.classList.remove('dragging');
+          if (orbit.movedDist < 6) {
+            const rect = canvas.getBoundingClientRect();
+            pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(pointer, camera);
+            const hits = raycaster.intersectObjects(clickableMeshes, false);
+            if (hits.length > 0) {
+              const obj = hits[0].object;
+              if (obj.userData.onClickAction) obj.userData.onClickAction();
+              if (obj.userData.inspectInfo) setInspector(obj.userData.inspectInfo);
+            }
+          }
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          orbit.targetRadius = Math.max(4.5, Math.min(18, orbit.targetRadius + e.deltaY * 0.008));
+        }, { passive: false });
+
+        return true;
       }
 
-      function updateCamera() {
-        const damp = 0.12;
-        orbit.theta += (orbit.targetTheta - orbit.theta) * damp;
-        orbit.phi += (orbit.targetPhi - orbit.phi) * damp;
-        orbit.radius += (orbit.targetRadius - orbit.radius) * damp;
-        orbit.target.lerp(orbit.desiredTarget, damp);
-
-        const sinPhi = Math.sin(orbit.phi);
-        camera.position.set(
-          orbit.target.x + orbit.radius * sinPhi * Math.sin(orbit.theta),
-          orbit.target.y + orbit.radius * Math.cos(orbit.phi),
-          orbit.target.z + orbit.radius * sinPhi * Math.cos(orbit.theta)
-        );
-        camera.lookAt(orbit.target);
-      }
-
-      function handleResize() {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h, false);
-        resizeScopeCanvas();
-      }
-
-      /* -----------------------------------------------------------------------
-         5. 3D GEOMETRY HELPERS
-         ----------------------------------------------------------------------- */
-      function addEdgeOutline(mesh, color = 0x2a2a30, opacity = 0.25, threshold = 24) {
-        const edges = new THREE.EdgesGeometry(mesh.geometry, threshold);
-        const line = new THREE.LineSegments(
-          edges,
-          new THREE.LineBasicMaterial({ color, transparent: true, opacity })
-        );
-        mesh.add(line);
-        return line;
+      const webglReady = initThree();
+      if (!webglReady) {
+        canvas.style.display = 'none';
+        fallbackCanvas.style.display = 'block';
       }
 
       function registerClickable(mesh, infoObj, onClickAction = null) {
@@ -1040,17 +1561,16 @@
         return mesh;
       }
 
-      function addLabelAnchor(text, positionVec3, className = 'dark', id = null) {
+      function addLabelAnchor(text, posVec3, className = '') {
         const el = document.createElement('div');
         el.className = 'scene-label ' + className;
         el.textContent = text;
         labelsLayer.appendChild(el);
-        const obj = { el, pos: positionVec3.clone(), id };
-        labelAnchors.push(obj);
-        return obj;
+        labelAnchors.push({ el, pos: posVec3.clone() });
       }
 
       function clearSceneGroup() {
+        if (!webglReady) return;
         while (activeGroup.children.length > 0) {
           const child = activeGroup.children[0];
           activeGroup.remove(child);
@@ -1066,22 +1586,11 @@
         labelAnchors = [];
         labelsLayer.innerHTML = '';
         animatedActors = {};
-        state.selectedMesh = null;
-        state.hoveredMesh = null;
-      }
-
-      function createWire(points, colorHex, radius = 0.042, inspectInfo = null) {
-        const curve = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.08);
-        const geo = new THREE.TubeGeometry(curve, Math.max(24, points.length * 10), radius, 10, false);
-        const mat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.45, metalness: 0.15 });
-        const mesh = new THREE.Mesh(geo, mat);
-        if (inspectInfo) registerClickable(mesh, inspectInfo);
-        return { mesh, curve };
       }
 
       function createFlowParticles(curve, count, colorHex, radius = 0.075) {
         const group = new THREE.Group();
-        const geo = new THREE.SphereGeometry(radius, 12, 12);
+        const geo = new THREE.SphereGeometry(radius, 10, 10);
         const mat = new THREE.MeshBasicMaterial({ color: colorHex });
         const spheres = [];
         for (let i = 0; i < count; i++) {
@@ -1090,94 +1599,66 @@
           group.add(m);
           spheres.push(m);
         }
-        return { group, spheres, curve, mat };
+        return { group, spheres, curve };
       }
 
-      // Reusable 3D Axial Resistor Builder (supports outer / cutaway / x-ray & dynamic spiral turns)
-      function buildResistorAssembly(options = {}) {
-        const {
-          scale = 1.0,
-          viewMode = 'cutaway',
-          resistance = 220,
-          b1 = 2, b2 = 2, b3 = 1, b4 = 0,
-          interactiveBands = true
-        } = options;
-
+      function buildResistorAssembly(options) {
+        const { scale = 1, viewMode = 'cutaway', resistance = 220, b1 = 2, b2 = 2, b3 = 1, b4 = 0 } = options;
         const root = new THREE.Group();
         root.scale.setScalar(scale);
 
-        const bodyHalfLen = 1.65;
-        const isCut = viewMode === 'cutaway';
-        const isXray = viewMode === 'x-ray';
-
-        // 1. Copper / Tinned Axial Leads
         const leadMat = new THREE.MeshStandardMaterial({ color: 0xcbd0d8, metalness: 0.78, roughness: 0.26 });
-        const leadLeft = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 2.2, 16), leadMat);
-        leadLeft.rotation.z = Math.PI / 2;
-        leadLeft.position.x = -2.75;
-        addEdgeOutline(leadLeft, 0x444444, 0.18);
-        root.add(leadLeft);
-
-        const leadRight = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 2.2, 16), leadMat);
-        leadRight.rotation.z = Math.PI / 2;
-        leadRight.position.x = 2.75;
-        addEdgeOutline(leadRight, 0x444444, 0.18);
-        root.add(leadRight);
-
+        const leadGeo = new THREE.CylinderGeometry(0.075, 0.075, 2.2, 16);
+        const leadL = new THREE.Mesh(leadGeo, leadMat);
+        leadL.rotation.z = Math.PI / 2;
+        leadL.position.x = -2.75;
+        const leadR = new THREE.Mesh(leadGeo, leadMat);
+        leadR.rotation.z = Math.PI / 2;
+        leadR.position.x = 2.75;
+        root.add(leadL, leadR);
         const leadInfo = {
+          tag: 'CONDUCTOR',
           name: 'Tinned Copper Leads',
-          desc: 'Stiff metal wire legs that carry electric current into and out of the resistor so you can plug it into a breadboard or solder it.',
-          tip: 'Resistors have no + or − direction — you can plug them in either way around!',
-          color: '#6b7280',
-          tag: 'CONDUCTOR'
+          desc: 'Stiff metal wire legs that carry electric current into and out of the resistor.',
+          tip: 'Resistors have no + or − direction — you can plug them in either way!'
         };
-        registerClickable(leadLeft, leadInfo);
-        registerClickable(leadRight, leadInfo);
+        registerClickable(leadL, leadInfo);
+        registerClickable(leadR, leadInfo);
 
-        // 2. Metallic Silver End Caps
         const capMat = new THREE.MeshStandardMaterial({ color: 0xb0b8c4, metalness: 0.82, roughness: 0.25 });
-        const capGeo = new THREE.CylinderGeometry(0.49, 0.49, 0.42, 28);
+        const capGeo = new THREE.CylinderGeometry(0.49, 0.49, 0.42, 24);
         const capL = new THREE.Mesh(capGeo, capMat);
         capL.rotation.z = Math.PI / 2;
         capL.position.x = -1.48;
-        addEdgeOutline(capL, 0x333333, 0.2);
-        root.add(capL);
-
         const capR = new THREE.Mesh(capGeo, capMat);
         capR.rotation.z = Math.PI / 2;
         capR.position.x = 1.48;
-        addEdgeOutline(capR, 0x333333, 0.2);
-        root.add(capR);
-
+        root.add(capL, capR);
         const capInfo = {
+          tag: 'CONTACT CAP',
           name: 'Metallic End Caps',
-          desc: 'Tight metal cups pressed onto both ends of the ceramic rod. They connect the outside copper wires directly to the inner carbon film.',
-          tip: 'Good contact here ensures electricity enters the spiral track smoothly.',
-          color: '#71717a',
-          tag: 'CONTACT CAP'
+          desc: 'Tight metal cups connecting the copper leads directly to the inner carbon spiral.',
+          tip: 'Good contact ensures electric charge enters the resistive spiral smoothly.'
         };
         registerClickable(capL, capInfo);
         registerClickable(capR, capInfo);
 
-        // 3. Inner White Insulating Ceramic Core Rod
-        const ceramicMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.72, metalness: 0.04 });
-        const ceramicRod = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 2.7, 28), ceramicMat);
+        const ceramicRod = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.36, 0.36, 2.7, 24),
+          new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.72 })
+        );
         ceramicRod.rotation.z = Math.PI / 2;
-        addEdgeOutline(ceramicRod, 0x888888, 0.16);
         root.add(ceramicRod);
         registerClickable(ceramicRod, {
+          tag: 'INNER CORE',
           name: 'Insulating Ceramic Core',
-          desc: 'A solid white ceramic rod at the very center. Electricity CANNOT flow through ceramic — it acts as a strong, heat-proof skeleton.',
-          tip: 'Ceramic handles heat well without melting when the resistor warms up!',
-          color: '#9ca3af',
-          tag: 'INNER CORE'
+          desc: 'A solid white ceramic rod that acts as a heat-proof skeleton. Electricity cannot pass through it.',
+          tip: 'Ceramic handles heat safely when the resistor slows down large currents.'
         });
 
-        // 4. Inner Carbon Film Helical Spiral Track (turns scale with Resistance)
         const logR = Math.log10(Math.max(10, resistance));
         const spiralTurns = Math.round(Math.min(16, Math.max(3, 1.8 + logR * 2.3)));
         const trackRadius = Math.max(0.026, 0.068 - (spiralTurns - 3) * 0.003);
-
         class HelixCurve extends THREE.Curve {
           getPoint(t) {
             const x = -1.24 + t * 2.48;
@@ -1187,993 +1668,416 @@
           }
         }
         const helixCurve = new HelixCurve();
-        const spiralGeo = new THREE.TubeGeometry(helixCurve, spiralTurns * 26, trackRadius, 8, false);
         const spiralMat = new THREE.MeshStandardMaterial({
-          color: 0x26262c,
-          roughness: 0.52,
-          metalness: 0.25,
-          emissive: new THREE.Color(0xe04836),
-          emissiveIntensity: 0.0
+          color: 0x26262c, roughness: 0.52, metalness: 0.25, emissive: new THREE.Color(0xe04836), emissiveIntensity: 0
         });
-        const spiralMesh = new THREE.Mesh(spiralGeo, spiralMat);
+        const spiralMesh = new THREE.Mesh(new THREE.TubeGeometry(helixCurve, spiralTurns * 24, trackRadius, 8, false), spiralMat);
         root.add(spiralMesh);
         registerClickable(spiralMesh, {
+          tag: 'RESISTIVE ELEMENT',
           name: `Carbon Film Spiral (${spiralTurns} turns)`,
-          desc: `A laser cuts a helical groove into a dark carbon coating. More turns (${spiralTurns} turns for ${formatOhms(resistance)}) make the path longer and skinnier, creating higher resistance!`,
-          tip: 'Think of a narrow winding hallway: the longer and narrower it is, the slower students can walk through it.',
-          color: '#e04836',
-          tag: 'RESISTIVE ELEMENT'
+          desc: `A laser-cut helical groove in dark carbon. More turns (${spiralTurns} turns for ${formatOhms(resistance)}) make the path longer and skinnier!`,
+          tip: 'Think of a narrow winding hallway: longer and narrower = slower flow.'
         });
 
-        // 5. Contoured Outer Ceramic/Paint Coating
-        const profile = [
-          new THREE.Vector2(0.08, -bodyHalfLen),
-          new THREE.Vector2(0.56, -bodyHalfLen),
-          new THREE.Vector2(0.62, -1.45),
-          new THREE.Vector2(0.62, -1.08),
-          new THREE.Vector2(0.52, -0.88),
-          new THREE.Vector2(0.52, 0.88),
-          new THREE.Vector2(0.62, 1.08),
-          new THREE.Vector2(0.62, 1.45),
-          new THREE.Vector2(0.56, bodyHalfLen),
-          new THREE.Vector2(0.08, bodyHalfLen)
-        ];
-
-        const phiStart = isCut ? Math.PI * 0.42 : 0;
-        const phiLength = isCut ? Math.PI * 1.18 : Math.PI * 2;
-
-        const bodyGeo = new THREE.LatheGeometry(profile, 36, phiStart, phiLength);
-        const bodyMat = new THREE.MeshStandardMaterial({
-          color: 0xe6cda6,
-          roughness: 0.55,
-          metalness: 0.05,
+        const isCut = viewMode === 'cutaway';
+        const isXray = viewMode === 'x-ray';
+        const coatGeo = new THREE.CylinderGeometry(0.52, 0.52, 2.7, 28, 1, false, isCut ? 0.5 : 0, isCut ? Math.PI * 1.3 : Math.PI * 2);
+        const coatMat = new THREE.MeshStandardMaterial({
+          color: 0xead9be,
+          roughness: 0.65,
           transparent: isXray,
           opacity: isXray ? 0.24 : 1.0,
-          side: isCut ? THREE.DoubleSide : THREE.FrontSide,
-          depthWrite: !isXray
+          side: isCut ? THREE.DoubleSide : THREE.FrontSide
         });
+        const coatMesh = new THREE.Mesh(coatGeo, coatMat);
+        coatMesh.rotation.z = Math.PI / 2;
+        root.add(coatMesh);
 
-        const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
-        bodyMesh.rotation.z = -Math.PI / 2;
-        addEdgeOutline(bodyMesh, 0x7a6242, isXray ? 0.16 : 0.22, 26);
-        root.add(bodyMesh);
-        registerClickable(bodyMesh, {
-          name: 'Protective Outer Coating',
-          desc: 'A tough insulating paint shell that seals the carbon spiral from dust, moisture, and accidental touches, while giving a surface for the color code bands.',
-          tip: 'Tan/beige bodies usually mean a 5% carbon-film resistor; blue bodies are often 1% metal-film resistors.',
-          color: '#c9a673',
-          tag: 'INSULATOR SHELL'
-        });
-
-        // 6. Four Interactive Color Code Bands
-        const bandSpecs = [
-          {
-            idx: 1, x: -0.74, r: 0.528, w: 0.21,
-            colorObj: COLOR_DIGITS[b1],
-            info: {
-              name: `Band 1 — ${COLOR_DIGITS[b1].name} (1st Digit: ${COLOR_DIGITS[b1].digit})`,
-              desc: `The first color stripe gives the first digit of the resistance value. ${COLOR_DIGITS[b1].name} always stands for the number ${COLOR_DIGITS[b1].digit}.`,
-              tip: `Together with Band 2 (${COLOR_DIGITS[b2].digit}), the starting number is "${COLOR_DIGITS[b1].digit}${COLOR_DIGITS[b2].digit}".`,
-              color: COLOR_DIGITS[b1].hex,
-              tag: 'COLOR CODE'
-            }
-          },
-          {
-            idx: 2, x: -0.26, r: 0.528, w: 0.21,
-            colorObj: COLOR_DIGITS[b2],
-            info: {
-              name: `Band 2 — ${COLOR_DIGITS[b2].name} (2nd Digit: ${COLOR_DIGITS[b2].digit})`,
-              desc: `The second stripe gives the second digit. ${COLOR_DIGITS[b2].name} means ${COLOR_DIGITS[b2].digit}, making our two-digit base "${COLOR_DIGITS[b1].digit}${COLOR_DIGITS[b2].digit}".`,
-              tip: 'Read resistor bands starting from the side where three bands are grouped closer together.',
-              color: COLOR_DIGITS[b2].hex,
-              tag: 'COLOR CODE'
-            }
-          },
-          {
-            idx: 3, x: 0.22, r: 0.528, w: 0.21,
-            colorObj: COLOR_DIGITS[b3],
-            info: {
-              name: `Band 3 — ${COLOR_DIGITS[b3].name} (Multiplier: ${COLOR_DIGITS[b3].multStr})`,
-              desc: `The third stripe tells you how many zeros to add! "${COLOR_DIGITS[b1].digit}${COLOR_DIGITS[b2].digit}" ${COLOR_DIGITS[b3].multStr} = ${formatOhms(resistance)}.`,
-              tip: 'Think of Band 3 as the "number of zeros" shortcut: Red (2) adds two zeros!',
-              color: COLOR_DIGITS[b3].hex,
-              tag: 'MULTIPLIER'
-            }
-          },
-          {
-            idx: 4, x: 0.80, r: 0.532, w: 0.19,
-            colorObj: TOLERANCE_COLORS[b4],
-            info: {
-              name: `Band 4 — ${TOLERANCE_COLORS[b4].name} (Tolerance: ${TOLERANCE_COLORS[b4].tol})`,
-              desc: `Tolerance tells how accurate the resistor is from the factory. ${TOLERANCE_COLORS[b4].name} means the real value is within ${TOLERANCE_COLORS[b4].tol} of ${formatOhms(resistance)}.`,
-              tip: 'Band 4 is usually Gold or Silver and sits slightly separated at the right end.',
-              color: TOLERANCE_COLORS[b4].hex,
-              tag: 'ACCURACY'
-            }
-          }
+        // 4 Color Bands
+        const bandDefs = [
+          { x: -0.92, hex: COLOR_DIGITS[b1].hex, label: `Band 1: ${COLOR_DIGITS[b1].name} (${COLOR_DIGITS[b1].num})` },
+          { x: -0.40, hex: COLOR_DIGITS[b2].hex, label: `Band 2: ${COLOR_DIGITS[b2].name} (${COLOR_DIGITS[b2].num})` },
+          { x:  0.14, hex: COLOR_DIGITS[b3].hex, label: `Band 3: ${COLOR_DIGITS[b3].name} (${COLOR_DIGITS[b3].multStr})` },
+          { x:  0.86, hex: TOL_COLORS[b4].hex,   label: `Band 4: ${TOL_COLORS[b4].name} (${TOL_COLORS[b4].str})` }
         ];
-
-        bandSpecs.forEach((bs) => {
-          const bandGeo = new THREE.CylinderGeometry(
-            bs.r, bs.r, bs.w, 36, 1, true,
-            isCut ? Math.PI * 0.42 : 0,
-            isCut ? Math.PI * 1.18 : Math.PI * 2
-          );
-          const bandMat = new THREE.MeshStandardMaterial({
-            color: bs.colorObj.hex,
-            roughness: 0.35,
-            metalness: (bs.idx === 4 && b4 <= 1) ? 0.65 : 0.08,
-            transparent: isXray,
-            opacity: isXray ? 0.55 : 1.0,
-            side: THREE.DoubleSide
+        bandDefs.forEach((bd) => {
+          const bGeo = new THREE.CylinderGeometry(0.532, 0.532, 0.22, 28, 1, true, isCut ? 0.5 : 0, isCut ? Math.PI * 1.3 : Math.PI * 2);
+          const bMat = new THREE.MeshStandardMaterial({
+            color: bd.hex, roughness: 0.4, transparent: isXray, opacity: isXray ? 0.4 : 1.0, side: THREE.DoubleSide
           });
-          const bandMesh = new THREE.Mesh(bandGeo, bandMat);
-          bandMesh.rotation.z = -Math.PI / 2;
-          bandMesh.position.x = bs.x;
-          root.add(bandMesh);
-          if (interactiveBands) {
-            registerClickable(bandMesh, bs.info);
-          }
+          const bMesh = new THREE.Mesh(bGeo, bMat);
+          bMesh.rotation.z = Math.PI / 2;
+          bMesh.position.x = bd.x;
+          root.add(bMesh);
+          registerClickable(bMesh, {
+            tag: 'COLOR CODE',
+            name: bd.label,
+            desc: 'Colored paint stripes encode the resistance in Ohms so you can read it from any angle.',
+            tip: 'Use the 4-Band Color Decoder below to change this stripe!'
+          });
         });
 
-        // Subtle heat aura mesh around body
-        const heatGeo = new THREE.CylinderGeometry(0.68, 0.68, 2.7, 24);
-        const heatMat = new THREE.MeshBasicMaterial({
-          color: 0xe04836,
-          transparent: true,
-          opacity: 0.0,
-          depthWrite: false
-        });
-        const heatAura = new THREE.Mesh(heatGeo, heatMat);
-        heatAura.rotation.z = Math.PI / 2;
-        root.add(heatAura);
-
-        return { root, spiralMat, heatMat, helixCurve, spiralTurns };
+        return { root, helixCurve, spiralTurns, spiralMat };
       }
 
-      // Reusable 3D Battery Model
-      function buildBattery(voltageText = '6.0V') {
-        const grp = new THREE.Group();
-        const bodyGeo = new THREE.BoxGeometry(1.15, 1.65, 0.72);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x22252b, roughness: 0.5, metalness: 0.2 });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        addEdgeOutline(body, 0x000000, 0.35);
-        grp.add(body);
-
-        const bandGeo = new THREE.BoxGeometry(1.17, 0.48, 0.74);
-        const bandMat = new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.45 });
-        const band = new THREE.Mesh(bandGeo, bandMat);
-        band.position.y = 0.58;
-        grp.add(band);
-
-        const termMat = new THREE.MeshStandardMaterial({ color: 0xcbd0d8, metalness: 0.85, roughness: 0.2 });
-        const posTerm = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.22, 16), termMat);
-        posTerm.position.set(-0.28, 0.92, 0);
-        grp.add(posTerm);
-
-        const negTerm = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.18, 6), termMat);
-        negTerm.position.set(0.28, 0.90, 0);
-        grp.add(negTerm);
-
-        const info = {
-          name: `DC Battery (${voltageText})`,
-          desc: 'The "electric pump" of the circuit! Chemical energy inside pushes electric charge out of one terminal and pulls it back into the other.',
-          tip: 'Voltage (V) is like water pressure — higher voltage pushes harder!',
-          color: '#e04836',
-          tag: 'POWER SOURCE'
-        };
-        registerClickable(body, info);
-        registerClickable(band, info);
-        return grp;
-      }
-
-      // Reusable 3D Interactive Knife/Toggle Switch
-      function buildToggleSwitch(isOn, labelName, onToggleCallback) {
-        const grp = new THREE.Group();
-        const baseGeo = new THREE.BoxGeometry(1.25, 0.18, 0.68);
-        const baseMat = new THREE.MeshStandardMaterial({ color: 0xf0f1f4, roughness: 0.65 });
-        const base = new THREE.Mesh(baseGeo, baseMat);
-        addEdgeOutline(base, 0x444444, 0.35);
-        grp.add(base);
-
-        const postMat = new THREE.MeshStandardMaterial({ color: 0xb8bec8, metalness: 0.8, roughness: 0.25 });
-        const postL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.32, 12), postMat);
-        postL.position.set(-0.42, 0.22, 0);
-        grp.add(postL);
-
-        const postR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.32, 12), postMat);
-        postR.position.set(0.42, 0.22, 0);
-        grp.add(postR);
-
-        const pivot = new THREE.Group();
-        pivot.position.set(-0.42, 0.32, 0);
-        const bladeMat = new THREE.MeshStandardMaterial({ color: 0xd97736, metalness: 0.72, roughness: 0.3 });
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.06, 0.12), bladeMat);
-        blade.position.x = 0.44;
-        pivot.add(blade);
-
-        const handle = new THREE.Mesh(
-          new THREE.SphereGeometry(0.13, 14, 14),
-          new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.35 })
-        );
-        handle.position.x = 0.94;
-        pivot.add(handle);
-
-        pivot.rotation.z = isOn ? 0 : 0.62;
-        grp.add(pivot);
-
-        const info = {
-          name: labelName,
-          desc: 'A mechanical switch opens or closes a gap in the wire. When CLOSED, electricity flows; when OPEN, air blocks the flow. Click directly on this 3D switch to flip it!',
-          tip: 'Click right on this switch in 3D (or use the bottom button) to toggle ON / OFF.',
-          color: '#e04836',
-          tag: 'INTERACTIVE SWITCH'
-        };
-        registerClickable(base, info, onToggleCallback);
-        registerClickable(blade, info, onToggleCallback);
-        registerClickable(handle, info, onToggleCallback);
-
-        return { grp, pivot };
-      }
-
-      // Reusable 3D LED Component
-      function buildLED(colorHex = 0xe04836, name = 'Red LED (Light Emitting Diode)') {
-        const grp = new THREE.Group();
-
-        const lensMat = new THREE.MeshStandardMaterial({
-          color: colorHex,
-          roughness: 0.18,
-          metalness: 0.05,
-          transparent: true,
-          opacity: 0.68,
-          emissive: new THREE.Color(colorHex),
-          emissiveIntensity: 0.2
-        });
-        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.56, 24), lensMat);
-        cyl.position.y = 0.32;
-        grp.add(cyl);
-
-        const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), lensMat);
-        dome.position.y = 0.60;
-        grp.add(dome);
-
-        const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.09, 24), lensMat);
-        rim.position.y = 0.04;
-        addEdgeOutline(rim, 0x333333, 0.22);
-        grp.add(rim);
-
-        const innerMat = new THREE.MeshStandardMaterial({ color: 0xc2c8d2, metalness: 0.85, roughness: 0.25 });
-        const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.34, 0.06), innerMat);
-        anvil.position.set(0.10, 0.28, 0);
-        grp.add(anvil);
-
-        const post = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.32, 0.06), innerMat);
-        post.position.set(-0.10, 0.26, 0);
-        grp.add(post);
-
-        const glowMat = new THREE.MeshBasicMaterial({
-          color: colorHex,
-          transparent: true,
-          opacity: 0.0,
-          depthWrite: false
-        });
-        const glow = new THREE.Mesh(new THREE.SphereGeometry(0.88, 20, 20), glowMat);
-        glow.position.y = 0.52;
-        grp.add(glow);
-
-        const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.72, 10), innerMat);
-        legL.position.set(-0.12, -0.36, 0);
-        grp.add(legL);
-
-        const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.62, 10), innerMat);
-        legR.position.set(0.12, -0.31, 0);
-        grp.add(legR);
-
-        const smokeGroup = new THREE.Group();
-        smokeGroup.position.set(0, 0.95, 0);
-        const smokePuffs = [];
-        for (let i = 0; i < 6; i++) {
-          const sm = new THREE.Mesh(
-            new THREE.SphereGeometry(0.12 + i * 0.02, 10, 10),
-            new THREE.MeshBasicMaterial({ color: 0x55555a, transparent: true, opacity: 0 })
-          );
-          smokeGroup.add(sm);
-          smokePuffs.push(sm);
-        }
-        grp.add(smokeGroup);
-
-        const info = {
-          name,
-          desc: 'An LED turns electric current directly into light! It only needs about 10–20 mA. Without a resistor to limit the current, it overheats and burns out almost instantly.',
-          tip: 'Notice the longer leg (+) is the Anode and the shorter leg (−) is the Cathode.',
-          color: '#' + colorHex.toString(16).padStart(6, '0'),
-          tag: 'LIGHT OUTPUT'
-        };
-        registerClickable(cyl, info);
-        registerClickable(dome, info);
-
-        return { grp, lensMat, glowMat, smokePuffs };
-      }
-
-      /* -----------------------------------------------------------------------
-         6. RESISTOR SCENE BUILDER (Closeup + LED Safety Circuit)
-         ----------------------------------------------------------------------- */
-      function buildResistorScene() {
+      function buildScene() {
+        if (!webglReady) return;
         clearSceneGroup();
         const R = getResistanceValue();
 
-        if (state.res.mode === 'closeup') {
-          setCameraPreset(0.42, 1.18, 9.2, -0.45, 0.05, 0);
-          floorGrid.position.y = -1.7;
+        if (state.mode === 'closeup') {
+          orbit.targetTheta = 0.42;
+          orbit.targetPhi = 1.18;
+          orbit.targetRadius = 9.0;
+          orbit.desiredTarget.set(0, 0.05, 0);
 
           const resAsm = buildResistorAssembly({
-            scale: 1.18,
-            viewMode: state.res.view,
-            resistance: R,
-            b1: state.res.b1,
-            b2: state.res.b2,
-            b3: state.res.b3,
-            b4: state.res.b4
+            scale: 1.18, viewMode: state.view, resistance: R, b1: state.b1, b2: state.b2, b3: state.b3, b4: state.b4
           });
           activeGroup.add(resAsm.root);
 
-          const leadInCurve = new THREE.LineCurve3(new THREE.Vector3(-4.5, 0, 0), new THREE.Vector3(-1.46, 0, 0));
-          const leadOutCurve = new THREE.LineCurve3(new THREE.Vector3(1.46, 0, 0), new THREE.Vector3(4.5, 0, 0));
-
-          const pIn = createFlowParticles(leadInCurve, 5, 0x2563eb, 0.085);
-          const pOut = createFlowParticles(leadOutCurve, 5, 0x2563eb, 0.085);
-
+          const pIn = createFlowParticles(new THREE.LineCurve3(new THREE.Vector3(-4.5, 0, 0), new THREE.Vector3(-1.46, 0, 0)), 5, 0x00999F, 0.085);
+          const pOut = createFlowParticles(new THREE.LineCurve3(new THREE.Vector3(1.46, 0, 0), new THREE.Vector3(4.5, 0, 0)), 5, 0x00999F, 0.085);
           const pSpiral = createFlowParticles(resAsm.helixCurve, Math.min(26, Math.max(10, resAsm.spiralTurns * 2)), 0xe04836, 0.068);
           pSpiral.group.scale.setScalar(1.18);
-
           activeGroup.add(pIn.group, pOut.group, pSpiral.group);
 
-          addLabelAnchor(`band 1 · ${COLOR_DIGITS[state.res.b1].name.toLowerCase()}`, new THREE.Vector3(-0.92, 1.05, 0.35), 'dark');
-          addLabelAnchor(`band 3 · ${COLOR_DIGITS[state.res.b3].multStr}`, new THREE.Vector3(0.28, 1.05, 0.35), 'dark');
+          addLabelAnchor(`band 1 · ${COLOR_DIGITS[state.b1].name.toLowerCase()}`, new THREE.Vector3(-0.92, 1.05, 0.35));
+          addLabelAnchor(`band 3 · ${COLOR_DIGITS[state.b3].multStr}`, new THREE.Vector3(0.28, 1.05, 0.35));
           addLabelAnchor('current in (+)', new THREE.Vector3(-3.8, -0.48, 0), 'blue');
           addLabelAnchor('current out (−)', new THREE.Vector3(3.8, -0.48, 0), 'blue');
-
-          if (state.res.view !== 'outer') {
-            addLabelAnchor(`carbon spiral · ${resAsm.spiralTurns} turns`, new THREE.Vector3(0.0, -1.05, 0.5), 'red');
-            addLabelAnchor('ceramic core', new THREE.Vector3(-1.55, -0.95, 0.4), 'muted');
+          if (state.view !== 'outer') {
+            addLabelAnchor(`carbon spiral · ${resAsm.spiralTurns} turns`, new THREE.Vector3(0, -1.05, 0.5), 'red');
           }
-
-          animatedActors = {
-            kind: 'res-closeup',
-            resAsm,
-            pIn,
-            pOut,
-            pSpiral
-          };
-
+          animatedActors = { kind: 'closeup', resAsm, pIn, pOut, pSpiral };
         } else {
-          setCameraPreset(0.38, 0.96, 12.2, -0.35, -0.1, 0);
-          floorGrid.position.y = -1.7;
+          orbit.targetTheta = 0.38;
+          orbit.targetPhi = 0.96;
+          orbit.targetRadius = 11.8;
+          orbit.desiredTarget.set(0, -0.1, 0);
 
-          const battery = buildBattery(state.res.voltage.toFixed(1) + 'V');
-          battery.position.set(-3.3, -0.2, 0.3);
-          activeGroup.add(battery);
-
-          const sw = buildToggleSwitch(state.res.powerOn, 'Main Power Switch', () => {
-            state.res.powerOn = !state.res.powerOn;
-            if (!state.res.powerOn) state.res.ledBurnt = false;
-            renderControls();
+          // Battery
+          const batt = new THREE.Group();
+          const bBody = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.6, 0.8), new THREE.MeshStandardMaterial({ color: 0x065758, roughness: 0.45 }));
+          batt.add(bBody);
+          batt.position.set(-3.3, -0.2, 0.3);
+          activeGroup.add(batt);
+          registerClickable(bBody, {
+            tag: 'POWER SOURCE',
+            name: `DC Battery (${state.voltage.toFixed(1)} V)`,
+            desc: 'The electric pump pushing charge around the closed loop.',
+            tip: 'Use the Supply Voltage slider below to push harder or softer!'
           });
-          sw.grp.position.set(-0.3, -1.25, 1.85);
-          activeGroup.add(sw.grp);
 
+          // Switch
+          const swGrp = new THREE.Group();
+          const swBase = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.18, 0.65), new THREE.MeshStandardMaterial({ color: 0xe7f4f2 }));
+          swGrp.add(swBase);
+          const pivot = new THREE.Group();
+          pivot.position.set(-0.42, 0.25, 0);
+          const blade = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.07, 0.12), new THREE.MeshStandardMaterial({ color: 0xd97736, metalness: 0.7 }));
+          blade.position.x = 0.44;
+          pivot.add(blade);
+          swGrp.add(pivot);
+          swGrp.position.set(-0.3, -1.25, 1.85);
+          activeGroup.add(swGrp);
+          const toggleSw = () => {
+            state.powerOn = !state.powerOn;
+            if (!state.powerOn) state.ledBurnt = false;
+            syncControls();
+          };
+          registerClickable(swBase, { tag: 'SWITCH', name: 'Main Power Switch', desc: 'Click to open or close the circuit.', tip: 'Electricity only flows when the loop is closed!' }, toggleSw);
+          registerClickable(blade, { tag: 'SWITCH', name: 'Main Power Switch', desc: 'Click to open or close the circuit.', tip: 'Electricity only flows when the loop is closed!' }, toggleSw);
+
+          // Resistor
           const resAsm = buildResistorAssembly({
-            scale: 0.66,
-            viewMode: state.res.view,
-            resistance: R,
-            b1: state.res.b1,
-            b2: state.res.b2,
-            b3: state.res.b3,
-            b4: state.res.b4
+            scale: 0.66, viewMode: state.view, resistance: R, b1: state.b1, b2: state.b2, b3: state.b3, b4: state.b4
           });
-          resAsm.root.position.set(0.0, 0.65, -1.45);
+          resAsm.root.position.set(0, 0.65, -1.45);
           activeGroup.add(resAsm.root);
 
-          const led = buildLED(0xe04836, 'Red LED (Protected Load)');
-          led.grp.position.set(3.25, -0.15, 0.15);
-          activeGroup.add(led.grp);
+          // LED
+          const ledGrp = new THREE.Group();
+          const lensMat = new THREE.MeshStandardMaterial({
+            color: 0xe04836, transparent: true, opacity: 0.72, emissive: new THREE.Color(0xe04836), emissiveIntensity: 0.2
+          });
+          const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 20, 16), lensMat);
+          dome.position.y = 0.45;
+          const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.55, 20), lensMat);
+          cyl.position.y = 0.22;
+          const glowMat = new THREE.MeshBasicMaterial({ color: 0xe04836, transparent: true, opacity: 0, depthWrite: false });
+          const glow = new THREE.Mesh(new THREE.SphereGeometry(0.88, 16, 16), glowMat);
+          glow.position.y = 0.45;
+          ledGrp.add(cyl, dome, glow);
+          ledGrp.position.set(3.25, -0.15, 0.15);
+          activeGroup.add(ledGrp);
+          registerClickable(dome, {
+            tag: 'LIGHT OUTPUT',
+            name: 'Red LED (5 mm)',
+            desc: 'Needs 10–20 mA to glow safely. Over 35 mA burns it out!',
+            tip: 'Try 10 Ω vs 220 Ω to see the difference.'
+          });
 
-          const wireInfo = {
-            name: 'Insulated Copper Wire',
-            desc: 'Low-resistance path connecting the Battery, Resistor, LED, and Switch into one complete closed circuit loop.',
-            tip: 'Electricity only flows when the loop is completely unbroken!',
-            color: '#2563eb',
-            tag: 'CLOSED LOOP'
-          };
-
-          const w1 = createWire([
-            new THREE.Vector3(-3.58, 0.72, 0.3),
-            new THREE.Vector3(-3.58, 0.65, -1.45),
-            new THREE.Vector3(-2.45, 0.65, -1.45)
-          ], 0xe04836, 0.046, wireInfo);
-
-          const w2 = createWire([
-            new THREE.Vector3(2.45, 0.65, -1.45),
-            new THREE.Vector3(3.13, 0.65, -1.45),
-            new THREE.Vector3(3.13, -0.82, 0.15)
-          ], 0x2563eb, 0.046, wireInfo);
-
-          const w3 = createWire([
-            new THREE.Vector3(3.37, -0.78, 0.15),
-            new THREE.Vector3(3.37, -1.08, 1.85),
-            new THREE.Vector3(0.12, -1.08, 1.85)
-          ], 0x3f3f46, 0.046, wireInfo);
-
-          const w4 = createWire([
-            new THREE.Vector3(-0.72, -1.08, 1.85),
-            new THREE.Vector3(-3.02, -1.08, 1.85),
-            new THREE.Vector3(-3.02, 0.70, 0.3)
-          ], 0x3f3f46, 0.046, wireInfo);
-
-          activeGroup.add(w1.mesh, w2.mesh, w3.mesh, w4.mesh);
-
-          const loopPts = [
-            new THREE.Vector3(-3.58, 0.72, 0.3),
-            new THREE.Vector3(-3.58, 0.65, -1.45),
-            new THREE.Vector3(-2.45, 0.65, -1.45),
-            new THREE.Vector3(2.45, 0.65, -1.45),
-            new THREE.Vector3(3.13, 0.65, -1.45),
-            new THREE.Vector3(3.13, -0.82, 0.15),
-            new THREE.Vector3(3.37, -1.08, 1.85),
-            new THREE.Vector3(0.12, -1.08, 1.85),
-            new THREE.Vector3(-0.72, -1.08, 1.85),
-            new THREE.Vector3(-3.02, -1.08, 1.85),
-            new THREE.Vector3(-3.02, 0.70, 0.3)
+          // Wires + Flow
+          const pts = [
+            new THREE.Vector3(-3.3, 0.6, 0.3),
+            new THREE.Vector3(-3.3, 0.65, -1.45),
+            new THREE.Vector3(-2.3, 0.65, -1.45),
+            new THREE.Vector3(2.3, 0.65, -1.45),
+            new THREE.Vector3(3.25, 0.65, -1.45),
+            new THREE.Vector3(3.25, -0.7, 0.15),
+            new THREE.Vector3(3.25, -1.1, 1.85),
+            new THREE.Vector3(-0.3, -1.1, 1.85),
+            new THREE.Vector3(-3.3, -1.1, 1.85),
+            new THREE.Vector3(-3.3, -0.2, 0.3)
           ];
-          const loopCurve = new THREE.CatmullRomCurve3(loopPts, true, 'catmullrom', 0.05);
-          const flow = createFlowParticles(loopCurve, 22, 0x2563eb, 0.075);
+          const loopCurve = new THREE.CatmullRomCurve3(pts, true);
+          const wireMesh = new THREE.Mesh(
+            new THREE.TubeGeometry(loopCurve, 90, 0.045, 8, true),
+            new THREE.MeshStandardMaterial({ color: 0x065758, roughness: 0.45 })
+          );
+          activeGroup.add(wireMesh);
+
+          const flow = createFlowParticles(loopCurve, 22, 0x00999F, 0.075);
           activeGroup.add(flow.group);
 
-          addLabelAnchor(`battery ${state.res.voltage.toFixed(1)}V`, new THREE.Vector3(-3.3, 1.32, 0.3), 'red', 'lbl-batt');
-          addLabelAnchor(`resistor ${formatOhms(R)}`, new THREE.Vector3(0.0, 1.48, -1.45), 'dark', 'lbl-res');
-          addLabelAnchor('red led', new THREE.Vector3(3.3, 1.25, 0.15), 'red', 'lbl-led');
-          addLabelAnchor('switch (click)', new THREE.Vector3(-0.3, -1.55, 2.25), 'muted', 'lbl-sw');
+          addLabelAnchor(`battery ${state.voltage.toFixed(1)}V`, new THREE.Vector3(-3.3, 1.2, 0.3), 'blue');
+          addLabelAnchor(`resistor ${formatOhms(R)}`, new THREE.Vector3(0, 1.45, -1.45));
+          addLabelAnchor('red led', new THREE.Vector3(3.25, 1.2, 0.15), 'red');
+          addLabelAnchor('switch (click)', new THREE.Vector3(-0.3, -1.55, 2.2), 'muted');
 
-          animatedActors = {
-            kind: 'res-circuit',
-            resAsm,
-            sw,
-            led,
-            flow
-          };
+          animatedActors = { kind: 'circuit', resAsm, pivot, lensMat, glowMat, flow };
         }
       }
 
       /* -----------------------------------------------------------------------
-         7. LIVE PHYSICS ENGINE & REAL-TIME OSCILLOSCOPE
+         5. LIVE PHYSICS + OSCILLOSCOPE + SYNC
          ----------------------------------------------------------------------- */
+      function computePhysics() {
+        const R = getResistanceValue();
+        const V = state.voltage;
+        let currentMa = 0;
+        let status = 'OFF';
+        if (state.powerOn) {
+          if (state.mode === 'closeup') {
+            currentMa = (V / R) * 1000;
+            status = 'FLOWING';
+          } else {
+            const vDrop = Math.max(0, V - 2.0);
+            currentMa = (vDrop / R) * 1000;
+            if (currentMa > 35) state.ledBurnt = true;
+            if (state.ledBurnt) {
+              currentMa = 0;
+              status = 'BURNT OUT!';
+            } else if (currentMa < 1) {
+              status = 'VERY DIM';
+            } else if (currentMa <= 25) {
+              status = 'SAFE (GLOWING)';
+            } else {
+              status = 'HOT (NEAR LIMIT)';
+            }
+          }
+        }
+        const powerMw = V * currentMa;
+        return { R, V, currentMa, powerMw, status };
+      }
+
+      function syncControls() {
+        const phys = computePhysics();
+        document.getElementById('btn-mode-closeup').classList.toggle('active', state.mode === 'closeup');
+        document.getElementById('btn-mode-circuit').classList.toggle('active', state.mode === 'circuit');
+        document.getElementById('btn-view-cutaway').classList.toggle('active', state.view === 'cutaway');
+        document.getElementById('btn-view-xray').classList.toggle('active', state.view === 'x-ray');
+        document.getElementById('btn-view-outer').classList.toggle('active', state.view === 'outer');
+
+        const pwrBtn = document.getElementById('btn-power');
+        const rstBtn = document.getElementById('btn-reset-led');
+        pwrBtn.style.display = state.mode === 'circuit' ? 'inline-flex' : 'none';
+        pwrBtn.textContent = state.powerOn ? 'Switch: ON' : 'Switch: OFF';
+        pwrBtn.classList.toggle('active', state.powerOn);
+        rstBtn.style.display = (state.mode === 'circuit' && state.ledBurnt) ? 'inline-flex' : 'none';
+
+        document.getElementById('stage-mode-badge').textContent =
+          (state.mode === 'closeup' ? '3D Closeup' : 'LED Safety Circuit') + ' · ' + state.view.toUpperCase();
+        document.getElementById('voltage-val').textContent = phys.V.toFixed(1) + ' V';
+
+        const iStr = phys.currentMa >= 100 ? phys.currentMa.toFixed(0) + ' mA' : phys.currentMa.toFixed(1) + ' mA';
+        document.getElementById('tele-r').textContent = formatOhms(phys.R);
+        document.getElementById('tele-i').textContent = iStr;
+        document.getElementById('tele-p').textContent = phys.powerMw.toFixed(0) + ' mW';
+        const stEl = document.getElementById('tele-status');
+        stEl.textContent = phys.status;
+        stEl.className = 'tele-cell-v' + (state.ledBurnt ? ' burn' : phys.currentMa > 25 ? ' warn' : '');
+
+        document.getElementById('toc-r').textContent = formatOhms(phys.R);
+        document.getElementById('toc-v').textContent = phys.V.toFixed(1) + ' V';
+        document.getElementById('toc-i').textContent = iStr;
+        const tocLed = document.getElementById('toc-led');
+        tocLed.textContent = state.ledBurnt ? 'BURNT' : (state.powerOn ? 'SAFE' : 'OFF');
+        tocLed.className = 'stat-val ' + (state.ledBurnt ? 'danger' : 'safe');
+      }
+
+      function rebuildAndSync() {
+        renderBandSwatches();
+        buildScene();
+        syncControls();
+      }
+
+      // Wire buttons
+      document.getElementById('btn-mode-closeup').addEventListener('click', () => { state.mode = 'closeup'; rebuildAndSync(); });
+      document.getElementById('btn-mode-circuit').addEventListener('click', () => { state.mode = 'circuit'; rebuildAndSync(); });
+      document.getElementById('btn-view-cutaway').addEventListener('click', () => { state.view = 'cutaway'; rebuildAndSync(); });
+      document.getElementById('btn-view-xray').addEventListener('click', () => { state.view = 'x-ray'; rebuildAndSync(); });
+      document.getElementById('btn-view-outer').addEventListener('click', () => { state.view = 'outer'; rebuildAndSync(); });
+      document.getElementById('btn-power').addEventListener('click', () => {
+        state.powerOn = !state.powerOn;
+        if (!state.powerOn) state.ledBurnt = false;
+        syncControls();
+      });
+      document.getElementById('btn-reset-led').addEventListener('click', () => {
+        state.ledBurnt = false;
+        syncControls();
+      });
+      document.getElementById('voltage-slider').addEventListener('input', (e) => {
+        state.voltage = parseFloat(e.target.value);
+        state.ledBurnt = false;
+        syncControls();
+      });
+      document.getElementById('preset-10').addEventListener('click', () => {
+        state.mode = 'circuit'; state.b1 = 1; state.b2 = 0; state.b3 = 0; state.powerOn = true; state.ledBurnt = false;
+        rebuildAndSync();
+      });
+      document.getElementById('preset-220').addEventListener('click', () => {
+        state.mode = 'circuit'; state.b1 = 2; state.b2 = 2; state.b3 = 1; state.powerOn = true; state.ledBurnt = false;
+        rebuildAndSync();
+      });
+      document.getElementById('preset-1k').addEventListener('click', () => {
+        state.mode = 'circuit'; state.b1 = 1; state.b2 = 0; state.b3 = 2; state.powerOn = true; state.ledBurnt = false;
+        rebuildAndSync();
+      });
+
+      // Scope canvas
       const scopeCanvas = document.getElementById('scope-canvas');
       const scopeCtx = scopeCanvas.getContext('2d');
+      let scopePhase = 0;
 
-      function resizeScopeCanvas() {
-        const rect = scopeCanvas.parentElement.getBoundingClientRect();
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        scopeCanvas.width = Math.max(100, Math.floor(rect.width * dpr));
-        scopeCanvas.height = Math.max(40, Math.floor(rect.height * dpr));
-        scopeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-
-      function stepPhysicsAndVisuals(dt) {
-        state.time += dt;
-
-        const R = getResistanceValue();
-        const V = state.res.voltage;
-        const isOn = state.res.powerOn;
-        const isCircuit = state.res.mode === 'circuit';
-
-        let I_amps = 0;
-        let ledStatus = 'OFF';
-
-        if (isOn) {
-          if (isCircuit) {
-            const Vf = 2.0;
-            if (V > Vf) {
-              I_amps = (V - Vf) / R;
-              const mA = I_amps * 1000;
-              if (mA > 30) {
-                state.res.ledBurnt = true;
-                ledStatus = 'OVERLOAD!';
-              } else if (mA < 1.2) {
-                state.res.ledBurnt = false;
-                ledStatus = 'TOO DIM';
-              } else {
-                state.res.ledBurnt = false;
-                ledStatus = 'SAFE GLOW';
-              }
-            } else {
-              ledStatus = 'V < 2V';
-            }
-          } else {
-            I_amps = V / R;
-            ledStatus = 'FLOWING';
-          }
-        } else {
-          state.res.ledBurnt = false;
+      function drawScope(currentMa) {
+        const w = scopeCanvas.clientWidth || 300;
+        const h = scopeCanvas.clientHeight || 110;
+        if (scopeCanvas.width !== w || scopeCanvas.height !== h) {
+          scopeCanvas.width = w;
+          scopeCanvas.height = h;
         }
+        scopeCtx.fillStyle = '#041d1e';
+        scopeCtx.fillRect(0, 0, w, h);
 
-        const currentMa = I_amps * 1000;
-        const powerMw = I_amps * I_amps * R * 1000;
-
-        state.metrics.resistance = R;
-        state.metrics.currentMa = currentMa;
-        state.metrics.powerMw = powerMw;
-        state.metrics.ledStatus = ledStatus;
-
-        const normI = Math.min(1, currentMa / 40);
-        const normV = V / 12;
-        const ripple = isOn ? Math.sin(state.time * 9) * 0.015 * normI : 0;
-        state.scopeA.push(normI + ripple);
-        state.scopeB.push(isOn ? normV : 0);
-        if (state.scopeA.length > 140) state.scopeA.shift();
-        if (state.scopeB.length > 140) state.scopeB.shift();
-
-        const speed = isOn ? Math.min(1.8, Math.max(0.06, Math.log10(1 + currentMa * 1.4) * 0.65)) : 0;
-        const heatLevel = isOn ? Math.min(1.0, powerMw / 350) : 0;
-
-        if (animatedActors.kind === 'res-closeup') {
-          const { resAsm, pIn, pOut, pSpiral } = animatedActors;
-          resAsm.spiralMat.emissiveIntensity = heatLevel * 1.1;
-          resAsm.heatMat.opacity = heatLevel * 0.16;
-
-          [pIn, pOut, pSpiral].forEach((stream, idx) => {
-            const sMult = idx === 2 ? 0.35 : 1.0;
-            stream.spheres.forEach((sp) => {
-              sp.visible = isOn && currentMa > 0.001;
-              if (sp.visible) {
-                sp.userData.offset = (sp.userData.offset + dt * speed * sMult) % 1;
-                stream.curve.getPointAt(sp.userData.offset, sp.position);
-              }
-            });
-          });
-        } else if (animatedActors.kind === 'res-circuit') {
-          const { resAsm, sw, led, flow } = animatedActors;
-          const targetAngle = isOn ? 0 : 0.62;
-          sw.pivot.rotation.z += (targetAngle - sw.pivot.rotation.z) * 0.2;
-
-          resAsm.spiralMat.emissiveIntensity = heatLevel * 1.0;
-          resAsm.heatMat.opacity = heatLevel * 0.14;
-
-          const flowing = isOn && currentMa > 0.05 && !state.res.ledBurnt;
-          flow.spheres.forEach((sp) => {
-            sp.visible = flowing || (state.res.ledBurnt && Math.sin(state.time * 28) > 0);
-            if (sp.visible) {
-              sp.userData.offset = (sp.userData.offset + dt * speed * 0.28) % 1;
-              flow.curve.getPointAt(sp.userData.offset, sp.position);
-            }
-          });
-          flow.mat.color.setHex(state.res.ledBurnt ? 0xe04836 : 0x2563eb);
-
-          const lblLed = labelAnchors.find(l => l.id === 'lbl-led');
-          if (state.res.ledBurnt) {
-            const flash = Math.sin(state.time * 22) > 0;
-            led.lensMat.color.setHex(flash ? 0xff2a1a : 0x332222);
-            led.lensMat.emissiveIntensity = flash ? 1.4 : 0.05;
-            led.glowMat.opacity = flash ? 0.42 : 0.0;
-            led.smokePuffs.forEach((sm, i) => {
-              const phase = (state.time * 1.3 + i * 0.18) % 1;
-              sm.position.set(Math.sin(state.time * 3 + i) * 0.16, phase * 1.4, Math.cos(state.time * 2 + i) * 0.12);
-              sm.scale.setScalar(0.6 + phase * 1.2);
-              sm.material.opacity = (1 - phase) * 0.45;
-            });
-            if (lblLed) {
-              lblLed.el.textContent = 'OVERLOAD! BURNT OUT';
-              lblLed.el.className = 'scene-label alert';
-            }
-          } else {
-            const brightness = isOn ? Math.min(1, currentMa / 20) : 0;
-            led.lensMat.color.setHex(0xe04836);
-            led.lensMat.emissiveIntensity = 0.08 + brightness * 1.15;
-            led.glowMat.opacity = brightness * 0.28;
-            led.smokePuffs.forEach(sm => { sm.material.opacity = 0; });
-            if (lblLed) {
-              lblLed.el.textContent = brightness > 0.06 ? 'red led · safe glow' : 'red led · off';
-              lblLed.el.className = 'scene-label red';
-            }
-          }
-        }
-      }
-
-      /* -----------------------------------------------------------------------
-         8. TELEMETRY PANEL & OSCILLOSCOPE DRAWING
-         ----------------------------------------------------------------------- */
-      function renderTelemetryAndScope() {
-        const readoutEl = document.getElementById('telemetry-readout');
-        const rowsEl = document.getElementById('telemetry-rows');
-
-        const mA = state.metrics.currentMa;
-        if (state.res.ledBurnt) {
-          readoutEl.textContent = 'OVERLOAD!';
-          readoutEl.className = 'telemetry-readout danger';
-        } else {
-          readoutEl.textContent = !state.res.powerOn
-            ? '0.0 mA'
-            : mA >= 100
-            ? mA.toFixed(0) + ' mA'
-            : mA >= 1
-            ? mA.toFixed(1) + ' mA'
-            : (mA * 1000).toFixed(0) + ' µA';
-          readoutEl.className = 'telemetry-readout';
-        }
-
-        rowsEl.innerHTML = `
-          <div class="telemetry-row"><span class="k">voltage V</span><span class="v">${state.res.voltage.toFixed(1)} V</span></div>
-          <div class="telemetry-row"><span class="k">resistance R</span><span class="v">${formatOhms(state.metrics.resistance)} ${TOLERANCE_COLORS[state.res.b4].tol}</span></div>
-          <div class="telemetry-row"><span class="k">heat power P</span><span class="v">${state.metrics.powerMw.toFixed(1)} mW</span></div>
-          <div class="telemetry-row"><span class="k">${state.res.mode === 'circuit' ? 'led safety' : 'power'}</span><span class="v" style="color:${state.res.ledBurnt ? 'var(--red)' : '#27272a'}">${state.res.mode === 'circuit' ? state.metrics.ledStatus : (state.res.powerOn ? 'ON' : 'OFF')}</span></div>
-        `;
-
-        const w = scopeCanvas.parentElement.clientWidth;
-        const h = scopeCanvas.parentElement.clientHeight;
-        scopeCtx.clearRect(0, 0, w, h);
-
-        scopeCtx.strokeStyle = '#eceef2';
+        scopeCtx.strokeStyle = 'rgba(129, 210, 227, 0.14)';
         scopeCtx.lineWidth = 1;
-        scopeCtx.beginPath();
-        scopeCtx.moveTo(0, h * 0.5);
-        scopeCtx.lineTo(w, h * 0.5);
-        scopeCtx.stroke();
-
-        // Blue Trace: Voltage reference
-        scopeCtx.strokeStyle = '#2563eb';
-        scopeCtx.lineWidth = 1.25;
-        scopeCtx.beginPath();
-        for (let i = 0; i < state.scopeB.length; i++) {
-          const x = (i / (state.scopeB.length - 1)) * w;
-          const y = h - 8 - state.scopeB[i] * (h - 16);
-          if (i === 0) scopeCtx.moveTo(x, y);
-          else scopeCtx.lineTo(x, y);
+        for (let y = 20; y < h; y += 22) {
+          scopeCtx.beginPath();
+          scopeCtx.moveTo(0, y);
+          scopeCtx.lineTo(w, y);
+          scopeCtx.stroke();
         }
-        scopeCtx.stroke();
 
-        // Red Trace: Current flow
-        scopeCtx.strokeStyle = '#e04836';
-        scopeCtx.lineWidth = 1.6;
+        const level = Math.min(0.88, currentMa / 45);
+        const yVal = h - 14 - level * (h - 28);
+        scopeCtx.strokeStyle = state.ledBurnt ? '#ff7b72' : '#BCEDD8';
+        scopeCtx.lineWidth = 2.2;
         scopeCtx.beginPath();
-        for (let i = 0; i < state.scopeA.length; i++) {
-          const x = (i / (state.scopeA.length - 1)) * w;
-          const y = h - 8 - state.scopeA[i] * (h - 16);
-          if (i === 0) scopeCtx.moveTo(x, y);
+        for (let x = 0; x < w; x++) {
+          const ripple = currentMa > 0 ? Math.sin(x * 0.08 + scopePhase) * 2.5 : 0;
+          const y = yVal + ripple;
+          if (x === 0) scopeCtx.moveTo(x, y);
           else scopeCtx.lineTo(x, y);
         }
         scopeCtx.stroke();
       }
 
-      /* -----------------------------------------------------------------------
-         9. FLOATING 2D-PROJECTED 3D ANNOTATIONS
-         ----------------------------------------------------------------------- */
-      const projVec = new THREE.Vector3();
-      function updateFloatingLabels() {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        for (let i = 0; i < labelAnchors.length; i++) {
-          const item = labelAnchors[i];
-          projVec.copy(item.pos).project(camera);
-          if (projVec.z > 1) {
-            item.el.style.opacity = '0';
-          } else {
-            const x = (projVec.x * 0.5 + 0.5) * w;
-            const y = (-projVec.y * 0.5 + 0.5) * h;
-            const overlapLeft = (w > 850 && x < 355 && y > 50 && y < h - 105);
-            const overlapRight = (w > 850 && x > w - 275 && y > 55 && y < 325);
-            item.el.style.opacity = (overlapLeft || overlapRight) ? '0.18' : '0.96';
-            item.el.style.left = x.toFixed(1) + 'px';
-            item.el.style.top = y.toFixed(1) + 'px';
+      // Animation Loop
+      let flowT = 0;
+      let lastTime = performance.now();
+
+      function animate(now) {
+        requestAnimationFrame(animate);
+        const dt = Math.min(0.05, (now - lastTime) / 1000);
+        lastTime = now;
+
+        const phys = computePhysics();
+        const speed = phys.currentMa > 0 ? Math.min(1.6, 0.08 + phys.currentMa * 0.014) : 0;
+        flowT = (flowT + dt * speed) % 1;
+        scopePhase += dt * (2 + speed * 5);
+        drawScope(phys.currentMa);
+
+        if (webglReady) {
+          const damp = 0.12;
+          orbit.theta += (orbit.targetTheta - orbit.theta) * damp;
+          orbit.phi += (orbit.targetPhi - orbit.phi) * damp;
+          orbit.radius += (orbit.targetRadius - orbit.radius) * damp;
+          orbit.target.lerp(orbit.desiredTarget, damp);
+
+          const sinPhi = Math.sin(orbit.phi);
+          camera.position.set(
+            orbit.target.x + orbit.radius * sinPhi * Math.sin(orbit.theta),
+            orbit.target.y + orbit.radius * Math.cos(orbit.phi),
+            orbit.target.z + orbit.radius * sinPhi * Math.cos(orbit.theta)
+          );
+          camera.lookAt(orbit.target);
+
+          const rect = stageBox.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            camera.aspect = rect.width / rect.height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(rect.width, rect.height, false);
           }
-        }
-      }
 
-      /* -----------------------------------------------------------------------
-         10. UI RENDERING (Bottom Controls & Color Band Popover)
-         ----------------------------------------------------------------------- */
-      function renderColorBandPopover() {
-        const pop = document.getElementById('color-band-popover');
-        pop.classList.toggle('open', state.res.bandsOpen);
-
-        const buildStrip = (containerId, list, activeIdx, onSelect, showLabelFn) => {
-          const el = document.getElementById(containerId);
-          el.innerHTML = '';
-          list.forEach((c, idx) => {
-            const chip = document.createElement('button');
-            chip.className = 'color-chip' + (idx === activeIdx ? ' selected' : '');
-            chip.style.background = c.hex;
-            chip.style.color = c.text;
-            chip.title = `${c.name} (${showLabelFn(c)})`;
-            chip.textContent = showLabelFn(c);
-            chip.onclick = () => {
-              onSelect(idx);
-              state.res.ledBurnt = false;
-              renderColorBandPopover();
-              buildResistorScene();
-              renderControls();
-              setInspector({
-                name: `Updated Resistor: ${formatOhms(getResistanceValue())} ${TOLERANCE_COLORS[state.res.b4].tol}`,
-                desc: `Band 1 (${COLOR_DIGITS[state.res.b1].name}=${COLOR_DIGITS[state.res.b1].digit}) + Band 2 (${COLOR_DIGITS[state.res.b2].name}=${COLOR_DIGITS[state.res.b2].digit}) ${COLOR_DIGITS[state.res.b3].multStr} = ${formatOhms(getResistanceValue())}.`,
-                tip: 'Look inside the cutaway resistor — the carbon spiral turns automatically changed to match the new resistance!',
-                color: c.hex,
-                tag: 'COLOR CODE LIVE'
+          if (animatedActors.kind === 'closeup') {
+            [animatedActors.pIn, animatedActors.pOut, animatedActors.pSpiral].forEach((sys) => {
+              sys.spheres.forEach((s) => {
+                s.visible = phys.currentMa > 0;
+                const u = (s.userData.offset + flowT) % 1;
+                s.position.copy(sys.curve.getPointAt(u));
               });
-            };
-            el.appendChild(chip);
-          });
-        };
-
-        buildStrip('strip-b1', COLOR_DIGITS.slice(1), state.res.b1 - 1, (i) => { state.res.b1 = i + 1; }, c => c.digit);
-        buildStrip('strip-b2', COLOR_DIGITS, state.res.b2, (i) => { state.res.b2 = i; }, c => c.digit);
-        buildStrip('strip-b3', COLOR_DIGITS.slice(0, 7), state.res.b3, (i) => { state.res.b3 = i; }, c => '10' + (c.digit === 0 ? '⁰' : c.digit === 1 ? '¹' : c.digit === 2 ? '²' : c.digit === 3 ? '³' : c.digit === 4 ? '⁴' : c.digit === 5 ? '⁵' : '⁶'));
-        buildStrip('strip-b4', TOLERANCE_COLORS, state.res.b4, (i) => { state.res.b4 = i; }, c => c.tol.replace('±', ''));
-      }
-
-      function renderControls() {
-        const legend = document.getElementById('legend-line');
-        const row = document.getElementById('controls-row');
-        row.innerHTML = '';
-
-        legend.innerHTML = `
-          <span class="legend-item"><span class="legend-swatch" style="background:var(--blue)"></span>electric current flow</span>
-          <span class="legend-item">&middot;</span>
-          <span class="legend-item"><span class="legend-swatch" style="background:var(--red)"></span>carbon spiral heat / overload</span>
-        `;
-
-        const btnPwr = document.createElement('button');
-        btnPwr.className = 'sci-btn' + (state.res.powerOn ? ' active' : '');
-        btnPwr.textContent = state.res.powerOn ? 'power: on' : 'power: off';
-        btnPwr.onclick = () => {
-          state.res.powerOn = !state.res.powerOn;
-          if (!state.res.powerOn) state.res.ledBurnt = false;
-          renderControls();
-        };
-        row.appendChild(btnPwr);
-
-        const btnView = document.createElement('button');
-        btnView.className = 'sci-btn' + (state.res.view !== 'outer' ? ' active-blue' : '');
-        btnView.textContent = 'view: ' + state.res.view;
-        btnView.onclick = () => {
-          const order = ['outer', 'cutaway', 'x-ray'];
-          state.res.view = order[(order.indexOf(state.res.view) + 1) % order.length];
-          buildResistorScene();
-          renderControls();
-        };
-        row.appendChild(btnView);
-
-        const btnMode = document.createElement('button');
-        btnMode.className = 'sci-btn' + (state.res.mode === 'circuit' ? ' active' : '');
-        btnMode.textContent = state.res.mode === 'closeup' ? 'mode: resistor closeup' : 'mode: led safety circuit';
-        btnMode.onclick = () => {
-          state.res.mode = state.res.mode === 'closeup' ? 'circuit' : 'closeup';
-          state.res.ledBurnt = false;
-          buildResistorScene();
-          renderControls();
-        };
-        row.appendChild(btnMode);
-
-        const btnBands = document.createElement('button');
-        btnBands.className = 'sci-btn' + (state.res.bandsOpen ? ' active' : '');
-        btnBands.textContent = `color bands (${formatOhms(getResistanceValue())})`;
-        btnBands.onclick = () => {
-          state.res.bandsOpen = !state.res.bandsOpen;
-          renderColorBandPopover();
-          renderControls();
-        };
-        row.appendChild(btnBands);
-
-        const btnReset = document.createElement('button');
-        btnReset.className = 'sci-btn';
-        btnReset.textContent = 'reset';
-        btnReset.onclick = () => {
-          state.res.powerOn = true;
-          state.res.voltage = 6.0;
-          state.res.b1 = 2; state.res.b2 = 2; state.res.b3 = 1; state.res.b4 = 0;
-          state.res.ledBurnt = false;
-          renderColorBandPopover();
-          buildResistorScene();
-          renderControls();
-        };
-        row.appendChild(btnReset);
-
-        const vWrap = document.createElement('label');
-        vWrap.className = 'slider-group';
-        vWrap.innerHTML = `<span>voltage</span><input type="range" class="sci-slider" min="1.5" max="12" step="0.5" value="${state.res.voltage}" /><span class="slider-val">${state.res.voltage.toFixed(1)}V</span>`;
-        const vInput = vWrap.querySelector('input');
-        const vVal = vWrap.querySelector('.slider-val');
-        vInput.oninput = (e) => {
-          state.res.voltage = parseFloat(e.target.value);
-          state.res.ledBurnt = false;
-          vVal.textContent = state.res.voltage.toFixed(1) + 'V';
-          const lblBatt = labelAnchors.find(l => l.id === 'lbl-batt');
-          if (lblBatt) lblBatt.el.textContent = `battery ${state.res.voltage.toFixed(1)}V`;
-        };
-        row.appendChild(vWrap);
-      }
-
-      /* -----------------------------------------------------------------------
-         11. EVENT LISTENERS
-         ----------------------------------------------------------------------- */
-      document.getElementById('btn-close-bands').onclick = () => {
-        state.res.bandsOpen = false;
-        renderColorBandPopover();
-        renderControls();
-      };
-
-      document.querySelectorAll('.preset-btn').forEach((btn) => {
-        btn.onclick = () => {
-          state.res.b1 = parseInt(btn.dataset.b1, 10);
-          state.res.b2 = parseInt(btn.dataset.b2, 10);
-          state.res.b3 = parseInt(btn.dataset.b3, 10);
-          state.res.ledBurnt = false;
-          renderColorBandPopover();
-          buildResistorScene();
-          renderControls();
-          setInspector({
-            name: `Classroom Preset: ${formatOhms(getResistanceValue())}`,
-            desc: state.res.b1 === 1 && state.res.b3 === 0
-              ? '10 Ω is VERY low resistance! Try switching to "led safety circuit" to see what happens when too much current rushes through an LED.'
-              : `Loaded ${formatOhms(getResistanceValue())}. Notice how the 3D color stripes and internal carbon spiral turns update instantly!`,
-            tip: '220 Ω to 1 kΩ is the sweet spot for safely lighting a standard red LED from a 5V–9V battery.',
-            color: '#e04836',
-            tag: 'PRESET'
-          });
-        };
-      });
-
-      window.addEventListener('keydown', (e) => {
-        if (e.target.tagName === 'INPUT') return;
-        if (e.key === ' ') {
-          e.preventDefault();
-          state.res.powerOn = !state.res.powerOn;
-          if (!state.res.powerOn) state.res.ledBurnt = false;
-          renderControls();
-        } else if (e.key === 'ArrowRight') {
-          window.location.href = './transistor.html';
-        } else if (e.key === '/') {
-          e.preventDefault();
-          window.location.href = './';
-        }
-      });
-
-      /* -----------------------------------------------------------------------
-         12. POINTER ORBIT + RAYCAST CLICK-TO-INSPECT INTERACTION
-         ----------------------------------------------------------------------- */
-      const raycaster = new THREE.Raycaster();
-      const pointerNDC = new THREE.Vector2();
-
-      function getRaycastHit(clientX, clientY) {
-        const rect = canvas.getBoundingClientRect();
-        pointerNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-        pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.setFromCamera(pointerNDC, camera);
-        const hits = raycaster.intersectObjects(clickableMeshes, false);
-        return hits.length > 0 ? hits[0].object : null;
-      }
-
-      function applyHoverHighlight(mesh) {
-        if (state.hoveredMesh && state.hoveredMesh !== mesh) {
-          if (state.hoveredMesh.material && state.hoveredMesh.material.emissive && state.hoveredMesh.userData.origEmissive !== undefined) {
-            state.hoveredMesh.material.emissive.setHex(state.hoveredMesh.userData.origEmissive);
-          }
-        }
-        state.hoveredMesh = mesh;
-        if (mesh) {
-          canvas.classList.add('hovering-part');
-          if (mesh.material && mesh.material.emissive) {
-            if (mesh.userData.origEmissive === undefined) {
-              mesh.userData.origEmissive = mesh.material.emissive.getHex();
-            }
-            mesh.material.emissive.setHex(0x3a201d);
-          }
-        } else {
-          canvas.classList.remove('hovering-part');
-        }
-      }
-
-      canvas.addEventListener('pointerdown', (e) => {
-        orbit.isDragging = true;
-        orbit.movedDistance = 0;
-        orbit.pointerDownPos = { x: e.clientX, y: e.clientY };
-        orbit.lastPointerPos = { x: e.clientX, y: e.clientY };
-        canvas.classList.add('dragging');
-        canvas.setPointerCapture(e.pointerId);
-      });
-
-      canvas.addEventListener('pointermove', (e) => {
-        if (orbit.isDragging) {
-          const dx = e.clientX - orbit.lastPointerPos.x;
-          const dy = e.clientY - orbit.lastPointerPos.y;
-          orbit.movedDistance += Math.hypot(dx, dy);
-          orbit.lastPointerPos = { x: e.clientX, y: e.clientY };
-
-          orbit.targetTheta -= dx * 0.0075;
-          orbit.targetPhi = Math.max(0.22, Math.min(Math.PI - 0.22, orbit.targetPhi - dy * 0.0075));
-        } else {
-          const hit = getRaycastHit(e.clientX, e.clientY);
-          applyHoverHighlight(hit);
-        }
-      });
-
-      canvas.addEventListener('pointerup', (e) => {
-        orbit.isDragging = false;
-        canvas.classList.remove('dragging');
-        try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
-
-        if (orbit.movedDistance < 6) {
-          const hit = getRaycastHit(e.clientX, e.clientY);
-          if (hit && hit.userData.inspectInfo) {
-            setInspector(hit.userData.inspectInfo);
-            if (typeof hit.userData.onClickAction === 'function') {
-              hit.userData.onClickAction();
-            }
-          }
-        }
-      });
-
-      canvas.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        orbit.targetRadius = Math.max(5.2, Math.min(18.5, orbit.targetRadius + e.deltaY * 0.008));
-      }, { passive: false });
-
-      window.addEventListener('resize', handleResize);
-
-      /* -----------------------------------------------------------------------
-         13. MAIN ANIMATION LOOP (Software-WebGL paced when GPU is unavailable)
-         ----------------------------------------------------------------------- */
-      let lastTimestamp = 0;
-      let uiThrottle = 0;
-
-      function afterDraw(cb) {
-        const gl = renderer.getContext();
-        if (typeof gl.fenceSync === 'function') {
-          const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
-          gl.flush();
-          const poll = () => {
-            const st = sync && gl.getSyncParameter(sync, gl.SYNC_STATUS);
-            if (st === gl.UNSIGNALED) {
-              window.setTimeout(poll, 5);
+            });
+          } else if (animatedActors.kind === 'circuit') {
+            animatedActors.pivot.rotation.z += ((state.powerOn ? 0 : 0.62) - animatedActors.pivot.rotation.z) * 0.15;
+            animatedActors.flow.spheres.forEach((s) => {
+              s.visible = phys.currentMa > 0;
+              const u = (s.userData.offset + flowT) % 1;
+              s.position.copy(animatedActors.flow.curve.getPointAt(u));
+            });
+            if (state.ledBurnt) {
+              animatedActors.lensMat.color.setHex(0x27272a);
+              animatedActors.lensMat.emissiveIntensity = 0;
+              animatedActors.glowMat.opacity = 0;
             } else {
-              if (sync) gl.deleteSync(sync);
-              window.setTimeout(() => cb(performance.now()), 80);
+              animatedActors.lensMat.color.setHex(0xe04836);
+              const b = state.powerOn ? Math.min(1, phys.currentMa / 20) : 0;
+              animatedActors.lensMat.emissiveIntensity = 0.15 + b * 1.1;
+              animatedActors.glowMat.opacity = b * 0.45;
             }
-          };
-          window.setTimeout(poll, 5);
-        } else {
-          gl.finish();
-          window.setTimeout(() => cb(performance.now()), 80);
+          }
+
+          // Project labels
+          const w = rect.width, h = rect.height;
+          labelAnchors.forEach((lbl) => {
+            const p = lbl.pos.clone().project(camera);
+            if (p.z > 1) {
+              lbl.el.style.display = 'none';
+            } else {
+              lbl.el.style.display = 'block';
+              lbl.el.style.left = ((p.x * 0.5 + 0.5) * w) + 'px';
+              lbl.el.style.top = ((-p.y * 0.5 + 0.5) * h) + 'px';
+            }
+          });
+
+          renderer.render(scene, camera);
         }
       }
 
-      function animate(ts) {
-        const now = ts || performance.now();
-        const dt = Math.min(0.05, (now - lastTimestamp) / 1000 || 0.016);
-        lastTimestamp = now;
-
-        stepPhysicsAndVisuals(dt);
-        updateCamera();
-        renderer.render(scene, camera);
-        updateFloatingLabels();
-
-        uiThrottle += dt;
-        if (uiThrottle >= 0.04) {
-          uiThrottle = 0;
-          renderTelemetryAndScope();
-        }
-
-        if (isSoftwareGl) afterDraw(animate);
-        else requestAnimationFrame(animate);
-      }
-
-      window.onload = function () {
-        handleResize();
-        renderColorBandPopover();
-        renderControls();
-        resetInspectorDefault();
-        buildResistorScene();
-        renderTelemetryAndScope();
-        lastTimestamp = performance.now();
-        animate(lastTimestamp);
-      };
+      rebuildAndSync();
+      requestAnimationFrame(animate);
     })();
   </script>
 </body>
