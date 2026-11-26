@@ -1,7 +1,7 @@
 # AGENTS.md — My Virtual Classroom
 
 ## Mission
-Create complete, projector-ready, animated interactive lessons for Indian ATL students in Grades 5–9. A lesson is a guided explanation, not just a quiz, dashboard, PDF, or collection of apps. The approved benchmark is the 45-minute version of `testing/artificial-intelligence/what-is-ai.html` (commit `455e9c127c84085f4db2ec42e6ad9c44701c7615`). Match its teaching experience for every new concept, not its fruit example, subject matter, slide count or wording. Use the current green Vibe Discovery visual identity in DESIGN.md and index.html for all website lessons; the older white benchmark is a pedagogy reference only.
+Create complete, projector-ready, animated interactive lessons for Indian ATL students in Grades 5–9. A lesson is a guided explanation, not just a quiz, dashboard, PDF, or collection of apps. For **pedagogy and explanation depth**, match the 45-minute version of `testing/artificial-intelligence/what-is-ai.html` (commit `455e9c127c84085f4db2ec42e6ad9c44701c7615`). For **visual identity, layout, and UI**, always use the **current Vibe Discovery green scientific-journal UI** (`index.html` and `testing/electronics/resistor.html`: sticky blurred masthead with 5-color top strip, hero frontmatter with Summary & Key Equation, sticky left TOC + Live Telemetry, scrollable editorial prose sections with clickable Word Explorer terms, interactive 3D/SVG/Canvas widgets, Concept Check, Notebook Summary, and Light/Dark toggle) — never revert to the older white/blue 100dvh slide-deck UI.
 
 ## Read before making changes
 - `PEDAGOGY.md`: authoritative teaching method, scope, vocabulary, timing and student content.

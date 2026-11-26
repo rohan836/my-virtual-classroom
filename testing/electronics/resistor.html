@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>/electronics studies — Interactive 3D Resistor Lab</title>
-  <meta name="description" content="Electricity wants to race through a wire. Explore how a carbon-film resistor slows current, decode 4-band color codes, and test a live LED safety circuit in 3D." />
+  <title>/electronics studies — Resistor: control current, protect an LED</title>
+  <meta name="description" content="A complete interactive resistor lesson: current, voltage, 3D cutaway models, 4-band color codes, Ohm's law, and a safe LED circuit." />
   <meta name="lab-formula" content="V = I × R" />
+  <!-- fig. 01 · fig. 02 · fig. 03 · fig. 04 · fig. 05 · fig. 06 · fig. 07 · fig. 08 · fig. 09 -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -176,7 +177,7 @@
     .masthead-clean {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
@@ -348,8 +349,8 @@
       margin: 0 auto;
       padding: 38px 24px 64px;
       display: grid;
-      grid-template-columns: 235px minmax(0, 1fr);
-      gap: 52px;
+      grid-template-columns: 245px minmax(0, 1fr);
+      gap: 50px;
       align-items: start;
     }
 
@@ -358,7 +359,7 @@
       top: 84px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
     .toc-group-label {
@@ -377,16 +378,16 @@
       padding: 0;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
     }
 
     .toc-link {
       display: block;
-      padding: 6px 10px;
+      padding: 5px 10px;
       border-radius: 5px;
       border-left: 2px solid transparent;
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11.5px;
       color: var(--text-secondary);
       text-decoration: none;
       transition: all 0.15s ease;
@@ -434,15 +435,10 @@
       color: var(--accent-primary);
     }
 
-    .stat-val.danger {
-      color: var(--danger);
-    }
+    .stat-val.danger { color: var(--danger); }
+    .stat-val.safe { color: var(--safe); }
 
-    .stat-val.safe {
-      color: var(--safe);
-    }
-
-    /* 4. ARTICLE PROSE & SECTIONS */
+    /* 4. ARTICLE PROSE, CLICKABLE TERMS & REVEALABLE CHECKS */
     .article-main {
       min-width: 0;
     }
@@ -476,10 +472,10 @@
     }
 
     .prose p {
-      margin: 0 0 16px;
+      margin: 0 0 15px;
       font-size: 1.06rem;
       line-height: 1.78;
-      max-width: 740px;
+      max-width: 760px;
       color: var(--text-secondary);
     }
 
@@ -494,6 +490,23 @@
       color: var(--text-primary);
     }
 
+    .term {
+      display: inline;
+      padding: 0 1px;
+      border: 0;
+      border-bottom: 2px dotted var(--c-teal);
+      color: var(--accent-primary);
+      font: inherit;
+      font-weight: 600;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .term:hover {
+      background: var(--bg-subtle);
+      border-radius: 3px;
+    }
+
     .inline-eq {
       font-family: var(--font-mono);
       font-size: 0.92em;
@@ -504,14 +517,50 @@
       border: 1px solid var(--border-subtle);
     }
 
-    /* 5. INTERACTIVE 3D WIDGET CARD */
+    .example-callout {
+      max-width: 760px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--c-teal);
+      border-radius: 6px;
+      padding: 13px 18px;
+      margin: 14px 0;
+      font-size: 0.98rem;
+      color: var(--text-primary);
+    }
+
+    .think-box {
+      max-width: 760px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 16px 0;
+    }
+
+    .think-box summary {
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-copper);
+      margin-top: 8px;
+    }
+
+    .think-box p {
+      margin: 8px 0 0;
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+    }
+
+    /* 5. INTERACTIVE WIDGET CARDS */
     .widget-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-top: 3px solid var(--c-teal);
       border-radius: 8px;
       padding: 20px;
-      margin: 22px 0 36px;
+      margin: 22px 0 32px;
       box-shadow: 0 6px 24px rgba(6, 56, 57, 0.06);
       scroll-margin-top: 84px;
     }
@@ -578,16 +627,29 @@
       color: var(--danger);
     }
 
-    .sci-btn.danger-btn.active {
-      background: var(--danger);
-      color: #ffffff;
+    /* Water Pipe Analogy SVG */
+    .analogy-svg {
+      width: 100%;
+      max-height: 220px;
+      display: block;
+      background: var(--bg-page);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+    }
+
+    .flowline {
+      animation: flow 1.2s linear infinite;
+    }
+
+    @keyframes flow {
+      to { stroke-dashoffset: -40; }
     }
 
     /* 3D Stage Container */
     .stage-box {
       position: relative;
       width: 100%;
-      height: 470px;
+      height: 460px;
       background: #ffffff;
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
@@ -603,13 +665,8 @@
       touch-action: none;
     }
 
-    #three-canvas.dragging {
-      cursor: grabbing;
-    }
-
-    #three-canvas.hovering-part {
-      cursor: pointer;
-    }
+    #three-canvas.dragging { cursor: grabbing; }
+    #three-canvas.hovering-part { cursor: pointer; }
 
     #labels-layer {
       position: absolute;
@@ -635,12 +692,6 @@
     .scene-label.red { color: #c62828; border-color: #f3b5b5; }
     .scene-label.blue { color: #006d72; border-color: #8fc8cc; }
     .scene-label.muted { color: #4b797b; }
-    .scene-label.alert {
-      color: #ffffff;
-      background: #c62828;
-      border-color: #c62828;
-      font-weight: 700;
-    }
 
     .stage-hint {
       position: absolute;
@@ -685,13 +736,8 @@
       color: #BCEDD8;
     }
 
-    .tele-cell-v.warn {
-      color: #FEEE30;
-    }
-
-    .tele-cell-v.burn {
-      color: #ff7b72;
-    }
+    .tele-cell-v.warn { color: #FEEE30; }
+    .tele-cell-v.burn { color: #ff7b72; }
 
     .lab-split {
       display: grid;
@@ -754,12 +800,11 @@
       margin-top: 6px;
     }
 
-    /* Sliders & Band Decoder */
     .slider-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       margin-top: 14px;
       padding: 12px 14px;
       background: var(--bg-subtle);
@@ -770,7 +815,7 @@
     }
 
     .slider-row input[type="range"] {
-      flex: 1 1 200px;
+      flex: 1 1 180px;
       accent-color: var(--c-teal);
       cursor: pointer;
     }
@@ -811,13 +856,10 @@
       border-radius: 4px;
       border: 2px solid rgba(6, 56, 57, 0.2);
       cursor: pointer;
-      position: relative;
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
 
-    .swatch-btn:hover {
-      transform: translateY(-1px);
-    }
+    .swatch-btn:hover { transform: translateY(-1px); }
 
     .swatch-btn.selected {
       border-color: var(--c-pine);
@@ -825,7 +867,7 @@
       transform: scale(1.08);
     }
 
-    /* 6. KPI GRID & LEDGER TABLE */
+    /* 6. KPI GRID, TABLE, QUIZ & NOTEBOOK */
     .subthreshold-kpi-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -849,9 +891,7 @@
       color: var(--c-pine);
     }
 
-    [data-theme="dark"] .kpi-val {
-      color: var(--c-mint);
-    }
+    [data-theme="dark"] .kpi-val { color: var(--c-mint); }
 
     .kpi-label {
       font-family: var(--font-mono);
@@ -889,9 +929,7 @@
       letter-spacing: 0.07em;
     }
 
-    .subthreshold-table tr:last-child td {
-      border-bottom: none;
-    }
+    .subthreshold-table tr:last-child td { border-bottom: none; }
 
     .status-pill {
       display: inline-block;
@@ -901,14 +939,84 @@
       font-weight: 600;
     }
 
-    .status-pill.safe {
-      background: var(--safe-soft);
-      color: var(--safe);
+    .status-pill.safe { background: var(--safe-soft); color: var(--safe); }
+    .status-pill.warn { background: var(--danger-soft); color: var(--danger); }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
     }
 
-    .status-pill.warn {
-      background: var(--danger-soft);
-      color: var(--danger);
+    .quiz-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    .quiz-card legend {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .quiz-feedback {
+      margin: 10px 0 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      min-height: 18px;
+    }
+
+    .quiz-feedback.good { color: var(--safe); }
+    .quiz-feedback.bad { color: var(--danger); }
+
+    .notebook-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 3px solid var(--c-pine);
+      border-left: 4px solid var(--c-teal);
+      border-radius: 6px;
+      padding: 22px 26px;
+      max-width: 760px;
+    }
+
+    .notebook-card ol {
+      margin: 10px 0 14px;
+      padding-left: 22px;
+    }
+
+    .notebook-card li {
+      margin-bottom: 8px;
+      font-size: 1rem;
+      color: var(--text-secondary);
+    }
+
+    /* Word Explorer Dialog */
+    dialog#gloss {
+      width: min(600px, 92vw);
+      max-height: 88vh;
+      overflow: auto;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-top: 3px solid var(--c-teal);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 18px 48px rgba(4, 23, 24, 0.28);
+    }
+
+    dialog#gloss::backdrop {
+      background: rgba(4, 23, 24, 0.55);
+    }
+
+    .dictionary-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 16px;
     }
 
     /* 7. FOOTER */
@@ -932,9 +1040,7 @@
       font-weight: 600;
     }
 
-    .paper-footer a:hover {
-      text-decoration: underline;
-    }
+    .paper-footer a:hover { text-decoration: underline; }
 
     @media (max-width: 1024px) {
       .workspace-grid {
@@ -963,15 +1069,14 @@
       .hide-sm { display: none; }
       .lab-split,
       .bands-grid,
-      .subthreshold-kpi-grid {
+      .subthreshold-kpi-grid,
+      .quiz-grid {
         grid-template-columns: 1fr;
       }
       .telemetry-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .stage-box {
-        height: 360px;
-      }
+      .stage-box { height: 360px; }
     }
   </style>
 </head>
@@ -980,11 +1085,12 @@
   <!-- 1. STICKY TRANSLUCENT MASTHEAD -->
   <header class="masthead">
     <div class="masthead-left">
-      <a class="masthead-brand" href="../../">My Virtual Classroom</a>
+      <a class="masthead-brand" href="../">My Virtual Classroom</a>
       <a class="masthead-crumb hide-sm" href="./">/electronics</a>
       <span class="masthead-formula hide-sm" id="nav-equation">V = I &times; R</span>
     </div>
     <div class="masthead-clean">
+      <button type="button" class="btn-outline" id="btn-word-bank">Word bank</button>
       <a class="btn-solid hide-sm" href="#sec-lab-stage">Launch 3D Lab &darr;</a>
       <button type="button" class="btn-outline" id="theme-toggle" aria-label="Toggle dark mode">&#9680; Dark</button>
     </div>
@@ -993,30 +1099,31 @@
   <!-- 2. HERO FRONTMATTER -->
   <section class="paper-hero" aria-labelledby="resistor-title">
     <div class="paper-hero-inner">
-      <div class="hero-eyebrow">Electronics &amp; Robotics &middot; Interactive Study [fig. 01 &ndash; fig. 04]</div>
-      <h1 class="paper-title" id="resistor-title">Slowing the Rush of Electric Current</h1>
-      <div class="paper-authors">Atal Tinkering Lab (Grades 5&ndash;9) &middot; Carbon-Film Resistor, 4-Band Color Code &amp; LED Safety Circuit</div>
+      <div class="hero-eyebrow">Electronics &amp; Robotics &middot; ATL Grades 5&ndash;9 [fig. 01 &ndash; fig. 09]</div>
+      <h1 class="paper-title" id="resistor-title">Resistor: Control Current, Protect an LED</h1>
+      <div class="paper-authors">45-Minute Interactive Study &middot; Current, Voltage, 3D Cutaway Model, 4-Band Color Code &amp; Safe LED Circuit</div>
 
       <div class="abstract-box">
         <span class="badge-lemon">Summary</span>
         <p id="editorial-intro">
-          Electricity wants to race through a wire as fast as it can. Connect an LED straight to a 5&nbsp;V battery and too much current rushes through, burning it out in a flash. A <strong>resistor</strong> acts like a narrow winding hallway inside the wire &mdash; slowing electric charge down to a safe, steady flow.
+          Electricity wants to race through a wire as fast as it can. Connect a tiny <button type="button" class="term" data-word="LED">LED</button> straight to a 6&nbsp;V <button type="button" class="term" data-word="battery">battery</button> and too much <button type="button" class="term" data-word="current">current</button> rushes through, overheating and damaging it. A <button type="button" class="term" data-word="resistor">resistor</button> provides controlled opposition to slow charge down to a safe, steady flow.
         </p>
       </div>
 
       <div class="subthreshold-hero-box">
         <span class="badge-mint">Key Equation &middot; Ohm's Law</span>
         <p>
-          Current depends on battery push (<strong>Voltage, V</strong>) divided by opposition (<strong>Resistance, R</strong>):
-          <span class="inline-eq">I = V &divide; R</span>. Double the resistance and the current drops in half.
+          Current depends on voltage across a resistor divided by its resistance:
+          <span class="inline-eq">I = V &divide; R</span>. Click any dotted-underlined word in this lesson to open its definition and example.
         </p>
       </div>
 
       <div class="hero-cta-row">
         <a class="btn-solid" href="#sec-lab-stage">Open Interactive 3D Resistor &darr;</a>
         <a class="btn-outline" href="#sec-bands">4-Band Color Decoder &darr;</a>
-        <a class="btn-outline" href="#sec-ohms">Ohm's Law Table &darr;</a>
-        <a class="btn-outline" href="./">&larr; Back to Electronics</a>
+        <a class="btn-outline" href="#sec-check">Concept Check &darr;</a>
+        <a class="btn-outline" href="#sec-notes">Notebook Notes &darr;</a>
+        <a class="btn-outline" href="./">&larr; Electronics Portal</a>
       </div>
     </div>
   </section>
@@ -1026,21 +1133,25 @@
     <!-- Sticky Left TOC & Live Telemetry -->
     <aside class="toc-sidebar" aria-label="Table of Contents and Live Telemetry">
       <div>
-        <h2 class="toc-group-label">Article</h2>
+        <h2 class="toc-group-label">Lesson Sections</h2>
         <ul class="toc-list">
-          <li><a class="toc-link active" href="#sec-intro">Introduction (fig. 01)</a></li>
-          <li><a class="toc-link" href="#sec-inside">1 &middot; Inside the Resistor (fig. 02)</a></li>
-          <li><a class="toc-link" href="#sec-bands">2 &middot; 4-Band Color Code (fig. 03)</a></li>
-          <li><a class="toc-link" href="#sec-ohms">3 &middot; Ohm's Law &amp; Table (fig. 04)</a></li>
-          <li><a class="toc-link" href="#sec-circuit">4 &middot; LED Safety Circuit</a></li>
+          <li><a class="toc-link active" href="#sec-intro">1 &middot; Why protect an LED?</a></li>
+          <li><a class="toc-link" href="#sec-electricity">2 &middot; Current &amp; Voltage</a></li>
+          <li><a class="toc-link" href="#sec-resistance">3 &middot; Meet the Resistor</a></li>
+          <li><a class="toc-link" href="#sec-inside">4 &middot; Inside a Resistor</a></li>
+          <li><a class="toc-link" href="#sec-bands">5 &middot; 4-Band Color Code</a></li>
+          <li><a class="toc-link" href="#sec-ohms">6 &middot; Ohm's Law &amp; Table</a></li>
+          <li><a class="toc-link" href="#sec-circuit">7 &middot; LED Safety &amp; Uses</a></li>
+          <li><a class="toc-link" href="#sec-check">8 &middot; Concept Check</a></li>
+          <li><a class="toc-link" href="#sec-notes">9 &middot; Notebook Summary</a></li>
         </ul>
       </div>
 
       <div>
-        <h2 class="toc-group-label">Interactive Lab</h2>
+        <h2 class="toc-group-label">Interactive Labs</h2>
         <ul class="toc-list">
           <li><a class="toc-link" href="#sec-lab-stage">3D Resistor &amp; Circuit Stage</a></li>
-          <li><a class="toc-link" href="#sec-decoder-widget">Color Band Selector</a></li>
+          <li><a class="toc-link" href="#sec-decoder-widget">Color Band Decoder</a></li>
         </ul>
       </div>
 
@@ -1068,28 +1179,95 @@
     <!-- Main Editorial Content & Interactive Widgets -->
     <main class="article-main">
 
+      <!-- SECTION 1: WHY PROTECT AN LED -->
       <section class="article-sec" id="sec-intro">
-        <div class="sec-num">Introduction &middot; fig. 01</div>
-        <h2>Why every circuit needs a speed limit</h2>
+        <div class="sec-num">Section 1 &middot; fig. 01</div>
+        <h2>Why does an LED need protection?</h2>
         <div class="prose">
           <p>
-            Imagine opening a dam with no narrow channel to slow the water down: everything downstream gets flooded. Electric charge behaves the same way. A copper wire has almost zero resistance, so a battery pushes a huge rush of electrons through it.
+            A small <button type="button" class="term" data-word="LED">LED</button> turns electrical energy into light, and it only needs a gentle, safe amount of <button type="button" class="term" data-word="current">current</button> (about 10&ndash;20&nbsp;<button type="button" class="term" data-word="mA">mA</button>). A <button type="button" class="term" data-word="battery">battery</button> supplies energy, a <button type="button" class="term" data-word="resistor">resistor</button> limits current, an LED gives light, and a <button type="button" class="term" data-word="switch">switch</button> opens or closes the path. Together they form a <button type="button" class="term" data-word="circuit">circuit</button>.
           </p>
-          <p>
-            To protect delicate parts like LEDs and microcontrollers, engineers place a <strong>resistor</strong> in the path. In <a href="#sec-lab-stage">fig. 01 below</a>, switch between the zoomed-in 3D resistor and the full LED safety circuit to see how changing resistance controls the speed of flowing charge.
-          </p>
+          <div class="example-callout">
+            <strong>Example:</strong> Think of the tiny red indicator light on a phone charger or Arduino board—it is not built to take unlimited current. And just like a torch switch, opening the loop breaks the path so steady current stops immediately.
+          </div>
+          <details class="think-box">
+            <strong>Think together:</strong> What might happen if a small LED receives too much current, and why does opening a switch turn it off?
+            <summary>Reveal explanation</summary>
+            <p>Too much current heats and damages the LED. Opening the switch breaks the connected path, so steady current cannot flow around the loop.</p>
+          </details>
         </div>
       </section>
 
-      <section class="article-sec" id="sec-inside">
-        <div class="sec-num">Section 1 &middot; fig. 02</div>
-        <h2>Inside a carbon-film resistor</h2>
+      <!-- SECTION 2: ELECTRICITY, CURRENT & VOLTAGE -->
+      <section class="article-sec" id="sec-electricity">
+        <div class="sec-num">Section 2 &middot; fig. 02</div>
+        <h2>Electricity, current and voltage</h2>
         <div class="prose">
           <p>
-            From the outside, a resistor looks like a tiny tan peanut with colored stripes. Cut open the protective ceramic paint (<strong>Cutaway</strong> or <strong>X-Ray</strong> mode in the 3D stage below) and you will see four distinct layers:
+            Metal wires already contain movable <button type="button" class="term" data-word="electron">electrons</button> carrying negative <button type="button" class="term" data-word="charge">charge</button>. When a complete path and a source of <button type="button" class="term" data-word="voltage">voltage</button> are present, charges drift through the metal and <button type="button" class="term" data-word="electricity">electricity</button> transfers energy to the LED.
           </p>
           <p>
-            <strong>1. Tinned copper leads</strong> plug into your breadboard (resistors have no + or &minus; polarity). <strong>2. Metallic end caps</strong> press onto a <strong>3. white insulating ceramic core</strong>. <strong>4. A laser-cut carbon spiral</strong> wraps around the core &mdash; more spiral turns make the path longer and skinnier, raising the resistance in Ohms (&Omega;).
+            <strong>Current (I)</strong> is how much charge passes a point each second, measured in <button type="button" class="term" data-word="A">amperes (A)</button> or <button type="button" class="term" data-word="mA">milliamperes (mA)</button>, where <span class="inline-eq">1 A = 1,000 mA</span>. <strong>Voltage (V)</strong> is the electrical push—the energy transferred per unit of charge between two points, measured in <button type="button" class="term" data-word="V">volts (V)</button>.
+          </p>
+          <div class="example-callout">
+            <strong>Water Pipe Analogy:</strong> Imagine water already filling a closed pipe. A pump creates pressure difference (<em>voltage</em>), while the amount of water passing a point each second is the flow rate (<em>current</em>).
+          </div>
+        </div>
+
+        <!-- Interactive Water Pipe Analogy Widget -->
+        <div class="widget-card" aria-label="Water pipe resistance analogy">
+          <div class="widget-header">
+            <h3 class="widget-title">Analogy: Narrowing the Pipe Slows the Flow</h3>
+            <div class="widget-controls" style="margin-bottom:0;">
+              <button type="button" class="sci-btn active" id="btn-pipe-wide">Wider Passage (Low R)</button>
+              <button type="button" class="sci-btn" id="btn-pipe-narrow">Narrower Passage (High R)</button>
+            </div>
+          </div>
+          <svg class="analogy-svg" viewBox="0 0 760 210" role="img" aria-label="Water pipe analogy comparing wide and narrow passages">
+            <defs>
+              <clipPath id="pipeclip">
+                <path id="pipe-clip-path" d="M65 55 H290 L330 75 H430 L470 55 H695 V155 H470 L430 135 H330 L290 155 H65 Z" />
+              </clipPath>
+            </defs>
+            <path id="pipe-outline" d="M65 55 H290 L330 75 H430 L470 55 H695 V155 H470 L430 135 H330 L290 155 H65 Z" fill="#dff4f2" stroke="#065758" stroke-width="3.5" />
+            <g clip-path="url(#pipeclip)" stroke="#00999F" stroke-width="4.5" stroke-dasharray="6 22" class="flowline" id="pipe-flow" style="animation-duration:1s;">
+              <path d="M60 80 H700" /><path d="M60 105 H700" /><path d="M60 130 H700" />
+            </g>
+            <text id="pipe-caption" x="380" y="34" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="600" fill="#063839">Wider passage · greater flow (lower resistance)</text>
+            <text x="380" y="188" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#4b797b">Same pressure difference · analogy, not literal electrons</text>
+          </svg>
+        </div>
+      </section>
+
+      <!-- SECTION 3: MEET THE RESISTOR -->
+      <section class="article-sec" id="sec-resistance">
+        <div class="sec-num">Section 3 &middot; fig. 03</div>
+        <h2>Resistor versus resistance</h2>
+        <div class="prose">
+          <p>
+            A <button type="button" class="term" data-word="resistor">resistor</button> is the physical component you hold; <button type="button" class="term" data-word="resistance">resistance</button> (<button type="button" class="term" data-word="R">R</button>) is its property—how strongly it opposes electric current, measured in <button type="button" class="term" data-word="ohm">ohms (&Omega;)</button> or <button type="button" class="term" data-word="kohm">kilohms (k&Omega;)</button>.
+          </p>
+          <p>
+            A <button type="button" class="term" data-word="fixed">fixed resistor</button> controls current and transfers some electrical energy into heat—it does <strong>not</strong> use up charge. In a <button type="button" class="term" data-word="series">series circuit</button>, the exact same current passes through every component in the loop.
+          </p>
+          <details class="think-box">
+            <strong>Think together:</strong> Is less current leaving the resistor than entering it?
+            <summary>Reveal explanation</summary>
+            <p>No! In a single steady loop, the same charge per second passes every component. Electrical energy is transferred into heat, not charge consumed.</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- SECTION 4: INSIDE A REAL CARBON-FILM RESISTOR + 3D STAGE -->
+      <section class="article-sec" id="sec-inside">
+        <div class="sec-num">Section 4 &middot; fig. 04</div>
+        <h2>Inside a real carbon-film resistor</h2>
+        <div class="prose">
+          <p>
+            Outside, a common through-hole resistor has two metal <button type="button" class="term" data-word="lead">leads</button>, a protective <button type="button" class="term" data-word="coat">coating</button>, and colored bands. It has <strong>no <button type="button" class="term" data-word="polarity">polarity</button></strong>—you can plug it in either way around.
+          </p>
+          <p>
+            Switch the 3D model below to <strong>Cutaway</strong> or <strong>X-Ray</strong> to inspect inside: a white insulating <button type="button" class="term" data-word="core">ceramic core</button> supports a thin <button type="button" class="term" data-word="film">carbon film</button>, and a laser cuts a <button type="button" class="term" data-word="groove">helical groove</button> into the film to make the conducting path longer and narrower. <button type="button" class="term" data-word="cap">Metal end caps</button> join the film to the leads.
           </p>
         </div>
       </section>
@@ -1113,7 +1291,6 @@
 
         <div class="stage-box" id="stage-box">
           <canvas id="three-canvas"></canvas>
-          <canvas id="fallback-canvas" style="display:none;"></canvas>
           <div id="labels-layer"></div>
           <div class="stage-hint">Drag to orbit &middot; Scroll to zoom &middot; Click any 3D part</div>
         </div>
@@ -1170,17 +1347,17 @@
         </div>
       </section>
 
-      <!-- SECTION 2: 4-BAND COLOR CODE -->
+      <!-- SECTION 5: 4-BAND COLOR CODE -->
       <section class="article-sec" id="sec-bands">
-        <div class="sec-num">Section 2 &middot; fig. 03</div>
-        <h2>Reading the 4-band color code</h2>
+        <div class="sec-num">Section 5 &middot; fig. 05</div>
+        <h2>Read the 4-band color code</h2>
         <div class="prose">
           <p>
-            A resistor is too small to print numbers clearly, so manufacturers paint <strong>four colored stripes</strong> around its body. Read them from the side where the bands are packed closer together:
+            Read from the end where the bands are packed closer together; the <button type="button" class="term" data-word="tolerance">tolerance</button> band is separated on the right. The first two bands are digits, the third is the <button type="button" class="term" data-word="multiplier">multiplier</button>, and the fourth is tolerance (<span class="inline-eq">&plusmn;5%</span> Gold means a 220&nbsp;&Omega; resistor measures between 209&ndash;231&nbsp;&Omega;).
           </p>
-          <p>
-            <strong>Band 1</strong> gives the first digit, <strong>Band 2</strong> gives the second digit, <strong>Band 3</strong> multiplies by a power of 10 (how many zeros to add), and <strong>Band 4</strong> shows tolerance (&plusmn;5% Gold or &plusmn;10% Silver). For example, <strong>Red &ndash; Red &ndash; Brown</strong> means <span class="inline-eq">22 &times; 10 = 220 &Omega;</span>.
-          </p>
+          <div class="example-callout">
+            <strong>Example:</strong> Red (2), Red (2), Brown (&times;10), Gold (&plusmn;5%) gives <span class="inline-eq">22 &times; 10 = 220 &Omega;</span>. Brown&ndash;Black&ndash;Red&ndash;Gold gives <span class="inline-eq">10 &times; 100 = 1,000 &Omega; (1 k&Omega;)</span>.
+          </div>
         </div>
 
         <div class="widget-card" id="sec-decoder-widget">
@@ -1209,13 +1386,13 @@
         </div>
       </section>
 
-      <!-- SECTION 3: OHM'S LAW & REFERENCE TABLE -->
+      <!-- SECTION 6: OHM'S LAW & REFERENCE TABLE -->
       <section class="article-sec" id="sec-ohms">
-        <div class="sec-num">Section 3 &middot; fig. 04</div>
-        <h2>Ohm's Law &amp; standard classroom values</h2>
+        <div class="sec-num">Section 6 &middot; fig. 06</div>
+        <h2>Ohm's Law: predict the current</h2>
         <div class="prose">
           <p>
-            When a resistor is wired in series with a red LED (which uses about <span class="inline-eq">2.0 V</span>), the remaining voltage pushes current through the resistor: <span class="inline-eq">I = (V<sub>supply</sub> &minus; 2.0 V) &divide; R</span>.
+            <button type="button" class="term" data-word="ohmslaw">Ohm's law</button> connects voltage, current, and resistance: <span class="inline-eq">V = I &times; R</span>, or <span class="inline-eq">I = V &divide; R</span>. When a resistor shares a supply with a red LED (which has a <button type="button" class="term" data-word="forward">forward voltage</button> drop of about 2.0&nbsp;V), use the voltage across the resistor: <span class="inline-eq">I = (V<sub>supply</sub> &minus; 2.0 V) &divide; R</span>.
           </p>
         </div>
 
@@ -1226,11 +1403,11 @@
           </div>
           <div class="kpi-card">
             <div class="kpi-val">220 &Omega;</div>
-            <div class="kpi-label">Go-to resistor for a 5 V Arduino / USB LED</div>
+            <div class="kpi-label">Go-to resistor for a 5–6 V LED circuit</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-val">&gt; 35 mA</div>
-            <div class="kpi-label">Danger zone: LED overheats and burns out</div>
+            <div class="kpi-label">Overload zone: LED heats up and fails</div>
           </div>
         </div>
 
@@ -1240,39 +1417,39 @@
               <tr>
                 <th>Resistance</th>
                 <th>4-Band Code</th>
-                <th>Current at 5 V (with LED)</th>
-                <th>Classroom Behavior</th>
+                <th>Current at 6 V (with 2 V LED)</th>
+                <th>Behavior</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>10 &Omega;</td>
                 <td>Brown &ndash; Black &ndash; Black</td>
-                <td>300 mA</td>
-                <td><span class="status-pill warn">Burns out LED</span></td>
+                <td>400 mA</td>
+                <td><span class="status-pill warn">Overload / Burnout</span></td>
               </tr>
               <tr>
                 <td>220 &Omega;</td>
                 <td>Red &ndash; Red &ndash; Brown</td>
-                <td>13.6 mA</td>
+                <td>18.2 mA</td>
                 <td><span class="status-pill safe">Bright &amp; Safe</span></td>
               </tr>
               <tr>
                 <td>470 &Omega;</td>
                 <td>Yellow &ndash; Violet &ndash; Brown</td>
-                <td>6.4 mA</td>
+                <td>8.5 mA</td>
                 <td><span class="status-pill safe">Medium Glow</span></td>
               </tr>
               <tr>
                 <td>1 k&Omega; (1,000 &Omega;)</td>
                 <td>Brown &ndash; Black &ndash; Red</td>
-                <td>3.0 mA</td>
+                <td>4.0 mA</td>
                 <td><span class="status-pill safe">Soft Glow</span></td>
               </tr>
               <tr>
                 <td>10 k&Omega; (10,000 &Omega;)</td>
                 <td>Brown &ndash; Black &ndash; Orange</td>
-                <td>0.3 mA</td>
+                <td>0.4 mA</td>
                 <td><span class="status-pill safe">Very Dim / Pull-up</span></td>
               </tr>
             </tbody>
@@ -1280,26 +1457,102 @@
         </div>
       </section>
 
-      <!-- SECTION 4: LED SAFETY CIRCUIT -->
+      <!-- SECTION 7: LED SAFETY, POLARITY & EVERYDAY USES -->
       <section class="article-sec" id="sec-circuit">
-        <div class="sec-num">Section 4 &middot; Experiment</div>
-        <h2>Try breaking (and saving) the LED</h2>
+        <div class="sec-num">Section 7 &middot; fig. 07</div>
+        <h2>Polarity, power &amp; everyday workshop habits</h2>
         <div class="prose">
           <p>
-            Scroll back to the <a href="#sec-lab-stage">Interactive 3D Stage</a>, click <strong>LED Safety Circuit</strong>, and press <strong>Test 10 &Omega; (Burnout)</strong>. Watch the current spike and the LED smoke! Then click <strong>Replace Burnt LED</strong> and switch to <strong>Test 220 &Omega; (Safe)</strong> to see the current settle into a steady, safe glow.
+            Unlike a resistor, an LED has <button type="button" class="term" data-word="polarity">polarity</button>: connect its longer <button type="button" class="term" data-word="anode">anode (+)</button> toward the positive side and its shorter <button type="button" class="term" data-word="cathode">cathode (&minus;)</button> toward the negative side. Also check resistor <button type="button" class="term" data-word="power">power</button> (<span class="inline-eq">P = I&sup2;R</span>) against its <button type="button" class="term" data-word="rating">0.25 W rating</button>.
           </p>
+          <p>
+            Resistors appear everywhere—from <button type="button" class="term" data-word="smd">surface-mount resistors</button> on phone boards to adjustable <button type="button" class="term" data-word="pot">potentiometers</button> on volume knobs. In your ATL workshop, build on a <button type="button" class="term" data-word="breadboard">breadboard</button>, avoid making a <button type="button" class="term" data-word="short">short circuit</button>, and always disconnect power before measuring resistance with a <button type="button" class="term" data-word="multimeter">multimeter</button>.
+          </p>
+        </div>
+      </section>
+
+      <!-- SECTION 8: CONCEPT CHECK -->
+      <section class="article-sec" id="sec-check">
+        <div class="sec-num">Section 8 &middot; fig. 08</div>
+        <h2>Check your understanding</h2>
+        <div class="prose">
+          <p>Choose an answer for each question and explain why before moving on.</p>
+        </div>
+
+        <div class="quiz-grid" id="quiz-grid">
+          <fieldset class="quiz-card">
+            <legend>1. Which value is 1 k&Omega;?</legend>
+            <button type="button" class="sci-btn" data-quiz="0,0,1" data-reason="kilo means 1,000.">100 &Omega;</button>
+            <button type="button" class="sci-btn" data-quiz="0,1,1" data-reason="kilo means 1,000.">1,000 &Omega;</button>
+            <button type="button" class="sci-btn" data-quiz="0,2,1" data-reason="kilo means 1,000.">10 &Omega;</button>
+            <p class="quiz-feedback" id="q0" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="quiz-card">
+            <legend>2. At 6 V with a 2 V red LED, which resistor gives ~18 mA?</legend>
+            <button type="button" class="sci-btn" data-quiz="1,0,1" data-reason="(6 − 2) ÷ 220 ≈ 0.018 A (18.2 mA).">10 &Omega;</button>
+            <button type="button" class="sci-btn" data-quiz="1,1,1" data-reason="(6 − 2) ÷ 220 ≈ 0.018 A (18.2 mA).">220 &Omega;</button>
+            <button type="button" class="sci-btn" data-quiz="1,2,1" data-reason="(6 − 2) ÷ 220 ≈ 0.018 A (18.2 mA).">1 k&Omega;</button>
+            <p class="quiz-feedback" id="q1" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="quiz-card">
+            <legend>3. An ordinary fixed resistor is reversed. What happens?</legend>
+            <button type="button" class="sci-btn" data-quiz="2,0,2" data-reason="An ordinary fixed resistor has no polarity.">It stops current</button>
+            <button type="button" class="sci-btn" data-quiz="2,1,2" data-reason="An ordinary fixed resistor has no polarity.">It explodes</button>
+            <button type="button" class="sci-btn" data-quiz="2,2,2" data-reason="An ordinary fixed resistor has no polarity.">It behaves the same</button>
+            <p class="quiz-feedback" id="q2" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="quiz-card">
+            <legend>4. In a single closed series loop, current after the resistor is&hellip;</legend>
+            <button type="button" class="sci-btn" data-quiz="3,0,1" data-reason="Charge is conserved; energy is transferred into heat.">Less</button>
+            <button type="button" class="sci-btn" data-quiz="3,1,1" data-reason="Charge is conserved; energy is transferred into heat.">The same</button>
+            <button type="button" class="sci-btn" data-quiz="3,2,1" data-reason="Charge is conserved; energy is transferred into heat.">Zero</button>
+            <p class="quiz-feedback" id="q3" aria-live="polite"></p>
+          </fieldset>
+        </div>
+      </section>
+
+      <!-- SECTION 9: NOTEBOOK SUMMARY -->
+      <section class="article-sec" id="sec-notes">
+        <div class="sec-num">Section 9 &middot; fig. 09</div>
+        <h2>Notebook: key points to copy</h2>
+        <div class="notebook-card">
+          <ol>
+            <li><strong>Resistor:</strong> a component that provides resistance and limits electric current.</li>
+            <li><strong>Current (I):</strong> charge flow per second, measured in A or mA (<span class="inline-eq">1 A = 1,000 mA</span>).</li>
+            <li><strong>Voltage (V):</strong> energy per unit charge. Resistance (R) is measured in &Omega; (<span class="inline-eq">1 k&Omega; = 1,000 &Omega;</span>).</li>
+            <li><strong>Ohm's Law:</strong> <span class="inline-eq">V = I &times; R</span> and <span class="inline-eq">I = V &divide; R</span>. Use the voltage across the resistor.</li>
+            <li><strong>4-Band Code:</strong> two digits, multiplier, tolerance. Red&ndash;Red&ndash;Brown&ndash;Gold = <span class="inline-eq">220 &Omega; &plusmn;5%</span>.</li>
+            <li><strong>LED Safety:</strong> in a series circuit, current is equal throughout. Example: <span class="inline-eq">(6 &minus; 2) &divide; 220 &approx; 18.2 mA</span>. Switch off before changing parts.</li>
+          </ol>
+          <p style="margin:0;"><strong>Takeaway:</strong> Choose the right resistor to control current safely without exceeding the LED or resistor ratings.</p>
         </div>
       </section>
 
     </main>
   </div>
 
+  <!-- WORD EXPLORER DIALOG -->
+  <dialog id="gloss">
+    <div class="sec-num" style="margin-bottom:4px;">Word Explorer</div>
+    <h2 id="word" style="margin:0 0 8px; font-family:var(--font-serif); color:var(--accent-primary);"></h2>
+    <p id="meaning" style="margin:0 0 10px; font-size:1.04rem; color:var(--text-primary);"></p>
+    <p id="example" class="example-callout" style="margin:0 0 14px;"></p>
+    <div id="wordlist" class="dictionary-chips" hidden></div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button type="button" class="sci-btn" id="allwords">All words</button>
+      <button type="button" class="sci-btn active" id="close-gloss">Close &times;</button>
+    </div>
+  </dialog>
+
   <!-- 4. FOOTER -->
   <footer class="paper-footer">
-    <span>/electronics studies &middot; Interactive 3D Resistor Lab &middot; My Virtual Classroom</span>
+    <span>/electronics studies &middot; Resistor: control current, protect an LED &middot; My Virtual Classroom</span>
     <span>
       <a href="./">&larr; Electronics Portal</a> &middot;
-      <a href="../../">Home</a>
+      <a href="../">Home</a>
     </span>
   </footer>
 
@@ -1327,7 +1580,113 @@
       });
 
       /* -----------------------------------------------------------------------
-         2. COLOR CODE DATA & STATE
+         2. WORD EXPLORER & QUIZ
+         ----------------------------------------------------------------------- */
+      const vocab = {
+        electricity: ['Electricity', 'Energy and effects associated with electric charge. A battery can transfer energy through a circuit.', 'A torch uses electrical energy to make light.'],
+        charge: ['Electric charge', 'A property of tiny particles. Electrons carry negative charge.', 'Metal wires contain electrons that can move.'],
+        electron: ['Electron', 'A tiny particle with negative electric charge.', 'In metal wires electrons drift opposite to conventional current.'],
+        circuit: ['Circuit', 'A connected path through which current can flow when it is complete.', 'Battery → resistor → LED → switch → battery.'],
+        battery: ['Battery', 'A source that uses chemical energy to create a voltage between two terminals.', 'Four 1.5 V cells in series supply about 6 V when fresh.'],
+        voltage: ['Voltage (V)', 'Energy transferred per unit of charge; it is like the electrical push between two points.', 'A fresh AA cell supplies about 1.5 V.'],
+        V: ['Volt (V)', 'The unit used to measure voltage. In an equation V can also represent voltage.', '6 V means six volts.'],
+        current: ['Current (I)', 'How much electric charge passes a point each second.', 'More current makes a correctly connected LED brighter, within its rating.'],
+        A: ['Ampere (A)', 'The unit of electric current. One ampere is one coulomb of charge per second.', '1 A = 1,000 mA.'],
+        mA: ['Milliampere (mA)', 'One thousandth of an ampere; a convenient unit for small currents.', '20 mA = 0.020 A.'],
+        resistor: ['Resistor', 'A component designed to provide a chosen amount of resistance.', 'A 220 Ω resistor limits the current through a small LED.'],
+        resistance: ['Resistance (R)', 'How strongly a material or component opposes electric current.', 'A 1,000 Ω resistor carries less current than 220 Ω at the same voltage.'],
+        R: ['R — resistance', 'The letter R represents resistance in an equation.', 'R = 220 Ω describes its resistance.'],
+        ohm: ['Ohm (Ω)', 'The unit of resistance. The Greek letter omega is its symbol.', '220 Ω is read as 220 ohms.'],
+        kohm: ['Kilohm (kΩ)', 'One thousand ohms.', '1 kΩ = 1,000 Ω.'],
+        LED: ['LED — light-emitting diode', 'A component that gives off light when current passes through it in the correct direction.', 'A red indicator light on a device.'],
+        polarity: ['Polarity', 'Which end is positive and which is negative. Some parts must be connected the right way.', 'A new LED has a longer positive lead and a shorter negative lead.'],
+        anode: ['Anode (+)', 'The LED terminal that should be at a higher voltage for forward current.', 'Usually the longer lead on a new 5 mm LED.'],
+        cathode: ['Cathode (−)', 'The LED terminal that should be at a lower voltage for forward current.', 'Usually the shorter lead and the flat edge of the lens.'],
+        switch: ['Switch', 'A component that joins or separates contacts to complete or break a circuit.', 'A torch switch opens the circuit to turn it off.'],
+        series: ['Series circuit', 'Components connected one after another in a single path. The same current passes through them.', 'A battery, resistor and LED connected in one loop.'],
+        lead: ['Lead / terminal', 'A metal connection that lets a component join a circuit.', 'The silver wires at both ends of a resistor.'],
+        core: ['Ceramic core', 'A hard, electrically insulating material that supports the resistive film.', 'The pale rod inside a carbon-film resistor.'],
+        film: ['Carbon film', 'A thin resistive layer deposited on the ceramic core.', 'Current travels along the remaining carbon layer.'],
+        groove: ['Helical groove', 'A spiral-shaped cut in the resistive film that makes its conducting path longer and narrower.', 'More turns give higher resistance.'],
+        cap: ['Metal end cap', 'A conductive metal part joining the resistive film to the leads.', 'A cap sits at each end of the ceramic rod.'],
+        coat: ['Protective coating', 'A tough insulating covering that protects the resistor and carries its colored bands.', 'The beige outer body of a carbon-film resistor.'],
+        tolerance: ['Tolerance', 'The allowed percentage difference between the marked resistance and its actual value.', '220 Ω ±5% means approximately 209–231 Ω.'],
+        multiplier: ['Multiplier', 'A number used to multiply the digits shown by the color bands.', 'Brown means ×10 in the multiplier position.'],
+        ohmslaw: ["Ohm's law", 'For a resistor with constant resistance, voltage across it equals current through it times resistance.', 'V = I × R. At 3 V across 300 Ω, I = 0.01 A.'],
+        forward: ['Forward voltage (Vf)', 'The voltage across a conducting LED.', 'This simplified red LED uses an approximate 2.0 V drop.'],
+        power: ['Power (P)', 'How quickly energy is transferred or converted; in a resistor much of it becomes heat.', 'At 0.01 A through 220 Ω, power is 0.022 W.'],
+        rating: ['Rating', 'A limit or operating specification given by the manufacturer.', 'This model uses a 20 mA LED limit and a 0.25 W resistor limit.'],
+        multimeter: ['Multimeter', 'A measuring tool for voltage, current and resistance.', 'Measure a disconnected resistor using the resistance setting.'],
+        breadboard: ['Breadboard', 'A reusable board with hidden metal connections for building circuits without soldering.', 'Insert a resistor into two different connected rows.'],
+        short: ['Short circuit', 'An unintended very low-resistance path that can cause excessive current and heating.', "Never join a battery's positive and negative terminals directly."],
+        pot: ['Potentiometer', 'An adjustable resistor with three terminals, often used to set a voltage.', 'A rotary volume or control knob uses one.'],
+        fixed: ['Fixed resistor', 'A resistor with a fixed nominal resistance.', 'A 220 Ω carbon-film resistor.'],
+        smd: ['Surface-mount resistor', 'A tiny resistor attached directly to a circuit board.', 'Small rectangular parts on a phone circuit board.']
+      };
+
+      const gloss = document.getElementById('gloss');
+      const wordlistEl = document.getElementById('wordlist');
+      function openWord(key) {
+        const d = vocab[key];
+        if (!d) return;
+        document.getElementById('word').textContent = d[0];
+        document.getElementById('meaning').textContent = d[1];
+        document.getElementById('example').textContent = 'Example: ' + d[2];
+        wordlistEl.hidden = true;
+        if (!gloss.open) gloss.showModal();
+      }
+      function openAllWords() {
+        document.getElementById('word').textContent = 'Word bank';
+        document.getElementById('meaning').textContent = 'Choose any term below to see its meaning and example.';
+        document.getElementById('example').textContent = '';
+        wordlistEl.innerHTML = Object.keys(vocab).map(k => `<button type="button" class="sci-btn" data-word="${k}">${vocab[k][0]}</button>`).join('');
+        wordlistEl.hidden = false;
+        if (!gloss.open) gloss.showModal();
+      }
+      document.getElementById('btn-word-bank').addEventListener('click', openAllWords);
+      document.getElementById('allwords').addEventListener('click', openAllWords);
+      document.getElementById('close-gloss').addEventListener('click', () => gloss.close());
+
+      document.addEventListener('click', (e) => {
+        const termBtn = e.target.closest('[data-word]');
+        if (termBtn) {
+          openWord(termBtn.dataset.word);
+          return;
+        }
+        const quizBtn = e.target.closest('[data-quiz]');
+        if (quizBtn) {
+          const [i, j, k] = quizBtn.dataset.quiz.split(',');
+          const fb = document.getElementById('q' + i);
+          const ok = j === k;
+          fb.textContent = (ok ? 'Correct! ' : 'Try again. ') + quizBtn.dataset.reason;
+          fb.className = 'quiz-feedback ' + (ok ? 'good' : 'bad');
+        }
+      });
+
+      /* -----------------------------------------------------------------------
+         3. WATER PIPE ANALOGY CONTROLS
+         ----------------------------------------------------------------------- */
+      const btnWide = document.getElementById('btn-pipe-wide');
+      const btnNarrow = document.getElementById('btn-pipe-narrow');
+      function setPipe(isWide) {
+        btnWide.classList.toggle('active', isWide);
+        btnNarrow.classList.toggle('active', !isWide);
+        const w = isWide ? 60 : 20;
+        const d = `M65 55 H290 L330 ${105 - w / 2} H430 L470 55 H695 V155 H470 L430 ${105 + w / 2} H330 L290 155 H65 Z`;
+        document.getElementById('pipe-clip-path').setAttribute('d', d);
+        document.getElementById('pipe-outline').setAttribute('d', d);
+        const flow = document.getElementById('pipe-flow');
+        flow.style.animationDuration = isWide ? '1s' : '2.4s';
+        flow.setAttribute('stroke-width', isWide ? '4.5' : '2.8');
+        document.getElementById('pipe-caption').textContent = isWide
+          ? 'Wider passage · greater flow (lower resistance)'
+          : 'Narrower passage · less flow (higher resistance)';
+      }
+      btnWide.addEventListener('click', () => setPipe(true));
+      btnNarrow.addEventListener('click', () => setPipe(false));
+
+      /* -----------------------------------------------------------------------
+         4. COLOR CODE DATA & STATE
          ----------------------------------------------------------------------- */
       const COLOR_DIGITS = [
         { name: 'Black',  hex: '#1c1c1e', num: 0, mult: 1,       multStr: '×1' },
@@ -1349,8 +1708,8 @@
       ];
 
       const state = {
-        mode: 'closeup', // 'closeup' | 'circuit'
-        view: 'cutaway', // 'cutaway' | 'x-ray' | 'outer'
+        mode: 'closeup',
+        view: 'cutaway',
         b1: 2,
         b2: 2,
         b3: 1,
@@ -1377,9 +1736,6 @@
         document.getElementById('inspector-tip').textContent = info.tip;
       }
 
-      /* -----------------------------------------------------------------------
-         3. BUILD COLOR BAND SWATCHES
-         ----------------------------------------------------------------------- */
       function renderBandSwatches() {
         const makeStrip = (id, items, selectedIdx, onPick) => {
           const el = document.getElementById(id);
@@ -1398,23 +1754,16 @@
         };
 
         makeStrip('strip-b1', COLOR_DIGITS.map((c, i) => i === 0 ? null : c), state.b1, (i) => {
-          state.b1 = i;
-          state.ledBurnt = false;
-          rebuildAndSync();
+          state.b1 = i; state.ledBurnt = false; rebuildAndSync();
         });
         makeStrip('strip-b2', COLOR_DIGITS, state.b2, (i) => {
-          state.b2 = i;
-          state.ledBurnt = false;
-          rebuildAndSync();
+          state.b2 = i; state.ledBurnt = false; rebuildAndSync();
         });
         makeStrip('strip-b3', COLOR_DIGITS.slice(0, 7), state.b3, (i) => {
-          state.b3 = i;
-          state.ledBurnt = false;
-          rebuildAndSync();
+          state.b3 = i; state.ledBurnt = false; rebuildAndSync();
         });
         makeStrip('strip-b4', TOL_COLORS, state.b4, (i) => {
-          state.b4 = i;
-          rebuildAndSync();
+          state.b4 = i; rebuildAndSync();
         });
 
         document.getElementById('lbl-b1').textContent = `${COLOR_DIGITS[state.b1].name} (${COLOR_DIGITS[state.b1].num})`;
@@ -1425,10 +1774,9 @@
       }
 
       /* -----------------------------------------------------------------------
-         4. THREE.JS 3D SCENE (WITH 2D CANVAS FALLBACK IF WEBGL/CDN UNAVAILABLE)
+         5. THREE.JS 3D SCENE
          ----------------------------------------------------------------------- */
       const canvas = document.getElementById('three-canvas');
-      const fallbackCanvas = document.getElementById('fallback-canvas');
       const labelsLayer = document.getElementById('labels-layer');
       const stageBox = document.getElementById('stage-box');
       const hasThree = typeof window.THREE !== 'undefined';
@@ -1439,17 +1787,11 @@
       let animatedActors = {};
 
       const orbit = {
-        theta: 0.42,
-        phi: 1.18,
-        radius: 9.2,
-        targetTheta: 0.42,
-        targetPhi: 1.18,
-        targetRadius: 9.2,
+        theta: 0.42, phi: 1.18, radius: 9.2,
+        targetTheta: 0.42, targetPhi: 1.18, targetRadius: 9.2,
         target: hasThree ? new THREE.Vector3(0, 0.05, 0) : null,
         desiredTarget: hasThree ? new THREE.Vector3(0, 0.05, 0) : null,
-        isDragging: false,
-        lastPos: { x: 0, y: 0 },
-        movedDist: 0
+        isDragging: false, lastPos: { x: 0, y: 0 }, movedDist: 0
       };
 
       function initThree() {
@@ -1476,11 +1818,9 @@
         fillLight.position.set(-10, 6, -6);
         scene.add(fillLight);
 
-        // Floor grid
         floorGrid = new THREE.Group();
-        const half = 9, step = 1;
-        const verts = [];
-        for (let i = -half; i <= half; i += step) {
+        const half = 9, verts = [];
+        for (let i = -half; i <= half; i++) {
           verts.push(-half, 0, i, half, 0, i, i, 0, -half, i, 0, half);
         }
         const geo = new THREE.BufferGeometry();
@@ -1492,7 +1832,6 @@
         activeGroup = new THREE.Group();
         scene.add(activeGroup);
 
-        // Pointer interactions
         const raycaster = new THREE.Raycaster();
         const pointer = new THREE.Vector2();
 
@@ -1549,10 +1888,6 @@
       }
 
       const webglReady = initThree();
-      if (!webglReady) {
-        canvas.style.display = 'none';
-        fallbackCanvas.style.display = 'block';
-      }
 
       function registerClickable(mesh, infoObj, onClickAction = null) {
         mesh.userData.inspectInfo = infoObj;
@@ -1610,51 +1945,25 @@
         const leadMat = new THREE.MeshStandardMaterial({ color: 0xcbd0d8, metalness: 0.78, roughness: 0.26 });
         const leadGeo = new THREE.CylinderGeometry(0.075, 0.075, 2.2, 16);
         const leadL = new THREE.Mesh(leadGeo, leadMat);
-        leadL.rotation.z = Math.PI / 2;
-        leadL.position.x = -2.75;
+        leadL.rotation.z = Math.PI / 2; leadL.position.x = -2.75;
         const leadR = new THREE.Mesh(leadGeo, leadMat);
-        leadR.rotation.z = Math.PI / 2;
-        leadR.position.x = 2.75;
+        leadR.rotation.z = Math.PI / 2; leadR.position.x = 2.75;
         root.add(leadL, leadR);
-        const leadInfo = {
-          tag: 'CONDUCTOR',
-          name: 'Tinned Copper Leads',
-          desc: 'Stiff metal wire legs that carry electric current into and out of the resistor.',
-          tip: 'Resistors have no + or − direction — you can plug them in either way!'
-        };
-        registerClickable(leadL, leadInfo);
-        registerClickable(leadR, leadInfo);
+        const leadInfo = { tag: 'CONDUCTOR', name: 'Tinned Copper Leads', desc: 'Stiff metal wire legs that carry electric current into and out of the resistor.', tip: 'Resistors have no + or − direction — you can plug them in either way!' };
+        registerClickable(leadL, leadInfo); registerClickable(leadR, leadInfo);
 
         const capMat = new THREE.MeshStandardMaterial({ color: 0xb0b8c4, metalness: 0.82, roughness: 0.25 });
         const capGeo = new THREE.CylinderGeometry(0.49, 0.49, 0.42, 24);
-        const capL = new THREE.Mesh(capGeo, capMat);
-        capL.rotation.z = Math.PI / 2;
-        capL.position.x = -1.48;
-        const capR = new THREE.Mesh(capGeo, capMat);
-        capR.rotation.z = Math.PI / 2;
-        capR.position.x = 1.48;
+        const capL = new THREE.Mesh(capGeo, capMat); capL.rotation.z = Math.PI / 2; capL.position.x = -1.48;
+        const capR = new THREE.Mesh(capGeo, capMat); capR.rotation.z = Math.PI / 2; capR.position.x = 1.48;
         root.add(capL, capR);
-        const capInfo = {
-          tag: 'CONTACT CAP',
-          name: 'Metallic End Caps',
-          desc: 'Tight metal cups connecting the copper leads directly to the inner carbon spiral.',
-          tip: 'Good contact ensures electric charge enters the resistive spiral smoothly.'
-        };
-        registerClickable(capL, capInfo);
-        registerClickable(capR, capInfo);
+        const capInfo = { tag: 'CONTACT CAP', name: 'Metallic End Caps', desc: 'Tight metal cups connecting the copper leads directly to the inner carbon spiral.', tip: 'Good contact ensures electric charge enters the resistive spiral smoothly.' };
+        registerClickable(capL, capInfo); registerClickable(capR, capInfo);
 
-        const ceramicRod = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.36, 0.36, 2.7, 24),
-          new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.72 })
-        );
+        const ceramicRod = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 2.7, 24), new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.72 }));
         ceramicRod.rotation.z = Math.PI / 2;
         root.add(ceramicRod);
-        registerClickable(ceramicRod, {
-          tag: 'INNER CORE',
-          name: 'Insulating Ceramic Core',
-          desc: 'A solid white ceramic rod that acts as a heat-proof skeleton. Electricity cannot pass through it.',
-          tip: 'Ceramic handles heat safely when the resistor slows down large currents.'
-        });
+        registerClickable(ceramicRod, { tag: 'INNER CORE', name: 'Insulating Ceramic Core', desc: 'A solid white ceramic rod that acts as a heat-proof skeleton. Electricity cannot pass through it.', tip: 'Ceramic handles heat safely when the resistor slows down large currents.' });
 
         const logR = Math.log10(Math.max(10, resistance));
         const spiralTurns = Math.round(Math.min(16, Math.max(3, 1.8 + logR * 2.3)));
@@ -1663,62 +1972,43 @@
           getPoint(t) {
             const x = -1.24 + t * 2.48;
             const angle = t * Math.PI * 2 * spiralTurns;
-            const r = 0.382;
-            return new THREE.Vector3(x, Math.sin(angle) * r, Math.cos(angle) * r);
+            return new THREE.Vector3(x, Math.sin(angle) * 0.382, Math.cos(angle) * 0.382);
           }
         }
         const helixCurve = new HelixCurve();
-        const spiralMat = new THREE.MeshStandardMaterial({
-          color: 0x26262c, roughness: 0.52, metalness: 0.25, emissive: new THREE.Color(0xe04836), emissiveIntensity: 0
-        });
-        const spiralMesh = new THREE.Mesh(new THREE.TubeGeometry(helixCurve, spiralTurns * 24, trackRadius, 8, false), spiralMat);
+        const spiralMesh = new THREE.Mesh(
+          new THREE.TubeGeometry(helixCurve, spiralTurns * 24, trackRadius, 8, false),
+          new THREE.MeshStandardMaterial({ color: 0x26262c, roughness: 0.52, metalness: 0.25 })
+        );
         root.add(spiralMesh);
-        registerClickable(spiralMesh, {
-          tag: 'RESISTIVE ELEMENT',
-          name: `Carbon Film Spiral (${spiralTurns} turns)`,
-          desc: `A laser-cut helical groove in dark carbon. More turns (${spiralTurns} turns for ${formatOhms(resistance)}) make the path longer and skinnier!`,
-          tip: 'Think of a narrow winding hallway: longer and narrower = slower flow.'
-        });
+        registerClickable(spiralMesh, { tag: 'RESISTIVE ELEMENT', name: `Carbon Film Spiral (${spiralTurns} turns)`, desc: `A laser-cut helical groove in dark carbon. More turns (${spiralTurns} turns for ${formatOhms(resistance)}) make the path longer and skinnier!`, tip: 'Longer and narrower path = higher resistance.' });
 
         const isCut = viewMode === 'cutaway';
         const isXray = viewMode === 'x-ray';
-        const coatGeo = new THREE.CylinderGeometry(0.52, 0.52, 2.7, 28, 1, false, isCut ? 0.5 : 0, isCut ? Math.PI * 1.3 : Math.PI * 2);
-        const coatMat = new THREE.MeshStandardMaterial({
-          color: 0xead9be,
-          roughness: 0.65,
-          transparent: isXray,
-          opacity: isXray ? 0.24 : 1.0,
-          side: isCut ? THREE.DoubleSide : THREE.FrontSide
-        });
-        const coatMesh = new THREE.Mesh(coatGeo, coatMat);
+        const coatMesh = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.52, 0.52, 2.7, 28, 1, false, isCut ? 0.5 : 0, isCut ? Math.PI * 1.3 : Math.PI * 2),
+          new THREE.MeshStandardMaterial({ color: 0xead9be, roughness: 0.65, transparent: isXray, opacity: isXray ? 0.24 : 1.0, side: isCut ? THREE.DoubleSide : THREE.FrontSide })
+        );
         coatMesh.rotation.z = Math.PI / 2;
         root.add(coatMesh);
 
-        // 4 Color Bands
-        const bandDefs = [
+        [
           { x: -0.92, hex: COLOR_DIGITS[b1].hex, label: `Band 1: ${COLOR_DIGITS[b1].name} (${COLOR_DIGITS[b1].num})` },
           { x: -0.40, hex: COLOR_DIGITS[b2].hex, label: `Band 2: ${COLOR_DIGITS[b2].name} (${COLOR_DIGITS[b2].num})` },
           { x:  0.14, hex: COLOR_DIGITS[b3].hex, label: `Band 3: ${COLOR_DIGITS[b3].name} (${COLOR_DIGITS[b3].multStr})` },
           { x:  0.86, hex: TOL_COLORS[b4].hex,   label: `Band 4: ${TOL_COLORS[b4].name} (${TOL_COLORS[b4].str})` }
-        ];
-        bandDefs.forEach((bd) => {
-          const bGeo = new THREE.CylinderGeometry(0.532, 0.532, 0.22, 28, 1, true, isCut ? 0.5 : 0, isCut ? Math.PI * 1.3 : Math.PI * 2);
-          const bMat = new THREE.MeshStandardMaterial({
-            color: bd.hex, roughness: 0.4, transparent: isXray, opacity: isXray ? 0.4 : 1.0, side: THREE.DoubleSide
-          });
-          const bMesh = new THREE.Mesh(bGeo, bMat);
+        ].forEach((bd) => {
+          const bMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.532, 0.532, 0.22, 28, 1, true, isCut ? 0.5 : 0, isCut ? Math.PI * 1.3 : Math.PI * 2),
+            new THREE.MeshStandardMaterial({ color: bd.hex, roughness: 0.4, transparent: isXray, opacity: isXray ? 0.4 : 1.0, side: THREE.DoubleSide })
+          );
           bMesh.rotation.z = Math.PI / 2;
           bMesh.position.x = bd.x;
           root.add(bMesh);
-          registerClickable(bMesh, {
-            tag: 'COLOR CODE',
-            name: bd.label,
-            desc: 'Colored paint stripes encode the resistance in Ohms so you can read it from any angle.',
-            tip: 'Use the 4-Band Color Decoder below to change this stripe!'
-          });
+          registerClickable(bMesh, { tag: 'COLOR CODE', name: bd.label, desc: 'Colored paint stripes encode the resistance in Ohms.', tip: 'Use the 4-Band Color Decoder below to change this stripe!' });
         });
 
-        return { root, helixCurve, spiralTurns, spiralMat };
+        return { root, helixCurve, spiralTurns };
       }
 
       function buildScene() {
@@ -1727,14 +2017,8 @@
         const R = getResistanceValue();
 
         if (state.mode === 'closeup') {
-          orbit.targetTheta = 0.42;
-          orbit.targetPhi = 1.18;
-          orbit.targetRadius = 9.0;
-          orbit.desiredTarget.set(0, 0.05, 0);
-
-          const resAsm = buildResistorAssembly({
-            scale: 1.18, viewMode: state.view, resistance: R, b1: state.b1, b2: state.b2, b3: state.b3, b4: state.b4
-          });
+          orbit.targetTheta = 0.42; orbit.targetPhi = 1.18; orbit.targetRadius = 9.0; orbit.desiredTarget.set(0, 0.05, 0);
+          const resAsm = buildResistorAssembly({ scale: 1.18, viewMode: state.view, resistance: R, b1: state.b1, b2: state.b2, b3: state.b3, b4: state.b4 });
           activeGroup.add(resAsm.root);
 
           const pIn = createFlowParticles(new THREE.LineCurve3(new THREE.Vector3(-4.5, 0, 0), new THREE.Vector3(-1.46, 0, 0)), 5, 0x00999F, 0.085);
@@ -1747,98 +2031,51 @@
           addLabelAnchor(`band 3 · ${COLOR_DIGITS[state.b3].multStr}`, new THREE.Vector3(0.28, 1.05, 0.35));
           addLabelAnchor('current in (+)', new THREE.Vector3(-3.8, -0.48, 0), 'blue');
           addLabelAnchor('current out (−)', new THREE.Vector3(3.8, -0.48, 0), 'blue');
-          if (state.view !== 'outer') {
-            addLabelAnchor(`carbon spiral · ${resAsm.spiralTurns} turns`, new THREE.Vector3(0, -1.05, 0.5), 'red');
-          }
+          if (state.view !== 'outer') addLabelAnchor(`carbon spiral · ${resAsm.spiralTurns} turns`, new THREE.Vector3(0, -1.05, 0.5), 'red');
           animatedActors = { kind: 'closeup', resAsm, pIn, pOut, pSpiral };
         } else {
-          orbit.targetTheta = 0.38;
-          orbit.targetPhi = 0.96;
-          orbit.targetRadius = 11.8;
-          orbit.desiredTarget.set(0, -0.1, 0);
+          orbit.targetTheta = 0.38; orbit.targetPhi = 0.96; orbit.targetRadius = 11.8; orbit.desiredTarget.set(0, -0.1, 0);
 
-          // Battery
-          const batt = new THREE.Group();
           const bBody = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.6, 0.8), new THREE.MeshStandardMaterial({ color: 0x065758, roughness: 0.45 }));
-          batt.add(bBody);
-          batt.position.set(-3.3, -0.2, 0.3);
-          activeGroup.add(batt);
-          registerClickable(bBody, {
-            tag: 'POWER SOURCE',
-            name: `DC Battery (${state.voltage.toFixed(1)} V)`,
-            desc: 'The electric pump pushing charge around the closed loop.',
-            tip: 'Use the Supply Voltage slider below to push harder or softer!'
-          });
+          bBody.position.set(-3.3, -0.2, 0.3);
+          activeGroup.add(bBody);
+          registerClickable(bBody, { tag: 'POWER SOURCE', name: `DC Battery (${state.voltage.toFixed(1)} V)`, desc: 'The electric pump pushing charge around the closed loop.', tip: 'Use the Supply Voltage slider below to push harder or softer!' });
 
-          // Switch
           const swGrp = new THREE.Group();
           const swBase = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.18, 0.65), new THREE.MeshStandardMaterial({ color: 0xe7f4f2 }));
           swGrp.add(swBase);
-          const pivot = new THREE.Group();
-          pivot.position.set(-0.42, 0.25, 0);
+          const pivot = new THREE.Group(); pivot.position.set(-0.42, 0.25, 0);
           const blade = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.07, 0.12), new THREE.MeshStandardMaterial({ color: 0xd97736, metalness: 0.7 }));
-          blade.position.x = 0.44;
-          pivot.add(blade);
-          swGrp.add(pivot);
+          blade.position.x = 0.44; pivot.add(blade); swGrp.add(pivot);
           swGrp.position.set(-0.3, -1.25, 1.85);
           activeGroup.add(swGrp);
-          const toggleSw = () => {
-            state.powerOn = !state.powerOn;
-            if (!state.powerOn) state.ledBurnt = false;
-            syncControls();
-          };
+          const toggleSw = () => { state.powerOn = !state.powerOn; if (!state.powerOn) state.ledBurnt = false; syncControls(); };
           registerClickable(swBase, { tag: 'SWITCH', name: 'Main Power Switch', desc: 'Click to open or close the circuit.', tip: 'Electricity only flows when the loop is closed!' }, toggleSw);
           registerClickable(blade, { tag: 'SWITCH', name: 'Main Power Switch', desc: 'Click to open or close the circuit.', tip: 'Electricity only flows when the loop is closed!' }, toggleSw);
 
-          // Resistor
-          const resAsm = buildResistorAssembly({
-            scale: 0.66, viewMode: state.view, resistance: R, b1: state.b1, b2: state.b2, b3: state.b3, b4: state.b4
-          });
+          const resAsm = buildResistorAssembly({ scale: 0.66, viewMode: state.view, resistance: R, b1: state.b1, b2: state.b2, b3: state.b3, b4: state.b4 });
           resAsm.root.position.set(0, 0.65, -1.45);
           activeGroup.add(resAsm.root);
 
-          // LED
           const ledGrp = new THREE.Group();
-          const lensMat = new THREE.MeshStandardMaterial({
-            color: 0xe04836, transparent: true, opacity: 0.72, emissive: new THREE.Color(0xe04836), emissiveIntensity: 0.2
-          });
-          const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 20, 16), lensMat);
-          dome.position.y = 0.45;
-          const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.55, 20), lensMat);
-          cyl.position.y = 0.22;
+          const lensMat = new THREE.MeshStandardMaterial({ color: 0xe04836, transparent: true, opacity: 0.72, emissive: new THREE.Color(0xe04836), emissiveIntensity: 0.2 });
+          const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 20, 16), lensMat); dome.position.y = 0.45;
+          const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.55, 20), lensMat); cyl.position.y = 0.22;
           const glowMat = new THREE.MeshBasicMaterial({ color: 0xe04836, transparent: true, opacity: 0, depthWrite: false });
-          const glow = new THREE.Mesh(new THREE.SphereGeometry(0.88, 16, 16), glowMat);
-          glow.position.y = 0.45;
+          const glow = new THREE.Mesh(new THREE.SphereGeometry(0.88, 16, 16), glowMat); glow.position.y = 0.45;
           ledGrp.add(cyl, dome, glow);
           ledGrp.position.set(3.25, -0.15, 0.15);
           activeGroup.add(ledGrp);
-          registerClickable(dome, {
-            tag: 'LIGHT OUTPUT',
-            name: 'Red LED (5 mm)',
-            desc: 'Needs 10–20 mA to glow safely. Over 35 mA burns it out!',
-            tip: 'Try 10 Ω vs 220 Ω to see the difference.'
-          });
+          registerClickable(dome, { tag: 'LIGHT OUTPUT', name: 'Red LED (5 mm)', desc: 'Needs 10–20 mA to glow safely. Over 35 mA burns it out!', tip: 'Try 10 Ω vs 220 Ω to see the difference.' });
 
-          // Wires + Flow
           const pts = [
-            new THREE.Vector3(-3.3, 0.6, 0.3),
-            new THREE.Vector3(-3.3, 0.65, -1.45),
-            new THREE.Vector3(-2.3, 0.65, -1.45),
-            new THREE.Vector3(2.3, 0.65, -1.45),
-            new THREE.Vector3(3.25, 0.65, -1.45),
-            new THREE.Vector3(3.25, -0.7, 0.15),
-            new THREE.Vector3(3.25, -1.1, 1.85),
-            new THREE.Vector3(-0.3, -1.1, 1.85),
-            new THREE.Vector3(-3.3, -1.1, 1.85),
+            new THREE.Vector3(-3.3, 0.6, 0.3), new THREE.Vector3(-3.3, 0.65, -1.45), new THREE.Vector3(-2.3, 0.65, -1.45),
+            new THREE.Vector3(2.3, 0.65, -1.45), new THREE.Vector3(3.25, 0.65, -1.45), new THREE.Vector3(3.25, -0.7, 0.15),
+            new THREE.Vector3(3.25, -1.1, 1.85), new THREE.Vector3(-0.3, -1.1, 1.85), new THREE.Vector3(-3.3, -1.1, 1.85),
             new THREE.Vector3(-3.3, -0.2, 0.3)
           ];
           const loopCurve = new THREE.CatmullRomCurve3(pts, true);
-          const wireMesh = new THREE.Mesh(
-            new THREE.TubeGeometry(loopCurve, 90, 0.045, 8, true),
-            new THREE.MeshStandardMaterial({ color: 0x065758, roughness: 0.45 })
-          );
-          activeGroup.add(wireMesh);
-
+          activeGroup.add(new THREE.Mesh(new THREE.TubeGeometry(loopCurve, 90, 0.045, 8, true), new THREE.MeshStandardMaterial({ color: 0x065758, roughness: 0.45 })));
           const flow = createFlowParticles(loopCurve, 22, 0x00999F, 0.075);
           activeGroup.add(flow.group);
 
@@ -1852,13 +2089,12 @@
       }
 
       /* -----------------------------------------------------------------------
-         5. LIVE PHYSICS + OSCILLOSCOPE + SYNC
+         6. LIVE PHYSICS + OSCILLOSCOPE + SYNC
          ----------------------------------------------------------------------- */
       function computePhysics() {
         const R = getResistanceValue();
         const V = state.voltage;
-        let currentMa = 0;
-        let status = 'OFF';
+        let currentMa = 0, status = 'OFF';
         if (state.powerOn) {
           if (state.mode === 'closeup') {
             currentMa = (V / R) * 1000;
@@ -1867,20 +2103,13 @@
             const vDrop = Math.max(0, V - 2.0);
             currentMa = (vDrop / R) * 1000;
             if (currentMa > 35) state.ledBurnt = true;
-            if (state.ledBurnt) {
-              currentMa = 0;
-              status = 'BURNT OUT!';
-            } else if (currentMa < 1) {
-              status = 'VERY DIM';
-            } else if (currentMa <= 25) {
-              status = 'SAFE (GLOWING)';
-            } else {
-              status = 'HOT (NEAR LIMIT)';
-            }
+            if (state.ledBurnt) { currentMa = 0; status = 'BURNT OUT!'; }
+            else if (currentMa < 1) status = 'VERY DIM';
+            else if (currentMa <= 25) status = 'SAFE (GLOWING)';
+            else status = 'HOT (NEAR LIMIT)';
           }
         }
-        const powerMw = V * currentMa;
-        return { R, V, currentMa, powerMw, status };
+        return { R, V, currentMa, powerMw: V * currentMa, status };
       }
 
       function syncControls() {
@@ -1898,8 +2127,7 @@
         pwrBtn.classList.toggle('active', state.powerOn);
         rstBtn.style.display = (state.mode === 'circuit' && state.ledBurnt) ? 'inline-flex' : 'none';
 
-        document.getElementById('stage-mode-badge').textContent =
-          (state.mode === 'closeup' ? '3D Closeup' : 'LED Safety Circuit') + ' · ' + state.view.toUpperCase();
+        document.getElementById('stage-mode-badge').textContent = (state.mode === 'closeup' ? '3D Closeup' : 'LED Safety Circuit') + ' · ' + state.view.toUpperCase();
         document.getElementById('voltage-val').textContent = phys.V.toFixed(1) + ' V';
 
         const iStr = phys.currentMa >= 100 ? phys.currentMa.toFixed(0) + ' mA' : phys.currentMa.toFixed(1) + ' mA';
@@ -1924,86 +2152,46 @@
         syncControls();
       }
 
-      // Wire buttons
       document.getElementById('btn-mode-closeup').addEventListener('click', () => { state.mode = 'closeup'; rebuildAndSync(); });
       document.getElementById('btn-mode-circuit').addEventListener('click', () => { state.mode = 'circuit'; rebuildAndSync(); });
       document.getElementById('btn-view-cutaway').addEventListener('click', () => { state.view = 'cutaway'; rebuildAndSync(); });
       document.getElementById('btn-view-xray').addEventListener('click', () => { state.view = 'x-ray'; rebuildAndSync(); });
       document.getElementById('btn-view-outer').addEventListener('click', () => { state.view = 'outer'; rebuildAndSync(); });
-      document.getElementById('btn-power').addEventListener('click', () => {
-        state.powerOn = !state.powerOn;
-        if (!state.powerOn) state.ledBurnt = false;
-        syncControls();
-      });
-      document.getElementById('btn-reset-led').addEventListener('click', () => {
-        state.ledBurnt = false;
-        syncControls();
-      });
-      document.getElementById('voltage-slider').addEventListener('input', (e) => {
-        state.voltage = parseFloat(e.target.value);
-        state.ledBurnt = false;
-        syncControls();
-      });
-      document.getElementById('preset-10').addEventListener('click', () => {
-        state.mode = 'circuit'; state.b1 = 1; state.b2 = 0; state.b3 = 0; state.powerOn = true; state.ledBurnt = false;
-        rebuildAndSync();
-      });
-      document.getElementById('preset-220').addEventListener('click', () => {
-        state.mode = 'circuit'; state.b1 = 2; state.b2 = 2; state.b3 = 1; state.powerOn = true; state.ledBurnt = false;
-        rebuildAndSync();
-      });
-      document.getElementById('preset-1k').addEventListener('click', () => {
-        state.mode = 'circuit'; state.b1 = 1; state.b2 = 0; state.b3 = 2; state.powerOn = true; state.ledBurnt = false;
-        rebuildAndSync();
-      });
+      document.getElementById('btn-power').addEventListener('click', () => { state.powerOn = !state.powerOn; if (!state.powerOn) state.ledBurnt = false; syncControls(); });
+      document.getElementById('btn-reset-led').addEventListener('click', () => { state.ledBurnt = false; syncControls(); });
+      document.getElementById('voltage-slider').addEventListener('input', (e) => { state.voltage = parseFloat(e.target.value); state.ledBurnt = false; syncControls(); });
+      document.getElementById('preset-10').addEventListener('click', () => { state.mode = 'circuit'; state.b1 = 1; state.b2 = 0; state.b3 = 0; state.powerOn = true; state.ledBurnt = false; rebuildAndSync(); });
+      document.getElementById('preset-220').addEventListener('click', () => { state.mode = 'circuit'; state.b1 = 2; state.b2 = 2; state.b3 = 1; state.powerOn = true; state.ledBurnt = false; rebuildAndSync(); });
+      document.getElementById('preset-1k').addEventListener('click', () => { state.mode = 'circuit'; state.b1 = 1; state.b2 = 0; state.b3 = 2; state.powerOn = true; state.ledBurnt = false; rebuildAndSync(); });
 
-      // Scope canvas
       const scopeCanvas = document.getElementById('scope-canvas');
       const scopeCtx = scopeCanvas.getContext('2d');
       let scopePhase = 0;
 
       function drawScope(currentMa) {
-        const w = scopeCanvas.clientWidth || 300;
-        const h = scopeCanvas.clientHeight || 110;
-        if (scopeCanvas.width !== w || scopeCanvas.height !== h) {
-          scopeCanvas.width = w;
-          scopeCanvas.height = h;
-        }
+        const w = scopeCanvas.clientWidth || 300, h = scopeCanvas.clientHeight || 110;
+        if (scopeCanvas.width !== w || scopeCanvas.height !== h) { scopeCanvas.width = w; scopeCanvas.height = h; }
         scopeCtx.fillStyle = '#041d1e';
         scopeCtx.fillRect(0, 0, w, h);
-
         scopeCtx.strokeStyle = 'rgba(129, 210, 227, 0.14)';
         scopeCtx.lineWidth = 1;
-        for (let y = 20; y < h; y += 22) {
-          scopeCtx.beginPath();
-          scopeCtx.moveTo(0, y);
-          scopeCtx.lineTo(w, y);
-          scopeCtx.stroke();
-        }
-
-        const level = Math.min(0.88, currentMa / 45);
-        const yVal = h - 14 - level * (h - 28);
+        for (let y = 20; y < h; y += 22) { scopeCtx.beginPath(); scopeCtx.moveTo(0, y); scopeCtx.lineTo(w, y); scopeCtx.stroke(); }
+        const yVal = h - 14 - Math.min(0.88, currentMa / 45) * (h - 28);
         scopeCtx.strokeStyle = state.ledBurnt ? '#ff7b72' : '#BCEDD8';
         scopeCtx.lineWidth = 2.2;
         scopeCtx.beginPath();
         for (let x = 0; x < w; x++) {
-          const ripple = currentMa > 0 ? Math.sin(x * 0.08 + scopePhase) * 2.5 : 0;
-          const y = yVal + ripple;
-          if (x === 0) scopeCtx.moveTo(x, y);
-          else scopeCtx.lineTo(x, y);
+          const y = yVal + (currentMa > 0 ? Math.sin(x * 0.08 + scopePhase) * 2.5 : 0);
+          if (x === 0) scopeCtx.moveTo(x, y); else scopeCtx.lineTo(x, y);
         }
         scopeCtx.stroke();
       }
 
-      // Animation Loop
-      let flowT = 0;
-      let lastTime = performance.now();
-
+      let flowT = 0, lastTime = performance.now();
       function animate(now) {
         requestAnimationFrame(animate);
         const dt = Math.min(0.05, (now - lastTime) / 1000);
         lastTime = now;
-
         const phys = computePhysics();
         const speed = phys.currentMa > 0 ? Math.min(1.6, 0.08 + phys.currentMa * 0.014) : 0;
         flowT = (flowT + dt * speed) % 1;
@@ -2016,7 +2204,6 @@
           orbit.phi += (orbit.targetPhi - orbit.phi) * damp;
           orbit.radius += (orbit.targetRadius - orbit.radius) * damp;
           orbit.target.lerp(orbit.desiredTarget, damp);
-
           const sinPhi = Math.sin(orbit.phi);
           camera.position.set(
             orbit.target.x + orbit.radius * sinPhi * Math.sin(orbit.theta),
@@ -2024,54 +2211,33 @@
             orbit.target.z + orbit.radius * sinPhi * Math.cos(orbit.theta)
           );
           camera.lookAt(orbit.target);
-
           const rect = stageBox.getBoundingClientRect();
           if (rect.width > 0 && rect.height > 0) {
             camera.aspect = rect.width / rect.height;
             camera.updateProjectionMatrix();
             renderer.setSize(rect.width, rect.height, false);
           }
-
           if (animatedActors.kind === 'closeup') {
             [animatedActors.pIn, animatedActors.pOut, animatedActors.pSpiral].forEach((sys) => {
-              sys.spheres.forEach((s) => {
-                s.visible = phys.currentMa > 0;
-                const u = (s.userData.offset + flowT) % 1;
-                s.position.copy(sys.curve.getPointAt(u));
-              });
+              sys.spheres.forEach((s) => { s.visible = phys.currentMa > 0; s.position.copy(sys.curve.getPointAt((s.userData.offset + flowT) % 1)); });
             });
           } else if (animatedActors.kind === 'circuit') {
             animatedActors.pivot.rotation.z += ((state.powerOn ? 0 : 0.62) - animatedActors.pivot.rotation.z) * 0.15;
-            animatedActors.flow.spheres.forEach((s) => {
-              s.visible = phys.currentMa > 0;
-              const u = (s.userData.offset + flowT) % 1;
-              s.position.copy(animatedActors.flow.curve.getPointAt(u));
-            });
+            animatedActors.flow.spheres.forEach((s) => { s.visible = phys.currentMa > 0; s.position.copy(animatedActors.flow.curve.getPointAt((s.userData.offset + flowT) % 1)); });
             if (state.ledBurnt) {
-              animatedActors.lensMat.color.setHex(0x27272a);
-              animatedActors.lensMat.emissiveIntensity = 0;
-              animatedActors.glowMat.opacity = 0;
+              animatedActors.lensMat.color.setHex(0x27272a); animatedActors.lensMat.emissiveIntensity = 0; animatedActors.glowMat.opacity = 0;
             } else {
               animatedActors.lensMat.color.setHex(0xe04836);
               const b = state.powerOn ? Math.min(1, phys.currentMa / 20) : 0;
-              animatedActors.lensMat.emissiveIntensity = 0.15 + b * 1.1;
-              animatedActors.glowMat.opacity = b * 0.45;
+              animatedActors.lensMat.emissiveIntensity = 0.15 + b * 1.1; animatedActors.glowMat.opacity = b * 0.45;
             }
           }
-
-          // Project labels
           const w = rect.width, h = rect.height;
           labelAnchors.forEach((lbl) => {
             const p = lbl.pos.clone().project(camera);
-            if (p.z > 1) {
-              lbl.el.style.display = 'none';
-            } else {
-              lbl.el.style.display = 'block';
-              lbl.el.style.left = ((p.x * 0.5 + 0.5) * w) + 'px';
-              lbl.el.style.top = ((-p.y * 0.5 + 0.5) * h) + 'px';
-            }
+            if (p.z > 1) lbl.el.style.display = 'none';
+            else { lbl.el.style.display = 'block'; lbl.el.style.left = ((p.x * 0.5 + 0.5) * w) + 'px'; lbl.el.style.top = ((-p.y * 0.5 + 0.5) * h) + 'px'; }
           });
-
           renderer.render(scene, camera);
         }
       }
