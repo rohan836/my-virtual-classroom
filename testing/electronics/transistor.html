@@ -901,6 +901,7 @@
         targetTheta: 0.45,
         targetPhi: 1.15,
         targetRadius: 9.6,
+        presetRadius:9.6,
         target: new THREE.Vector3(-0.45, 0.35, 0),
         desiredTarget: new THREE.Vector3(-0.45, 0.35, 0),
         isDragging: false,
@@ -913,9 +914,31 @@
         orbit.targetTheta = theta;
         orbit.targetPhi = phi;
         orbit.targetRadius = radius;
+        orbit.presetRadius = radius;
         orbit.desiredTarget.set(tx, ty, tz);
+        frameScene(true);
       }
 
+      let cameraFit=1;
+      function frameScene(reset=false){
+        const w=Math.max(1,window.innerWidth),h=Math.max(1,window.innerHeight);
+        const left=document.getElementById('left-panel').getBoundingClientRect();
+        const right=document.getElementById('telemetry-box').getBoundingClientRect();
+        const bottom=document.getElementById('bottom-bar').getBoundingClientRect();
+        let x1=12,x2=w-12,y1=55,y2=Math.max(155,bottom.top-12);
+        if(w>768){x1=left.right+12;x2=right.left-12;}
+        else{y1=left.bottom+12;y2=Math.min(y2,right.top-10);if(y2-y1<140)y2=Math.min(h-160,y1+180);}
+        const aw=Math.max(140,x2-x1),ah=Math.max(140,y2-y1);
+        const worldWidth=state.tr.project==='inside'?3.5:10.1;
+        const worldHeight=state.tr.project==='inside'?5.0:5.4;
+        const f=2*Math.tan(camera.fov*Math.PI/360)*orbit.presetRadius;
+        const fit=Math.max(1,worldWidth*h/(f*aw),worldHeight*h/(f*ah));
+        if(reset)orbit.targetRadius=orbit.presetRadius*fit;
+        else orbit.targetRadius*=fit/cameraFit;
+        cameraFit=fit;
+        camera.setViewOffset(w,h,-((x1+x2)/2-w/2),-((y1+y2)/2-h/2),w,h);
+        camera.updateProjectionMatrix();
+      }
       function updateCamera() {
         const damp = 0.12;
         orbit.theta += (orbit.targetTheta - orbit.theta) * damp;
@@ -939,6 +962,7 @@
         camera.updateProjectionMatrix();
         renderer.setSize(w, h, false);
         resizeScopeCanvas();
+        frameScene(false);
       }
 
       /* -----------------------------------------------------------------------
@@ -1462,10 +1486,10 @@
             }
 
             registerClickable(topLayer, {
-              name: isNPN ? 'N-Type Collector Silicon' : 'P-Type Emitter Silicon',
+              name: isNPN ? 'N-Type Collector Silicon' : 'P-Type Collector Silicon',
               desc: isNPN
                 ? 'Silicon doped with extra free electrons (N = Negative). Connected to the Collector pin where the main current waits to enter.'
-                : 'Silicon doped with electron "holes" (P = Positive). Connected to the Emitter pin on a PNP transistor.',
+                : 'Silicon with mobile holes (P = Positive). Connected to the Collector, where conventional current leaves the PNP transistor.',
               tip: 'Silicon is made from purified sand, then "doped" with trace elements to carry charge!',
               color: isNPN ? '#2563eb' : '#e04836',
               tag: 'SEMICONDUCTOR'
@@ -1480,10 +1504,10 @@
             });
 
             registerClickable(botLayer, {
-              name: isNPN ? 'N-Type Emitter Silicon' : 'P-Type Collector Silicon',
+              name: isNPN ? 'N-Type Emitter Silicon' : 'P-Type Emitter Silicon',
               desc: isNPN
                 ? 'The exit region connected to the Emitter leg. Both the big Collector current and tiny Base current leave together through here.'
-                : 'The P-type Collector layer where main current exits toward ground in a PNP circuit.',
+                : 'The P-type Emitter supplies conventional current from the positive rail. A small current leaving the base controls the collector current.',
               tip: 'Remember: Emitter current = Collector current + Base current (Ie = Ic + Ib).',
               color: isNPN ? '#2563eb' : '#e04836',
               tag: 'SEMICONDUCTOR'
@@ -1518,18 +1542,12 @@
 
         } else if (type === 'mosfet') {
           const tabMat = new THREE.MeshStandardMaterial({ color: 0xcfd5df, metalness: 0.85, roughness: 0.22 });
-          const tab = new THREE.Mesh(new THREE.BoxGeometry(1.85, 1.05, 0.18), tabMat);
-          tab.position.set(0, 2.02, -0.25);
-          addEdgeOutline(tab, 0x444444, 0.25);
-          root.add(tab);
-
-          const hole = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.24, 0.24, 0.2, 20),
-            new THREE.MeshBasicMaterial({ color: 0xffffff })
-          );
-          hole.rotation.x = Math.PI / 2;
-          hole.position.set(0, 2.1, -0.25);
-          root.add(hole);
+          // True through-hole in the metal tab, rather than a white disc.
+          const tabShape=new THREE.Shape();
+          tabShape.moveTo(-.925,-.525);tabShape.lineTo(.925,-.525);tabShape.lineTo(.925,.43);tabShape.quadraticCurveTo(.925,.525,.83,.525);tabShape.lineTo(-.83,.525);tabShape.quadraticCurveTo(-.925,.525,-.925,.43);tabShape.closePath();
+          const tabHole=new THREE.Path();tabHole.absarc(0,.08,.24,0,Math.PI*2,true);tabShape.holes.push(tabHole);
+          const tab=new THREE.Mesh(new THREE.ExtrudeGeometry(tabShape,{depth:.18,bevelEnabled:false,curveSegments:36}),tabMat);
+          tab.position.set(0,2.02,-.34);root.add(tab);addEdgeOutline(tab,0x444444,.25);
           registerClickable(tab, {
             name: 'Metal Heatsink Tab (TO-220)',
             desc: 'Power MOSFETs can switch huge currents for motors and bright lights! This silver metal tab spreads out heat and bolts onto a cooling fin.',
@@ -1568,6 +1586,9 @@
             const sourceWell = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.36), wellMat);
             sourceWell.position.set(0.48, 0.96, 0.15);
             root.add(drainWell, sourceWell);
+            registerClickable(sub,{name:'P-type silicon substrate',desc:'The silicon underneath the channel supports the source and drain regions.',tip:'This is an enlarged conceptual cross-section, not a manufactured die.',color:'#e04836',tag:'SUBSTRATE'});
+            registerClickable(drainWell,{name:'Drain region',desc:'Conventional load current enters the drain when the channel conducts.',tip:'The channel connects the drain and source.',color:'#2563eb',tag:'N-TYPE REGION'});
+            registerClickable(sourceWell,{name:'Source region',desc:'The source is the return terminal for conventional load current.',tip:'Gate voltage is measured relative to this source.',color:'#2563eb',tag:'N-TYPE REGION'});
 
             const oxide = new THREE.Mesh(
               new THREE.BoxGeometry(0.86, 0.13, 0.38),
@@ -1583,6 +1604,7 @@
             );
             gatePlate.position.set(0, 1.37, 0.16);
             root.add(gatePlate);
+            registerClickable(gatePlate,{name:'Metal gate electrode',desc:'The voltage on this insulated electrode controls the electric field beneath it.',tip:'No continuous gate current crosses the oxide.',color:'#2563eb',tag:'GATE ELECTRODE'});
 
             channelMat = new THREE.MeshStandardMaterial({
               color: 0xe04836,
@@ -1676,6 +1698,8 @@
             tag: 'OPTICAL PACKAGE'
           });
 
+          registerClickable(topDome,{name:'Optical lens',desc:'The transparent package lets light reach the silicon sensor.',tip:'Try the light level slider and observe the output.',color:'#3b82f6',tag:'OPTICAL LENS'});
+          registerClickable(cup,{name:'Metal die support',desc:'Holds the photosensitive chip and connects it to the leadframe.',tip:'Light changes the current, not the physical shape of the chip.',color:'#d4a438',tag:'PACKAGE CONSTRUCTION'});
           registerClickable(chip, {
             name: 'Light-Sensitive Silicon Base Chip',
             desc: 'There is NO Base wire! Instead, particles of light (photons) strike this exposed silicon chip and knock electrons loose to switch the transistor ON.',
@@ -2520,10 +2544,12 @@
         action(state.tr.flowVisible?'hide arrows':'show arrows',()=>{state.tr.flowVisible=!state.tr.flowVisible;renderControls();},state.tr.flowVisible);
         action('rotate ←',()=>{orbit.targetTheta+=.35;});
         action('rotate →',()=>{orbit.targetTheta-=.35;});
-        action('zoom +',()=>{orbit.targetRadius=Math.max(5.2,orbit.targetRadius-1.2);});
-        action('zoom −',()=>{orbit.targetRadius=Math.min(19,orbit.targetRadius+1.2);});
+        action('zoom +',()=>{orbit.targetRadius=Math.max(5.2,orbit.targetRadius-Math.max(1.2,orbit.targetRadius*.1));});
+        action('zoom −',()=>{orbit.targetRadius=Math.min(70,orbit.targetRadius+Math.max(1.2,orbit.targetRadius*.1));});
         const note=document.getElementById('motion-note');
         note.textContent=state.tr.project==='switch'?'Model: 2 V LED, 0.2 V switch drop, β ≈ 100; gate and light response illustrative (not SPICE).':state.tr.project==='dark'?'NPN example · 9 V, 10 kΩ divider, 470 Ω load · simplified base loading.':state.tr.project==='amp'?'NPN signal illustration; not a complete audio amplifier circuit.':'Enlarged schematic cutaway · not to scale. Arrows show conventional current, not electron speed.';
+        legend.title=note.textContent;
+        frameScene(false);
       }
 
       /* -----------------------------------------------------------------------
@@ -2552,6 +2578,10 @@
         pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
         raycaster.setFromCamera(pointerNDC, camera);
         const hits = raycaster.intersectObjects(clickableMeshes, false);
+        if(state.tr.view==='xray'&&state.tr.project==='inside'){
+          const solid=hits.find(h=>!h.object.material.transparent||h.object.material.opacity>.65);
+          if(solid)return solid.object;
+        }
         return hits.length > 0 ? hits[0].object : null;
       }
 
@@ -2618,7 +2648,7 @@
       canvas.addEventListener('pointercancel',()=>{orbit.isDragging=false;canvas.classList.remove('dragging');});
       canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
-        orbit.targetRadius = Math.max(5.2, Math.min(18.5, orbit.targetRadius + e.deltaY * 0.008));
+        orbit.targetRadius = Math.max(5.2, Math.min(70, orbit.targetRadius + e.deltaY * 0.008 * Math.max(1,cameraFit)));
       }, { passive: false });
 
       window.addEventListener('resize', handleResize);
