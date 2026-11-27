@@ -122,7 +122,7 @@ function humanFilm(n){
  b+=show(3000,cr(500,91,218,205)+mt(609,116,'Remembered examples',15,C.muted,650));
  [0,2,4].forEach((i,k)=>b+=show(3300+k*470,cf(i,510+k*67,145,.61)));
  b+=show(5200,mt(609,246,'Different colours',16)+mt(609,268,'Similar shape',16,C.blue,650))+pulse(609,179,65,C.blue,5300,6600);
- if(n===2)b+=tween(fruit(2),6300,7900,[577,150,.61],[62,115,1.45],[6300,12000,350])+show(7900,outline(2,62,115,1.45)+mt(135,291,'Green mango',19,C.green,650));
+ if(n===2)b+=tween(fruit(2),6300,7900,[577,150,.61],[62,115,1.45],[6300,12000,350])+show(7900,cf(2,62,115,1.45)+outline(2,62,115,1.45)+mt(135,291,'Green mango',19,C.green,650));
  b+=show(9600,banner(n===2?'Different colour, same kind of fruit':'Recognized: mango'));
  return filmSvg(n===2?'Recognizing a changed appearance':n===1?'Learning from experience':'How people recognize things',b,beat('Look at the fruit.','Recall earlier examples.','Compare useful similarities, such as shape.','Recognize the fruit using past experience.'));
 }
