@@ -666,61 +666,80 @@
           const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
           const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           let w = 0, h = 92, dpr = 1, raf = 0, last = 0, initialized = false;
-          let activePointer = null, sample = null, grabX = 0, grabY = 0, cooldown = 0;
+          let activePointer = null, sample = null, grabX = 0, grabY = 0;
+          let tapPending = false, tapTimer = 0, visible = true;
           const ball = { x: 240, y: 66, vx: 0, vy: 0, angle: 0 };
           const dog = { x: 122, vx: 0, dir: 1, gait: 0, tail: 0, pose: 'idle', paw: 0, blink: 0 };
           const ground = () => h - 5;
           const low = () => R + 5, high = () => Math.max(low(), w - R - 5);
-          const dogLow = () => 16, dogHigh = () => Math.max(16, w - 16);
+          const dogLow = () => 22, dogHigh = () => Math.max(22, w - 22);
+          const REACH = 31;
+          function approach() {
+            let side = dog.dir;
+            if (ball.x - REACH < dogLow()) side = -1;
+            else if (ball.x + REACH > dogHigh()) side = 1;
+            else if (dog.x < ball.x - 8) side = 1;
+            else if (dog.x > ball.x + 8) side = -1;
+            return {side, x:clamp(ball.x - side * REACH,dogLow(),dogHigh())};
+          }
+          function settleReduced(){const a=approach();dog.x=a.x;dog.dir=a.side;dog.vx=0;dog.pose='idle';}
           function resize() {
-            const oldW = w;
-            w = c.clientWidth || 720; h = c.clientHeight || 92;
-            dpr = Math.min(2, window.devicePixelRatio || 1);
+            const oldW=w, oldH=h;
+            const nextW=c.clientWidth, nextH=c.clientHeight;
+            if(!nextW||!nextH)return;
+            const nextDpr=Math.min(2,window.devicePixelRatio||1);
+            if(initialized&&nextW===w&&nextH===h&&nextDpr===dpr)return;
+            w=nextW;h=nextH;dpr=nextDpr;
             c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.imageSmoothingEnabled = false;
             if (!initialized) {
-              dog.x = clamp(w * .16, dogLow(), dogHigh());
-              ball.x = clamp(w * .34, low(), high());
+              ball.x=clamp(Math.min(240,w*.42),low(),high());
+              dog.x=clamp(ball.x-66,dogLow(),dogHigh());
               ball.y = ground() - R;
               initialized = true;
             } else {
               if (oldW && oldW !== w) { dog.x *= w / oldW; ball.x *= w / oldW; }
+              if(oldH!==h&&activePointer===null)ball.y+=h-oldH;
+              dog.vx=0;
               dog.x = clamp(dog.x, dogLow(), dogHigh());
               ball.x = clamp(ball.x, low(), high());
               ball.y = clamp(ball.y, R + 4, ground() - R);
             }
-            draw();
+            if(reduced)settleReduced();
+            draw();start();
           }
           function point(e) {
             const b = c.getBoundingClientRect();
             return { x: (e.clientX - b.left) * w / (b.width || w), y: (e.clientY - b.top) * h / (b.height || h), t: e.timeStamp };
           }
-          function hit(p) { return Math.hypot(p.x - ball.x, p.y - ball.y) <= 19; }
+          function hit(p,type) { return Math.hypot(p.x-ball.x,p.y-ball.y)<=(type==='touch'?34:25); }
           function down(e) {
             if (activePointer !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
-            const p = point(e); if (!hit(p)) return;
+            const p = point(e); if (!hit(p,e.pointerType)) return;
             activePointer = e.pointerId; sample = p;
             grabX = ball.x - p.x; grabY = ball.y - p.y;
-            ball.vx = ball.vy = 0; dog.paw = 0;
-            c.setPointerCapture?.(e.pointerId);
+            ball.vx=ball.vy=0;dog.paw=0;tapPending=false;tapTimer=0;
+            try{c.setPointerCapture?.(e.pointerId);}catch{}
             e.preventDefault(); c.style.cursor = 'grabbing';
             start();
           }
           function move(e) {
             const p = point(e);
             if (activePointer !== e.pointerId) {
-              if (activePointer === null) c.style.cursor = hit(p) ? 'grab' : '';
+              if (activePointer === null) c.style.cursor = hit(p,e.pointerType) ? 'grab' : '';
               return;
             }
             const x = clamp(p.x + grabX, low(), high());
             const y = clamp(p.y + grabY, R + 4, ground() - R);
             const dt = Math.max(8, p.t - sample.t) / 1000;
-            ball.vx = clamp((x - ball.x) / dt, -460, 460);
-            ball.vy = clamp((y - ball.y) / dt, -380, 380);
+            const alpha=1-Math.exp(-dt*30);
+            ball.vx+=(clamp((x-ball.x)/dt,-360,360)-ball.vx)*alpha;
+            ball.vy+=(clamp((y-ball.y)/dt,-260,260)-ball.vy)*alpha;
             ball.angle += (x - ball.x) / R;
             ball.x = x; ball.y = y; sample = p;
-            if (reduced) draw();
+            if(reduced)settleReduced();
+            draw();start();
             e.preventDefault();
           }
           function release(e, cancelled = false) {
@@ -728,16 +747,20 @@
             const stale = !sample || e.timeStamp - sample.t > 90;
             activePointer = null; sample = null;
             if (cancelled || stale || reduced) ball.vx = ball.vy = 0;
-            if (c.hasPointerCapture?.(e.pointerId)) c.releasePointerCapture(e.pointerId);
+            try{if(c.hasPointerCapture?.(e.pointerId))c.releasePointerCapture(e.pointerId);}catch{}
             c.style.cursor = '';
-            if (reduced) { ball.y = ground() - R; draw(); }
-            else start();
+            if(reduced){ball.y=ground()-R;settleReduced();draw();}
+            else{tapPending=!cancelled;tapTimer=0;start();}
           }
           c.addEventListener('pointerdown', down);
           c.addEventListener('pointermove', move);
           c.addEventListener('pointerup', e => release(e));
           c.addEventListener('pointercancel', e => release(e, true));
           c.addEventListener('lostpointercapture', e => release(e, true));
+          window.addEventListener('pointermove', e=>{if(activePointer===e.pointerId&&e.target!==c)move(e);},{passive:false});
+          window.addEventListener('pointerup',e=>release(e));
+          window.addEventListener('pointercancel',e=>release(e,true));
+          window.addEventListener('blur',()=>{if(activePointer!==null)release({pointerId:activePointer,timeStamp:0},true);});
           window.addEventListener('resize', resize);
           if (typeof ResizeObserver !== 'undefined') new ResizeObserver(resize).observe(c);
           // Small original hand-drawn pixel sprite: same footprint as the old mascot.
@@ -810,11 +833,12 @@
             drawDog();drawYarn();
           }
           function update(dt) {
-            cooldown=Math.max(0,cooldown-dt);
+            tapTimer+=dt;
             dog.paw=Math.max(0,dog.paw-dt);
+            const previousTail=dog.tail;
             dog.tail+=dt*(dog.pose==='run'?11:6);
             dog.blink=Math.max(0,dog.blink-dt);
-            if (Math.floor(dog.tail/17)!==Math.floor((dog.tail-dt*6)/17)) dog.blink=.09;
+            if(Math.floor(dog.tail/17)!==Math.floor(previousTail/17))dog.blink=.09;
             if(activePointer===null){
               const oldX=ball.x;
               ball.vy+=720*dt;ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
@@ -825,28 +849,39 @@
               ball.angle+=(ball.x-oldX)/R;
               if(Math.abs(ball.vx)<1)ball.vx=0;
             }
-            const dx=ball.x-dog.x, dist=Math.abs(dx);
-            if(dist>4)dog.dir=dx>=0?1:-1;
-            const target=dist>27?Math.sign(dx)*Math.min(112,Math.max(30,(dist-23)*5)):0;
-            dog.vx+=(target-dog.vx)*(1-Math.exp(-12*dt));
-            const oldDogX=dog.x;dog.x=clamp(dog.x+dog.vx*dt,dogLow(),dogHigh());
-            dog.gait+=Math.abs(dog.x-oldDogX)/5.5;
-            dog.pose=dog.paw>0?'reach':Math.abs(dog.vx)>10?'run':'idle';
-            // A deliberate paw tap only when the yarn is within reach and nearly settled.
-            if(activePointer===null&&dist<29&&dist>12&&ball.y>ground()-26&&Math.abs(ball.vx)<24&&cooldown<=0){
-              let dir=dog.dir;if(ball.x<low()+20)dir=1;if(ball.x>high()-20)dir=-1;
-              dog.paw=.22;dog.pose='reach';cooldown=1.65;
-              ball.vx=dir*102;ball.vy=-145;
+            // Target a reachable position beside the ball; prevent overshoot.
+            const a=approach(),delta=a.x-dog.x,dist=Math.abs(delta);
+            const desired=dist<.5?0:Math.sign(delta)*Math.min(155,dist*8);
+            dog.vx+=(desired-dog.vx)*(1-Math.exp(-18*dt));
+            let dx=dog.vx*dt;
+            if(dist<.5||Math.sign(dx)!==Math.sign(delta))dx=0;
+            else if(Math.abs(dx)>dist)dx=delta;
+            dog.x=clamp(dog.x+dx,dogLow(),dogHigh());
+            if(Math.abs(a.x-dog.x)<.5){dog.x=a.x;dog.vx=0;}
+            // Keep approach direction stable; do not flip the sprite when braking.
+            dog.dir=a.side;
+            dog.gait+=Math.abs(dx)/4.2;
+            dog.pose=dog.paw>0?'reach':Math.abs(dx)>dt*8?'run':'idle';
+            const settled=Math.abs(ball.vx)<8&&Math.abs(ball.vy)<8&&Math.abs(ball.y-(ground()-R))<1;
+            // One gentle tap after each release, never a repeated automatic kick.
+            if(tapPending&&activePointer===null&&settled&&Math.abs(a.x-dog.x)<2&&tapTimer>.35){
+              tapPending=false;dog.paw=.28;dog.pose='reach';
+              if((a.side>0&&ball.x<high()-25)||(a.side<0&&ball.x>low()+25)){
+                ball.vx=a.side*46;ball.vy=-62;
+              }
             }
           }
           function tick(now) {
             raf=0;const dt=last?Math.min(.04,(now-last)/1000):0;last=now;
-            if(!reduced&&!document.hidden)update(dt);
+            if(!reduced&&!document.hidden&&visible)update(dt);
             draw();
-            if(!document.hidden&&!reduced)raf=requestAnimationFrame(tick);
+            if(!document.hidden&&!reduced&&visible)raf=requestAnimationFrame(tick);
           }
-          function start(){if(!raf&&!document.hidden&&!reduced){last=0;raf=requestAnimationFrame(tick);}}
+          function start(){if(!raf&&!document.hidden&&!reduced&&visible&&initialized){last=0;raf=requestAnimationFrame(tick);}}
           document.addEventListener('visibilitychange',()=>{if(document.hidden){if(raf)cancelAnimationFrame(raf);raf=0;last=0;}else start();});
+          if(typeof IntersectionObserver!=='undefined'){
+            new IntersectionObserver(entries=>{visible=entries[0]?.isIntersecting!==false;if(!visible){if(raf)cancelAnimationFrame(raf);raf=0;last=0;}else start();}).observe(c);
+          }
           resize();start();
         }
       }
