@@ -11,7 +11,7 @@
   <!-- Google Fonts: IBM Plex Sans + IBM Plex Mono (field-studies.ai.studio) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
 
   <!-- Three.js r128 for interactive 3D rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -23,23 +23,20 @@
     :root {
       --bg: #ffffff;
       --ink: #0a0a0a;
-      --muted: rgba(10, 10, 10, 0.58);
-      --faint: rgba(10, 10, 10, 0.42);
+      --muted: rgba(10, 10, 10, 0.60);
+      --faint: rgba(10, 10, 10, 0.45);
       --border: rgba(10, 10, 10, 0.14);
       --border-strong: rgba(10, 10, 10, 0.25);
       --red: #e5533d;
-      --red-soft: rgba(229, 83, 61, 0.08);
-      --blue: #2b56d6;
-      --blue-soft: rgba(43, 86, 214, 0.08);
+      --red-soft: rgba(229, 83, 61, 0.10);
       --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
       --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-      --serif: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
     }
 
     ::selection { background: #F84431; color: #ffffff; text-shadow: none; }
 
     @media (pointer: fine) {
-      html, body, a, button, input, select, canvas, [role="button"], * { cursor: none !important; }
+      html, body, a, button, input, textarea, select, label, canvas, [role="button"], * { cursor: none !important; }
     }
 
     #tiny-dot-cursor {
@@ -81,16 +78,7 @@
       display: block;
       width: 100%;
       height: 100%;
-      cursor: grab;
       touch-action: none;
-    }
-
-    #three-canvas.dragging {
-      cursor: grabbing;
-    }
-
-    #three-canvas.hovering-part {
-      cursor: pointer;
     }
 
     /* 2D projected floating 3D annotations */
@@ -111,42 +99,41 @@
       letter-spacing: -0.01em;
       white-space: nowrap;
       padding: 2px 5px;
-      background: rgba(255, 255, 255, 0.88);
-      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.90);
       transition: opacity 0.18s ease;
     }
 
     .scene-label.red { color: var(--red); }
-    .scene-label.blue { color: var(--blue); }
-    .scene-label.dark { color: #333333; }
-    .scene-label.muted { color: #707076; }
+    .scene-label.dark { color: var(--ink); }
+    .scene-label.muted { color: var(--faint); }
     .scene-label.alert {
       color: #ffffff;
       background: var(--red);
-      font-weight: 600;
+      font-weight: 500;
       padding: 3px 7px;
     }
 
-    /* Top Navigation Bar (44px high, hairline bottom border) */
+    /* Top Navigation Bar (41px high, flush hairline cells) */
     #top-nav {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 44px;
+      height: 41px;
       z-index: 30;
-      background: rgba(255, 255, 255, 0.98);
+      background: #ffffff;
       border-bottom: 1px solid var(--border);
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: space-between;
-      font-size: 11.5px;
-      padding: 0 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 0;
     }
 
     .nav-group {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       height: 100%;
     }
 
@@ -159,133 +146,134 @@
       white-space: nowrap;
     }
 
-    .nav-cell:first-child {
-      padding-left: 0;
-    }
-
     .nav-switcher {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: stretch;
+      margin-left: auto;
       height: 100%;
     }
 
     .nav-link-btn {
+      display: flex;
+      align-items: center;
       background: transparent;
       border: none;
+      border-left: 1px solid var(--border);
       font-family: var(--mono);
-      font-size: 11.5px;
-      color: var(--muted);
+      font-size: 11px;
+      color: rgba(10, 10, 10, 0.50);
       text-decoration: none;
-      cursor: pointer;
-      padding: 6px 8px;
-      border-radius: 3px;
-      transition: color 0.15s ease, background 0.15s ease;
+      padding: 0 16px;
+      white-space: nowrap;
+      transition: color 0.15s ease;
     }
 
     .nav-link-btn:hover {
       color: var(--ink);
-      background: #f5f5f5;
     }
 
-    /* Left Minimal Editorial Panel (~336px wide) */
+    .nav-link-btn:focus-visible {
+      outline: 2px solid var(--red);
+      outline-offset: -2px;
+    }
+
+    /* Left Borderless Editorial Panel */
     #left-panel {
       position: fixed;
-      top: 52px;
-      left: 24px;
-      bottom: 84px;
-      width: 336px;
+      top: 88px;
+      left: 44px;
+      width: 390px;
+      max-height: calc(100vh - 230px);
       z-index: 20;
-      pointer-events: auto;
+      pointer-events: none;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      padding-right: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: #dcdcdc transparent;
-      background: linear-gradient(90deg, rgba(255,255,255,0.96) 86%, rgba(255,255,255,0) 100%);
+      padding: 0 16px 12px 0;
+      background: #ffffff;
     }
 
-    #left-panel::-webkit-scrollbar { width: 4px; }
-    #left-panel::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
-
     .breadcrumb {
-      font-size: 10.5px;
+      font-size: 11px;
       color: var(--faint);
       letter-spacing: 0.01em;
       white-space: nowrap;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
     }
 
     .editorial-headline {
-      margin: 0 0 8px 0;
-      line-height: 1.06;
-      letter-spacing: -0.025em;
+      margin: 0 0 12px 0;
+      font-family: var(--sans);
+      font-weight: 400;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--ink);
     }
 
     .headline-line1 {
       display: block;
-      font-family: var(--sans);
-      font-weight: 500;
-      font-size: 25px;
-      color: var(--ink);
     }
 
     .headline-line2 {
       display: block;
-      font-family: var(--serif);
       font-style: italic;
-      font-weight: 400;
-      font-size: 27px;
-      color: var(--ink);
-      margin-top: 1px;
     }
 
     .editorial-intro {
       font-family: var(--mono);
-      font-size: 10.8px;
-      line-height: 1.48;
-      color: #3a3a40;
-      margin: 0 0 9px 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(10, 10, 10, 0.62);
+      margin: 0;
     }
 
-    .hairline-rule {
-      border: none;
+    .left-scroll {
+      margin-top: 20px;
+      padding-top: 14px;
       border-top: 1px solid var(--border);
-      margin: 2px 0 9px 0;
+      pointer-events: auto;
+      overflow-y: auto;
+      flex: 1 1 auto;
+      min-height: 70px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(10, 10, 10, 0.18) transparent;
     }
+
+    .left-scroll::-webkit-scrollbar { width: 4px; }
+    .left-scroll::-webkit-scrollbar-thumb { background: rgba(10, 10, 10, 0.18); }
 
     .notes-table {
       display: grid;
       grid-template-columns: 60px 1fr;
-      row-gap: 6px;
-      column-gap: 10px;
-      font-size: 10.5px;
-      line-height: 1.44;
-      margin-bottom: 10px;
+      row-gap: 11px;
+      column-gap: 16px;
+      font-size: 11.5px;
+      line-height: 1.68;
+      margin: 0;
     }
 
     .notes-key {
-      color: var(--faint);
+      color: rgba(10, 10, 10, 0.36);
       font-weight: 400;
     }
 
     .notes-val {
-      color: #3f3f46;
+      color: var(--muted);
     }
 
-    /* Part Inspector Box (crisp hairline) */
+    /* Borderless Part Inspector Section */
     #inspector-box {
-      border: 1px solid #dcdcdc;
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 4px;
-      padding: 9px 11px;
-      margin-top: auto;
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+      padding-top: 11px;
+      margin-top: 12px;
+      pointer-events: auto;
+      flex-shrink: 0;
       transition: border-color 0.2s ease;
     }
 
     #inspector-box.highlighted {
-      border-color: var(--red);
+      border-top-color: var(--red);
     }
 
     .inspector-header {
@@ -293,11 +281,10 @@
       align-items: center;
       justify-content: space-between;
       font-size: 10px;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       color: var(--faint);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 6px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .inspector-title {
@@ -305,9 +292,9 @@
       align-items: center;
       gap: 7px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--ink);
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
 
     .inspector-dot {
@@ -319,63 +306,66 @@
     }
 
     .inspector-desc {
-      font-size: 11px;
-      line-height: 1.5;
-      color: #3f3f46;
-      margin: 0 0 7px 0;
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: var(--muted);
+      margin: 0 0 5px 0;
     }
 
     .inspector-tip {
-      font-size: 10.5px;
-      line-height: 1.45;
-      color: var(--muted);
-      background: #fafafa;
-      border-left: 2px solid var(--blue);
-      padding: 5px 8px;
-      border-radius: 0 3px 3px 0;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--faint);
     }
 
-    /* Top-Right Floating Telemetry Box (248px wide) */
+    /* Top-Right Borderless Telemetry Readout */
     #telemetry-box {
       position: fixed;
-      top: 64px;
-      right: 24px;
-      width: 248px;
+      top: 96px;
+      right: 44px;
+      width: 210px;
       z-index: 20;
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid #dcdcdc;
-      border-radius: 3px;
-      overflow: hidden;
+      text-align: right;
+      pointer-events: none;
+      font-variant-numeric: tabular-nums;
     }
 
     .telemetry-head {
-      padding: 9px 13px;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--faint);
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
     }
 
     .telemetry-readout {
-      padding: 12px 13px 10px 13px;
-      font-size: 22px;
-      font-weight: 500;
+      font-size: 26px;
+      font-weight: 400;
       letter-spacing: -0.02em;
+      line-height: 1.1;
       color: var(--ink);
-      border-bottom: 1px solid var(--border);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    .telemetry-unit {
+      font-size: 11px;
+      color: var(--faint);
+      margin-top: 3px;
+    }
+
     .telemetry-scope-wrap {
       position: relative;
-      height: 76px;
+      height: 52px;
+      margin: 10px 0;
+      border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
-      background: #ffffff;
+      background: transparent;
     }
 
     #scope-canvas {
@@ -385,40 +375,42 @@
     }
 
     .telemetry-rows {
-      padding: 10px 13px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
-      font-size: 10.5px;
+      gap: 3px;
+      font-size: 11px;
+      line-height: 1.6;
+      color: rgba(10, 10, 10, 0.55);
     }
 
     .telemetry-row {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
     }
 
     .telemetry-row .k {
-      color: var(--faint);
+      color: rgba(10, 10, 10, 0.36);
+      text-align: left;
     }
 
     .telemetry-row .v {
-      color: #27272a;
-      font-weight: 500;
+      color: rgba(10, 10, 10, 0.72);
+      font-weight: 400;
       text-align: right;
     }
 
     /* Bottom Interactive Control Bar */
     #bottom-bar {
       position: fixed;
-      left: 24px;
-      right: 24px;
-      bottom: 14px;
+      left: 44px;
+      right: 44px;
+      bottom: 36px;
       z-index: 25;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      gap: 12px;
+      gap: 20px;
       pointer-events: none;
     }
 
@@ -426,59 +418,62 @@
       pointer-events: auto;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      max-width: calc(100vw - 210px);
+      gap: 14px;
+      max-width: calc(100vw - 340px);
     }
 
     .legend-line {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
-      font-size: 10.5px;
+      gap: 16px;
+      font-size: 11px;
+      letter-spacing: 0.05em;
       color: var(--muted);
     }
 
     .legend-item {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 9px;
     }
 
     .legend-swatch {
       display: inline-block;
-      width: 10px;
-      height: 2px;
-      border-radius: 1px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
     }
 
     .controls-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 5px;
-      background: rgba(255, 255, 255, 0.94);
-      padding: 2px 0;
+      gap: 8px;
+      background: transparent;
+      padding: 0;
     }
 
     /* Hairline Rectangular Buttons */
     .sci-btn {
       font-family: var(--mono);
-      font-size: 10.5px;
-      color: #222222;
-      background: #ffffff;
-      border: 1px solid #d4d4d8;
-      border-radius: 3px;
-      padding: 5px 8.5px;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      border-radius: 2px;
+      padding: 7px 12px;
       cursor: pointer;
-      transition: all 0.14s ease;
+      transition: border-color 0.14s ease, color 0.14s ease, background 0.14s ease;
       white-space: nowrap;
       line-height: 1.2;
     }
 
     .sci-btn:hover {
-      border-color: #888888;
-      background: #fafafa;
+      border-color: rgba(10, 10, 10, 0.50);
+      color: var(--ink);
     }
 
     .sci-btn.active {
@@ -487,99 +482,76 @@
       background: var(--red-soft);
     }
 
-    .sci-btn.active-blue {
-      border-color: var(--blue);
-      color: var(--blue);
-      background: var(--blue-soft);
+    .sci-btn:focus-visible {
+      outline: 2px solid var(--red);
+      outline-offset: 2px;
     }
 
     .btn-divider {
       width: 1px;
       height: 18px;
       background: var(--border);
-      margin: 0 1px;
+      margin: 0 2px;
     }
 
-    /* Minimal Vermilion Sliders */
+    /* Minimal Coral Sliders */
     .slider-group {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       padding: 0 2px;
-      font-size: 10.5px;
+      font-size: 11px;
       color: var(--muted);
+      font-variant-numeric: tabular-nums;
     }
 
     .slider-val {
       color: var(--ink);
       min-width: 34px;
-      font-size: 10.5px;
+      font-size: 11px;
     }
 
     input[type="range"].sci-slider {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 72px;
-      height: 4px;
-      background: #e5e5e5;
-      border-radius: 999px;
-      outline: none;
+      accent-color: var(--red);
+      width: 76px;
       cursor: pointer;
-    }
-
-    input[type="range"].sci-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      background: var(--red);
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 0 1px rgba(224, 72, 54, 0.45);
-      cursor: pointer;
-      transition: transform 0.12s ease;
-    }
-
-    input[type="range"].sci-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-    }
-
-    input[type="range"].sci-slider::-moz-range-thumb {
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      background: var(--red);
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 0 1px rgba(224, 72, 54, 0.45);
-      cursor: pointer;
+      vertical-align: middle;
     }
 
     /* Bottom-right muted monospace hint */
     #hint-block {
       pointer-events: none;
+      width: 250px;
       text-align: right;
-      font-size: 10.5px;
-      line-height: 1.55;
-      color: var(--faint);
+      font-size: 11px;
+      line-height: 1.8;
+      letter-spacing: 0.04em;
+      color: rgba(10, 10, 10, 0.42);
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     /* Mobile / Tablet Adaptive Adjustments */
-    @media (max-width: 1024px) {
+    @media (max-width: 1120px) {
       #left-panel {
-        width: 270px;
-        left: 14px;
+        top: 68px;
+        left: 24px;
+        width: 300px;
+        max-height: calc(100vh - 210px);
       }
       #telemetry-box {
-        width: 215px;
-        right: 14px;
+        top: 68px;
+        right: 24px;
+        width: 190px;
       }
       #bottom-bar {
-        left: 14px;
-        right: 14px;
+        left: 24px;
+        right: 24px;
+        bottom: 20px;
       }
       .controls-stack {
         max-width: 100%;
+        gap: 10px;
       }
       #hint-block {
         display: none;
@@ -587,40 +559,64 @@
     }
 
     @media (max-width: 768px) {
-      #left-panel {
-        width: calc(100vw - 28px);
-        max-height: 28vh;
-        bottom: auto;
-        top: 50px;
-        background: rgba(255, 255, 255, 0.94);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 10px 12px;
+      #top-nav {
+        overflow-x: auto;
+        white-space: nowrap;
       }
-      .notes-table { display: none; }
+      #left-panel {
+        top: 52px;
+        left: 14px;
+        width: calc(100vw - 28px);
+        max-height: 24vh;
+        padding: 0 0 8px 0;
+        background: #ffffff;
+        border-bottom: 1px solid var(--border);
+      }
+      .editorial-headline {
+        font-size: 24px;
+        margin-bottom: 6px;
+      }
+      .editorial-intro {
+        font-size: 11.5px;
+        line-height: 1.45;
+      }
+      .left-scroll {
+        display: none;
+      }
+      #inspector-box {
+        margin-top: 8px;
+        padding-top: 8px;
+      }
       #telemetry-box {
         top: auto;
-        bottom: 104px;
-        right: 12px;
-        width: 185px;
+        bottom: var(--tr-bottom-height, 190px);
+        left: 14px;
+        right: 14px;
+        width: auto;
+        text-align: left;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 4px 12px;
+        padding: 8px 0;
+        border-top: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.96);
       }
-      .telemetry-scope-wrap { height: 48px; }
-      .nav-cell.hide-sm { display: none; }
-    }
-    #motion-note{font-size:10px;line-height:1.35;color:var(--muted);max-width:290px;align-self:flex-end;padding:4px 8px;background:var(--bg);border-radius:4px}
-    .sci-btn:focus-visible{outline:2px solid #00999f;outline-offset:2px}
-    @media(max-width:1024px){#motion-note{display:none}}
-    @media(max-width:768px){
-      #bottom-bar{max-height:26vh;overflow-y:auto;align-items:flex-start}
-      #left-panel{max-height:21vh;overflow:auto}
-      #telemetry-box{bottom:var(--tr-bottom-height,190px);top:auto;left:14px;right:14px;width:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 10px;padding:9px 11px;background:rgba(255,255,255,.96)}
-      #telemetry-box .telemetry-head{grid-column:1;grid-row:1;margin:0;font-size:9px}
-      #telemetry-box .telemetry-readout{grid-column:1;grid-row:2;margin:0;font-size:16px;line-height:1.2;white-space:normal;overflow:visible}
-      #telemetry-box .telemetry-scope-wrap{grid-column:2;grid-row:1/3;height:39px;margin:0}
-      #telemetry-box .telemetry-rows{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-top:3px}
-      #telemetry-box .telemetry-row{font-size:9px;line-height:1.25;gap:4px;min-width:0;flex-wrap:wrap}
-      #telemetry-box .telemetry-row .v{white-space:normal;overflow-wrap:anywhere}
-      #top-nav{overflow-x:auto;white-space:nowrap}
+      #telemetry-box .telemetry-head { grid-column: 1; grid-row: 1; justify-content: flex-start; margin: 0; font-size: 9px; }
+      #telemetry-box .telemetry-readout { grid-column: 1; grid-row: 2; margin: 0; font-size: 18px; line-height: 1.2; white-space: normal; overflow: visible; }
+      #telemetry-box .telemetry-unit { display: none; }
+      #telemetry-box .telemetry-scope-wrap { grid-column: 2; grid-row: 1 / 3; height: 40px; margin: 0; }
+      #telemetry-box .telemetry-rows { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; margin-top: 3px; }
+      #telemetry-box .telemetry-row { font-size: 9.5px; line-height: 1.25; gap: 4px; min-width: 0; flex-wrap: wrap; }
+      #telemetry-box .telemetry-row .v { white-space: normal; overflow-wrap: anywhere; }
+      #bottom-bar {
+        left: 14px;
+        right: 14px;
+        bottom: 12px;
+        max-height: 26vh;
+        overflow-y: auto;
+        align-items: flex-start;
+      }
+      .nav-cell.hide-sm, .nav-link-btn.hide-sm { display: none; }
     }
   </style>
 </head>
@@ -630,17 +626,17 @@
   <!-- 1. TOP NAVIGATION BAR -->
   <header id="top-nav">
     <div class="nav-group">
-      <div class="nav-cell" style="font-weight:600; color:#111;"><a href="./" style="color:inherit; text-decoration:none;" title="Back to Electronics Studies (press /)">/electronics studies</a></div>
+      <div class="nav-cell"><a href="./" style="color:var(--ink); font-weight:500; text-decoration:none;" title="Back to Electronics Studies (press /)">/electronics studies</a></div>
       <div class="nav-cell">
-        <span id="nav-fig-badge" style="color:var(--red); font-weight:500; margin-right:8px;">fig. 02</span>
-        <span id="nav-fig-sub" style="color:var(--muted);">a tiny valve for electric current</span>
+        <span id="nav-fig-badge" style="color:var(--red); margin-right:8px;">fig. 02</span>
+        <span id="nav-fig-sub" style="color:var(--faint);">a tiny valve for electric current</span>
       </div>
-      <div class="nav-cell hide-sm" id="nav-equation" style="color:var(--muted);">Ic = &beta; &middot; Ib</div>
+      <div class="nav-cell hide-sm" id="nav-equation" style="color:var(--faint);">Ic = &beta; &middot; Ib</div>
     </div>
 
     <div class="nav-switcher">
       <a href="./resistor.html" class="nav-link-btn" title="Open Resistor Lab (Left Arrow)">&larr; prev: resistor</a>
-      <a href="./" class="nav-link-btn hide-sm" title="Back to Electronics Index (press /)">/electronics</a>
+      <a href="./" class="nav-link-btn hide-sm" title="Back to Electronics Index (press /)">/index</a>
     </div>
   </header>
 
@@ -650,35 +646,37 @@
   </div>
   <div id="labels-layer"></div>
 
-  <!-- 3. LEFT MINIMAL EDITORIAL PANEL -->
+  <!-- 3. LEFT BORDERLESS EDITORIAL PANEL -->
   <aside id="left-panel">
     <div id="editorial-breadcrumb" class="breadcrumb">/electronics studies &middot; [ fig. 02 ] transistor</div>
 
     <h1 class="editorial-headline">
       <span id="headline-1" class="headline-line1">A tiny valve</span>
-      <span id="headline-2" class="headline-line2">for electric current</span>
+      <em id="headline-2" class="headline-line2">for electric current</em>
     </h1>
 
     <p id="editorial-intro" class="editorial-intro">
-      A transistor works like a super-fast water tap controlled by electricity instead of your hand. A tiny trickle of signal at the middle leg (Base or Gate) opens a floodgate for a much bigger current.
+      A transistor works like a super-fast water tap controlled by electricity instead of your hand. A tiny trickle at the middle leg (Base or Gate) opens a floodgate for a much bigger current.
     </p>
 
-    <hr class="hairline-rule" />
-
-    <div id="notes-table" class="notes-table">
-      <div class="notes-key">law</div>
-      <div class="notes-val">Ic = &beta; &middot; Ib for BJTs (tiny Base current controls large Collector current). MOSFETs use Gate voltage (Vgs &gt; Vth).</div>
-      <div class="notes-key">try</div>
-      <div class="notes-val">Toggle the Base Switch, test the Automatic Dark Sensor by dimming daylight, or compare NPN, PNP, MOSFET, and Photo types.</div>
-      <div class="notes-key">notice</div>
-      <div class="notes-val">With zero moving parts, a transistor can flip ON and OFF billions of times per second — or magnify a whisper into loud music.</div>
-      <div class="notes-key">in life</div>
-      <div class="notes-val">Microchips inside smartphones and laptops pack billions of microscopic transistors to calculate and store data.</div>
-      <div class="notes-key">found by</div>
-      <div class="notes-val">John Bardeen, Walter Brattain, and William Shockley invented the first transistor at Bell Labs in 1947.</div>
+    <div class="left-scroll">
+      <div id="notes-table" class="notes-table">
+        <div class="notes-key">what</div>
+        <div class="notes-val">A semiconductor valve that uses a tiny control signal to switch or amplify a much larger electric current.</div>
+        <div class="notes-key">law</div>
+        <div class="notes-val">Ic = &beta; &middot; Ib for BJTs (tiny Base current controls large Collector current). MOSFETs use Gate voltage (Vgs &gt; Vth).</div>
+        <div class="notes-key">try</div>
+        <div class="notes-val">Toggle the Base Switch, test the Automatic Dark Sensor by dimming daylight, or compare NPN, PNP, MOSFET, and Photo types.</div>
+        <div class="notes-key">notice</div>
+        <div class="notes-val">With zero moving parts, a transistor flips ON and OFF billions of times per second &mdash; or magnifies a whisper into loud music.</div>
+        <div class="notes-key">in life</div>
+        <div class="notes-val">Microchips inside smartphones and laptops pack billions of microscopic transistors to calculate and store data.</div>
+        <div class="notes-key">found by</div>
+        <div class="notes-val">John Bardeen, Walter Brattain, and William Shockley invented the first transistor at Bell Labs in 1947.</div>
+      </div>
     </div>
 
-    <!-- Interactive Part Inspector Box -->
+    <!-- Borderless Part Inspector -->
     <section id="inspector-box" aria-live="polite">
       <div class="inspector-header">
         <span>PART INSPECTOR</span>
@@ -697,13 +695,14 @@
     </section>
   </aside>
 
-  <!-- 4. TOP-RIGHT FLOATING TELEMETRY BOX -->
+  <!-- 4. TOP-RIGHT BORDERLESS TELEMETRY READOUT -->
   <aside id="telemetry-box">
     <div class="telemetry-head">
       <span id="telemetry-title">COLLECTOR OUTPUT</span>
       <span id="telemetry-badge" style="color:var(--red);">LIVE</span>
     </div>
-    <div id="telemetry-readout" class="telemetry-readout">ON &middot; 18.0 mA</div>
+    <div id="telemetry-readout" class="telemetry-readout">18.0 mA</div>
+    <div id="telemetry-unit" class="telemetry-unit">ON &middot; CONDUCTING</div>
     <div class="telemetry-scope-wrap">
       <canvas id="scope-canvas"></canvas>
     </div>
@@ -719,7 +718,6 @@
       <div id="controls-row" class="controls-row"></div>
     </div>
 
-    <div id="motion-note" role="note"></div>
     <div id="hint-block">
       <div>drag empty space &mdash; orbit</div>
       <div>click any part &mdash; inspect</div>
@@ -800,7 +798,7 @@
         document.getElementById('inspector-name').textContent = info.name;
         document.getElementById('inspector-desc').textContent = info.desc;
         document.getElementById('inspector-tip').innerHTML = '<strong>classroom tip:</strong> ' + info.tip;
-        document.getElementById('inspector-dot').style.background = info.color || '#e04836';
+        document.getElementById('inspector-dot').style.background = info.color || '#e5533d';
         document.getElementById('inspector-hint').textContent = info.tag || 'INSPECTING';
 
         box.classList.remove('highlighted');
@@ -813,7 +811,7 @@
           name: 'Click any 3D part',
           desc: 'Click the transistor legs (C/B/E or G/D/S), inner silicon layers, wires, LDR light sensor, or switches to inspect them.',
           tip: 'Drag empty space to orbit 360°. Toggle cutaway to peek inside solid electronic components!',
-          color: '#2563eb',
+          color: '#e5533d',
           tag: 'READY'
         });
         document.getElementById('inspector-box').classList.remove('highlighted');
@@ -832,7 +830,7 @@
          4. THREE.JS CORE SCENE, CAMERA & SMOOTH ORBIT CONTROLLER
          ----------------------------------------------------------------------- */
       const canvas = document.getElementById('three-canvas');
-      if(typeof THREE==='undefined'){document.getElementById('viewport-wrap').innerHTML='<div style="position:absolute;top:45%;left:35%;right:8%;padding:20px;background:white;color:#065758">The 3D library could not load. Check the internet connection and reload this page.</div>';return;}
+      if(typeof THREE==='undefined'){document.getElementById('viewport-wrap').innerHTML='<div style="position:absolute;top:45%;left:35%;right:8%;padding:20px;border:1px solid rgba(10,10,10,0.14);background:#ffffff;color:#0a0a0a">The 3D library could not load. Check the internet connection and reload this page.</div>';return;}
       const labelsLayer = document.getElementById('labels-layer');
 
       const isSoftwareGl = (() => {
@@ -848,8 +846,8 @@
 
       let renderer;
       try {renderer = new THREE.WebGLRenderer({canvas,antialias:!isSoftwareGl,powerPreference:'high-performance'});}
-      catch(err){document.getElementById('viewport-wrap').innerHTML='<div style="position:absolute;top:45%;left:35%;right:8%;padding:20px;border:1px solid #c8e5e2;background:#fff;color:#065758">3D requires WebGL. Enable browser hardware acceleration or try another browser. The lesson notes remain available on the left.</div>';return;}
-      renderer.setClearColor(0xf4faf9, 1);
+      catch(err){document.getElementById('viewport-wrap').innerHTML='<div style="position:absolute;top:45%;left:35%;right:8%;padding:20px;border:1px solid rgba(10,10,10,0.14);background:#ffffff;color:#0a0a0a">3D requires WebGL. Enable browser hardware acceleration or try another browser. The lesson notes remain available on the left.</div>';return;}
+      renderer.setClearColor(0xffffff, 1);
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.shadowMap.enabled = !isSoftwareGl;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -857,12 +855,12 @@
       
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xf4faf9);
+      scene.background = new THREE.Color(0xffffff);
 
       const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 120);
 
       // Studio crisp scientific lighting
-      const ambientLight = new THREE.HemisphereLight(0xffffff, 0x859b91, 0.94);
+      const ambientLight = new THREE.HemisphereLight(0xffffff, 0xd8d8dc, 0.94);
       scene.add(ambientLight);
 
       const keyLight = new THREE.DirectionalLight(0xffffff, 0.72);
@@ -873,7 +871,7 @@
       keyLight.shadow.normalBias = 0.03;
       scene.add(keyLight);
 
-      const fillLight = new THREE.DirectionalLight(0xeef5ff, 0.38);
+      const fillLight = new THREE.DirectionalLight(0xf5f5f5, 0.38);
       fillLight.position.set(-10, 6, -6);
       scene.add(fillLight);
 
@@ -898,12 +896,12 @@
 
         const minorGeo = new THREE.BufferGeometry();
         minorGeo.setAttribute('position', new THREE.Float32BufferAttribute(minorVerts, 3));
-        const minorMat = new THREE.LineBasicMaterial({ color: 0xebedf0, transparent: true, opacity: 0.9 });
+        const minorMat = new THREE.LineBasicMaterial({ color: 0xefefef, transparent: true, opacity: 0.9 });
         group.add(new THREE.LineSegments(minorGeo, minorMat));
 
         const majorGeo = new THREE.BufferGeometry();
         majorGeo.setAttribute('position', new THREE.Float32BufferAttribute(majorVerts, 3));
-        const majorMat = new THREE.LineBasicMaterial({ color: 0xd8dce3, transparent: true, opacity: 0.95 });
+        const majorMat = new THREE.LineBasicMaterial({ color: 0xdedee2, transparent: true, opacity: 0.95 });
         group.add(new THREE.LineSegments(majorGeo, majorMat));
 
         group.position.y = -1.95;
@@ -1096,7 +1094,7 @@
         activeGroup.add(f.group); return f;
       }
       // Canvas markings are generated locally, no external texture dependency.
-      function marking(text, sub, fg='#e9f5ed', bg='#24312c'){
+      function marking(text, sub, fg='#ffffff', bg='#1c1c1e'){
         const c=document.createElement('canvas');c.width=512;c.height=256;
         const ctx=c.getContext('2d');
         ctx.fillStyle=bg;ctx.fillRect(0,0,512,256);
@@ -1104,7 +1102,7 @@
         ctx.font='28px monospace';ctx.fillText(sub,256,174);
         const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;return tex;
       }
-      function printedPlate(parent, text, sub, w,h,x,y,z, bg='#24312c', fg='#f0f5ee'){
+      function printedPlate(parent, text, sub, w,h,x,y,z, bg='#1c1c1e', fg='#ffffff'){
         const plate=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:marking(text,sub,fg,bg)}));
         plate.position.set(x,y,z); parent.add(plate);return plate;
       }
@@ -1182,7 +1180,7 @@
 
         const band = new THREE.Mesh(
           new THREE.BoxGeometry(1.17, 0.48, 0.74),
-          new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.45 })
+          new THREE.MeshStandardMaterial({ color: 0xe5533d, roughness: 0.45 })
         );
         band.position.y = 0.58;
         grp.add(band);
@@ -1201,12 +1199,12 @@
         const topCap=new THREE.Mesh(new THREE.BoxGeometry(1.16,.055,.73),termMat);
         topCap.position.y=.83;grp.add(topCap);
         printedPlate(grp,voltageText,'ALKALINE • DC',1.08,.78,0,-.15,.367);
-        printedPlate(grp,'+     −','TERMINALS',.99,.25,0,.59,.374,'#a53a2d');
+        printedPlate(grp,'+     −','TERMINALS',.99,.25,0,.59,.374,'#b83b28');
         const info = {
           name: `DC Battery (${voltageText})`,
           desc: 'The "electric pump" of the circuit! Chemical energy inside pushes electric charge out of one terminal and pulls it back into the other.',
           tip: 'Voltage (V) is like water pressure — higher voltage pushes harder!',
-          color: '#e04836',
+          color: '#e5533d',
           tag: 'POWER SOURCE'
         };
         registerClickable(body, info);
@@ -1220,7 +1218,7 @@
         const grp = new THREE.Group();
         const base = new THREE.Mesh(
           new THREE.BoxGeometry(1.25, 0.18, 0.68),
-          new THREE.MeshStandardMaterial({ color: 0x354540, roughness: 0.6 })
+          new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.6 })
         );
         addEdgeOutline(base, 0x444444, 0.35);
         grp.add(base);
@@ -1245,7 +1243,7 @@
 
         const handle = new THREE.Mesh(
           new THREE.CylinderGeometry(0.14, 0.14, 0.28, 24),
-          new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.35 })
+          new THREE.MeshStandardMaterial({ color: 0xe5533d, roughness: 0.35 })
         );
         handle.position.set(0.88,0.12,0);
         pivot.add(handle);
@@ -1256,14 +1254,14 @@
         for(const x of [-.42,.42]){
           const ring=new THREE.Mesh(new THREE.TorusGeometry(.102,.028,8,24),new THREE.MeshStandardMaterial({color:0xc59b46,metalness:.68,roughness:.3}));
           ring.rotation.x=Math.PI/2;ring.position.set(x,.17,0);grp.add(ring);
-          const screw=new THREE.Mesh(new THREE.BoxGeometry(.12,.02,.025),new THREE.MeshStandardMaterial({color:0x66736f,metalness:.7,roughness:.3}));
+          const screw=new THREE.Mesh(new THREE.BoxGeometry(.12,.02,.025),new THREE.MeshStandardMaterial({color:0x71717a,metalness:.7,roughness:.3}));
           screw.position.set(x,.39,0);grp.add(screw);
         }
         const info = {
           name: labelName,
           desc: 'A mechanical switch opens or closes a gap in the wire. When CLOSED, electricity flows; when OPEN, air blocks the flow. Click directly on this 3D switch to flip it!',
           tip: 'Click right on this switch in 3D (or use the bottom button) to toggle ON / OFF.',
-          color: '#e04836',
+          color: '#e5533d',
           tag: 'INTERACTIVE SWITCH'
         };
         registerClickable(base, info, onToggleCallback);
@@ -1274,7 +1272,7 @@
         return { grp, pivot };
       }
 
-      function buildLED(colorHex = 0xe04836, name = 'Red LED (Light Emitting Diode)') {
+      function buildLED(colorHex = 0xe5533d, name = 'Red LED (Light Emitting Diode)') {
         const grp = new THREE.Group();
         const lensMat = new THREE.MeshPhysicalMaterial({
           clearcoat: 1, clearcoatRoughness: .12, depthWrite: false,
@@ -1405,16 +1403,16 @@
 
         const cap = new THREE.Mesh(
           new THREE.SphereGeometry(0.15, 16, 12),
-          new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.35 })
+          new THREE.MeshStandardMaterial({ color: 0xe5533d, roughness: 0.35 })
         );
         cap.position.set(0, 0.05, 0.36);
         grp.add(cap);
 
         const info = {
           name: 'Mini Audio Speaker (Amplified Output)',
-          desc: "The amplified red AC signal from the transistor's Collector pushes and pulls this speaker cone back and forth, turning electrical waves into loud sound waves!",
-          tip: 'Watch how the tiny blue microphone wave turns into a giant red speaker wave on the right graph!',
-          color: '#e04836',
+          desc: "The amplified coral-red AC signal from the transistor's Collector pushes and pulls this speaker cone back and forth, turning electrical waves into loud sound waves!",
+          tip: 'Watch how the tiny black microphone wave turns into a giant coral wave on the right graph!',
+          color: '#e5533d',
           tag: 'SOUND OUTPUT'
         };
         registerClickable(box, info);
@@ -1460,7 +1458,7 @@
           if(xray){blackPlastic.transparent=true;blackPlastic.opacity=.18;blackPlastic.depthWrite=false;}
           if(exploded)bodyMesh.position.z=-1.35;
           root.add(bodyMesh);
-          addEdgeOutline(bodyMesh,0x102822,xray?.15:.23);
+          addEdgeOutline(bodyMesh,0x18181b,xray?.15:.23);
           if(!isCut||exploded)printedPlate(root,type==='npn'?'BC547':'BC557','TO-92 • BJT',1.27,.64,0,.88,exploded?-.96:.409,'#202228');
           registerClickable(bodyMesh, {
             name: type === 'npn' ? 'NPN BJT Package (TO-92 · BC547)' : 'PNP BJT Package (TO-92 · BC557)',
@@ -1473,9 +1471,9 @@
           });
 
           const isNPN = (type === 'npn');
-          const topColor = isNPN ? 0x2563eb : 0xe04836;
-          const midColor = isNPN ? 0xe04836 : 0x2563eb;
-          const botColor = isNPN ? 0x2563eb : 0xe04836;
+          const topColor = isNPN ? 0x2b56d6 : 0xe5533d;
+          const midColor = isNPN ? 0xe5533d : 0x2b56d6;
+          const botColor = isNPN ? 0x2b56d6 : 0xe5533d;
 
           const topLayer = new THREE.Mesh(
             new THREE.BoxGeometry(1.18, 0.42, 0.42),
@@ -1521,7 +1519,7 @@
                 ? 'Silicon doped with extra free electrons (N = Negative). Connected to the Collector pin where the main current waits to enter.'
                 : 'Silicon with mobile holes (P = Positive). Connected to the Collector, where conventional current leaves the PNP transistor.',
               tip: 'Silicon is made from purified sand, then "doped" with trace elements to carry charge!',
-              color: isNPN ? '#2563eb' : '#e04836',
+              color: isNPN ? '#2b56d6' : '#e5533d',
               tag: 'SEMICONDUCTOR'
             });
 
@@ -1529,7 +1527,7 @@
               name: isNPN ? 'P-Type Base Layer (The Gatekeeper!)' : 'N-Type Base Layer (The Gatekeeper!)',
               desc: 'An ultra-thin middle layer that normally blocks electricity like a closed dam. A tiny Base signal lowers this barrier and opens the floodgates!',
               tip: 'Because this layer is razor-thin, just 1 unit of Base current can unlock 100+ units of Collector current!',
-              color: isNPN ? '#e04836' : '#2563eb',
+              color: isNPN ? '#e5533d' : '#2b56d6',
               tag: 'CONTROL LAYER'
             });
 
@@ -1539,21 +1537,21 @@
                 ? 'The exit region connected to the Emitter leg. Both the big Collector current and tiny Base current leave together through here.'
                 : 'The P-type Emitter supplies conventional current from the positive rail. A small current leaving the base controls the collector current.',
               tip: 'Remember: Emitter current = Collector current + Base current (Ie = Ic + Ib).',
-              color: isNPN ? '#2563eb' : '#e04836',
+              color: isNPN ? '#2b56d6' : '#e5533d',
               tag: 'SEMICONDUCTOR'
             });
           }
 
           const pinNames = isNPN
             ? [
-                { x: -0.58, code: 'C', full: 'Collector Pin (C)', desc: 'Main power input leg. Big current flows IN here when the transistor switches ON.', color: '#e04836' },
-                { x: 0.0,   code: 'B', full: 'Base Pin (B)', desc: 'The tiny control leg! Just a 0.7V push and micro-amps of current here switches the entire transistor ON.', color: '#2563eb' },
-                { x: 0.58,  code: 'E', full: 'Emitter Pin (E)', desc: 'The exit leg connected to Ground (−). All current leaves through the Emitter.', color: '#374151' }
+                { x: -0.58, code: 'C', full: 'Collector Pin (C)', desc: 'Main power input leg. Big current flows IN here when the transistor switches ON.', color: '#e5533d' },
+                { x: 0.0,   code: 'B', full: 'Base Pin (B)', desc: 'The tiny control leg! Just a 0.7V push and micro-amps of current here switches the entire transistor ON.', color: '#0a0a0a' },
+                { x: 0.58,  code: 'E', full: 'Emitter Pin (E)', desc: 'The exit leg connected to Ground (−). All current leaves through the Emitter.', color: '#52525b' }
               ]
             : [
-                { x: 0.58, code: 'E', full: 'Emitter Pin (E)', desc: 'Connected to positive supply (+) in a PNP transistor. Current enters here.', color: '#e04836' },
-                { x: 0.0,   code: 'B', full: 'Base Pin (B)', desc: 'Pull this Base pin LOW (toward ground) to switch a PNP transistor ON!', color: '#2563eb' },
-                { x: -0.58,  code: 'C', full: 'Collector Pin (C)', desc: 'Main output leg that feeds current down to the load when the PNP opens.', color: '#374151' }
+                { x: 0.58, code: 'E', full: 'Emitter Pin (E)', desc: 'Connected to positive supply (+) in a PNP transistor. Current enters here.', color: '#e5533d' },
+                { x: 0.0,   code: 'B', full: 'Base Pin (B)', desc: 'Pull this Base pin LOW (toward ground) to switch a PNP transistor ON!', color: '#0a0a0a' },
+                { x: -0.58,  code: 'C', full: 'Collector Pin (C)', desc: 'Main output leg that feeds current down to the load when the PNP opens.', color: '#52525b' }
               ];
 
           pinNames.forEach((p) => {
@@ -1610,35 +1608,35 @@
             addEdgeOutline(sub, 0x662222, 0.25);
             root.add(sub);
 
-            const wellMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.35 });
+            const wellMat = new THREE.MeshStandardMaterial({ color: 0x2b56d6, roughness: 0.35 });
             const drainWell = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.36), wellMat);
             drainWell.position.set(-0.48, 0.96, 0.15);
             const sourceWell = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.36), wellMat);
             sourceWell.position.set(0.48, 0.96, 0.15);
             root.add(drainWell, sourceWell);
-            registerClickable(sub,{name:'P-type silicon substrate',desc:'The silicon underneath the channel supports the source and drain regions.',tip:'This is an enlarged conceptual cross-section, not a manufactured die.',color:'#e04836',tag:'SUBSTRATE'});
-            registerClickable(drainWell,{name:'Drain region',desc:'Conventional load current enters the drain when the channel conducts.',tip:'The channel connects the drain and source.',color:'#2563eb',tag:'N-TYPE REGION'});
-            registerClickable(sourceWell,{name:'Source region',desc:'The source is the return terminal for conventional load current.',tip:'Gate voltage is measured relative to this source.',color:'#2563eb',tag:'N-TYPE REGION'});
+            registerClickable(sub,{name:'P-type silicon substrate',desc:'The silicon underneath the channel supports the source and drain regions.',tip:'This is an enlarged conceptual cross-section, not a manufactured die.',color:'#e5533d',tag:'SUBSTRATE'});
+            registerClickable(drainWell,{name:'Drain region',desc:'Conventional load current enters the drain when the channel conducts.',tip:'The channel connects the drain and source.',color:'#2b56d6',tag:'N-TYPE REGION'});
+            registerClickable(sourceWell,{name:'Source region',desc:'The source is the return terminal for conventional load current.',tip:'Gate voltage is measured relative to this source.',color:'#2b56d6',tag:'N-TYPE REGION'});
 
             const oxide = new THREE.Mesh(
               new THREE.BoxGeometry(0.86, 0.13, 0.38),
-              new THREE.MeshStandardMaterial({ color: 0xdbeafe, roughness: 0.2, transparent: true, opacity: 0.88 })
+              new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.2, transparent: true, opacity: 0.85 })
             );
             oxide.position.set(0, 1.24, 0.16);
-            addEdgeOutline(oxide, 0x2563eb, 0.55);
+            addEdgeOutline(oxide, 0x52525b, 0.45);
             root.add(oxide);
 
             const gatePlate = new THREE.Mesh(
               new THREE.BoxGeometry(0.76, 0.11, 0.36),
-              new THREE.MeshStandardMaterial({ color: 0x1d4ed8, metalness: 0.5, roughness: 0.3 })
+              new THREE.MeshStandardMaterial({ color: 0x27272a, metalness: 0.55, roughness: 0.3 })
             );
             gatePlate.position.set(0, 1.37, 0.16);
             root.add(gatePlate);
-            registerClickable(gatePlate,{name:'Metal gate electrode',desc:'The voltage on this insulated electrode controls the electric field beneath it.',tip:'No continuous gate current crosses the oxide.',color:'#2563eb',tag:'GATE ELECTRODE'});
+            registerClickable(gatePlate,{name:'Metal gate electrode',desc:'The voltage on this insulated electrode controls the electric field beneath it.',tip:'No continuous gate current crosses the oxide.',color:'#0a0a0a',tag:'GATE ELECTRODE'});
 
             channelMat = new THREE.MeshStandardMaterial({
-              color: 0xe04836,
-              emissive: new THREE.Color(0xe04836),
+              color: 0xe5533d,
+              emissive: new THREE.Color(0xe5533d),
               emissiveIntensity: 0.6,
               transparent: true,
               opacity: 0.85
@@ -1651,7 +1649,7 @@
               name: 'SiO₂ Insulated Oxide Gate Layer',
               desc: 'A microscopic sheet of glass-like silicon dioxide! It completely insulates the Gate pin so almost ZERO current flows into the Gate — only an electric field reaches across.',
               tip: 'That tiny glass layer is why MOSFETs waste almost zero control power in computer chips!',
-              color: '#2563eb',
+              color: '#71717a',
               tag: 'OXIDE INSULATOR'
             });
 
@@ -1659,15 +1657,15 @@
               name: 'Induced Conducting N-Channel',
               desc: 'When the gate voltage exceeds threshold, an electric field creates a conducting channel. Threshold is not the voltage for full conduction; this is a simplified model.',
               tip: 'Remove the Gate voltage and this bridge vanishes instantly, turning the switch OFF.',
-              color: '#e04836',
+              color: '#e5533d',
               tag: 'ELECTRIC FIELD CHANNEL'
             });
           }
 
           const mosPins = [
-            { x: -0.62, code: 'G', full: 'Gate Pin (G)', desc: 'Voltage control pin! A positive gate voltage creates an electric field. Threshold only begins conduction; IRF540 needs more voltage for full turn-on. This is an idealized model.', color: '#2563eb' },
-            { x: 0.0,   code: 'D', full: 'Drain Pin (D)', desc: 'Main power input pin (like Collector on a BJT). Heavy load current enters here.', color: '#e04836' },
-            { x: 0.62,  code: 'S', full: 'Source Pin (S)', desc: 'Main return pin connected to Ground (−) (like Emitter on a BJT).', color: '#374151' }
+            { x: -0.62, code: 'G', full: 'Gate Pin (G)', desc: 'Voltage control pin! A positive gate voltage creates an electric field. Threshold only begins conduction; IRF540 needs more voltage for full turn-on. This is an idealized model.', color: '#0a0a0a' },
+            { x: 0.0,   code: 'D', full: 'Drain Pin (D)', desc: 'Main power input pin (like Collector on a BJT). Heavy load current enters here.', color: '#e5533d' },
+            { x: 0.62,  code: 'S', full: 'Source Pin (S)', desc: 'Main return pin connected to Ground (−) (like Emitter on a BJT).', color: '#52525b' }
           ];
           mosPins.forEach((p) => {
             const leg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.65, 0.09), metalMat);
@@ -1685,7 +1683,7 @@
 
         } else if (type === 'photo') {
           const domeMat = new THREE.MeshStandardMaterial({
-            color: 0xeef6ff,
+            color: 0xf5f5f5,
             roughness: 0.12,
             metalness: 0.05,
             transparent: true,
@@ -1694,7 +1692,7 @@
           });
           const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 1.05, 28), domeMat);
           cyl.position.y = 0.65;
-          addEdgeOutline(cyl, 0x7a92b0, 0.22, 30);
+          addEdgeOutline(cyl, 0x71717a, 0.22, 30);
           root.add(cyl);
 
           const topDome = new THREE.Mesh(new THREE.SphereGeometry(0.75, 28, 18, 0, Math.PI * 2, 0, Math.PI / 2), domeMat);
@@ -1710,7 +1708,7 @@
           root.add(cup);
 
           barrierMat = new THREE.MeshStandardMaterial({
-            color: 0x2563eb,
+            color: 0x2b56d6,
             emissive: new THREE.Color(0xf59e0b),
             emissiveIntensity: 0.2,
             roughness: 0.25
@@ -1724,11 +1722,11 @@
             name: 'Clear Optical Lens Dome',
             desc: 'Instead of opaque black plastic, a phototransistor has a clear magnifying lens that focuses incoming light directly onto its tiny silicon Base!',
             tip: 'Your TV remote receiver and automatic door sensors use infrared phototransistors.',
-            color: '#3b82f6',
+            color: '#0a0a0a',
             tag: 'OPTICAL PACKAGE'
           });
 
-          registerClickable(topDome,{name:'Optical lens',desc:'The transparent package lets light reach the silicon sensor.',tip:'Try the light level slider and observe the output.',color:'#3b82f6',tag:'OPTICAL LENS'});
+          registerClickable(topDome,{name:'Optical lens',desc:'The transparent package lets light reach the silicon sensor.',tip:'Try the light level slider and observe the output.',color:'#0a0a0a',tag:'OPTICAL LENS'});
           registerClickable(cup,{name:'Metal die support',desc:'Holds the photosensitive chip and connects it to the leadframe.',tip:'Light changes the current, not the physical shape of the chip.',color:'#d4a438',tag:'PACKAGE CONSTRUCTION'});
           registerClickable(chip, {
             name: 'Light-Sensitive Silicon Base Chip',
@@ -1739,8 +1737,8 @@
           });
 
           const photoPins = [
-            { x: -0.36, code: 'C', full: 'Collector Pin (C)', desc: 'Main current input leg. Stays blocked in the dark, opens up when light shines on the dome!', color: '#e04836' },
-            { x: 0.36,  code: 'E', full: 'Emitter Pin (E)', desc: 'Main current exit leg connected to Ground (−).', color: '#374151' }
+            { x: -0.36, code: 'C', full: 'Collector Pin (C)', desc: 'Main current input leg. Stays blocked in the dark, opens up when light shines on the dome!', color: '#e5533d' },
+            { x: 0.36,  code: 'E', full: 'Emitter Pin (E)', desc: 'Main current exit leg connected to Ground (−).', color: '#52525b' }
           ];
           photoPins.forEach((p) => {
             const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 1.55, 12), metalMat);
@@ -1809,7 +1807,7 @@
                 new THREE.Vector3(0.68, -1.85, 0.12)
               ];
           const mainCurve = new THREE.CatmullRomCurve3(mainPts.map(p=>{p.z+=.23;return p;}));
-          const mainFlow = createFlowParticles(mainCurve, 14, 0xffb55c, 0.088);
+          const mainFlow = createFlowParticles(mainCurve, 14, 0xe5533d, 0.088);
           activeGroup.add(mainFlow.group);
           // The flow is a magnified schematic overlay, intentionally in front of the die.
 
@@ -1818,40 +1816,40 @@
             const basePts = type === 'mosfet'
               ? [new THREE.Vector3(-0.73, -1.85, 0.18), new THREE.Vector3(-0.73, 1.55, 0.22), new THREE.Vector3(0.0, 1.62, 0.24)]
               : [new THREE.Vector3(0.0, -1.85, 0.18), new THREE.Vector3(0.0, 1.02, 0.26), new THREE.Vector3(0.68, 0.56, 0.22), new THREE.Vector3(0.68, -1.85, 0.18)];
-            baseFlow = createFlowParticles(new THREE.CatmullRomCurve3(basePts.map(p=>{p.z+=.25;return p;})), 6, 0x77b7ff, 0.062);
+            baseFlow = createFlowParticles(new THREE.CatmullRomCurve3(basePts.map(p=>{p.z+=.25;return p;})), 6, 0x0a0a0a, 0.062);
             activeGroup.add(baseFlow.group);
           }
 
           if (type === 'npn') {
             addLabelAnchor('C · collector', new THREE.Vector3(-0.85, -1.95, 0.2), 'red');
-            addLabelAnchor('B · base (control)', new THREE.Vector3(0.0, -2.2, 0.2), 'blue');
-            addLabelAnchor('E · emitter', new THREE.Vector3(0.85, -1.95, 0.2), 'dark');
+            addLabelAnchor('B · base (control)', new THREE.Vector3(0.0, -2.2, 0.2), 'dark');
+            addLabelAnchor('E · emitter', new THREE.Vector3(0.85, -1.95, 0.2), 'muted');
             if (state.tr.view !== 'outer') {
-              addLabelAnchor('N-type silicon', new THREE.Vector3(1.28, 1.48, 0.1), 'blue');
+              addLabelAnchor('N-type silicon', new THREE.Vector3(1.28, 1.48, 0.1), 'dark');
               addLabelAnchor('P-type gatekeeper', new THREE.Vector3(1.38, 1.02, 0.1), 'red');
             }
           } else if (type === 'pnp') {
             addLabelAnchor('E · emitter (+)', new THREE.Vector3(0.85, -1.95, 0.2), 'red');
-            addLabelAnchor('B · base (pull low)', new THREE.Vector3(0.0, -2.2, 0.2), 'blue');
-            addLabelAnchor('C · collector', new THREE.Vector3(-0.85, -1.95, 0.2), 'dark');
+            addLabelAnchor('B · base (pull low)', new THREE.Vector3(0.0, -2.2, 0.2), 'dark');
+            addLabelAnchor('C · collector', new THREE.Vector3(-0.85, -1.95, 0.2), 'muted');
             if (state.tr.view !== 'outer') {
               addLabelAnchor('P-type silicon', new THREE.Vector3(1.28, 1.48, 0.1), 'red');
-              addLabelAnchor('N-type base', new THREE.Vector3(1.32, 1.02, 0.1), 'blue');
+              addLabelAnchor('N-type base', new THREE.Vector3(1.32, 1.02, 0.1), 'dark');
             }
           } else if (type === 'mosfet') {
-            addLabelAnchor('G · gate (voltage)', new THREE.Vector3(-0.88, -2.05, 0.2), 'blue');
+            addLabelAnchor('G · gate (voltage)', new THREE.Vector3(-0.88, -2.05, 0.2), 'dark');
             addLabelAnchor('D · drain', new THREE.Vector3(0.0, -2.25, 0.2), 'red');
-            addLabelAnchor('S · source', new THREE.Vector3(0.88, -2.05, 0.2), 'dark');
+            addLabelAnchor('S · source', new THREE.Vector3(0.88, -2.05, 0.2), 'muted');
             addLabelAnchor('heatsink tab', new THREE.Vector3(1.45, 2.45, -0.1), 'muted');
             if (state.tr.view !== 'outer') {
-              addLabelAnchor('SiO₂ glass oxide', new THREE.Vector3(1.48, 1.48, 0.2), 'blue');
+              addLabelAnchor('SiO₂ glass oxide', new THREE.Vector3(1.48, 1.48, 0.2), 'dark');
               addLabelAnchor('N-channel bridge', new THREE.Vector3(1.48, 1.15, 0.2), 'red');
             }
           } else {
             addLabelAnchor('incoming light rays', new THREE.Vector3(-1.35, 3.1, 0), 'red');
             addLabelAnchor('C · collector', new THREE.Vector3(-0.62, -1.95, 0.2), 'red');
-            addLabelAnchor('E · emitter', new THREE.Vector3(0.62, -1.95, 0.2), 'dark');
-            addLabelAnchor('exposed base chip', new THREE.Vector3(1.35, 0.88, 0.1), 'blue');
+            addLabelAnchor('E · emitter', new THREE.Vector3(0.62, -1.95, 0.2), 'muted');
+            addLabelAnchor('exposed base chip', new THREE.Vector3(1.35, 0.88, 0.1), 'dark');
           }
 
           animatedActors = {
@@ -1886,32 +1884,32 @@
           const digits=state.tr.loadOhms===220?[2,2,1]:state.tr.loadOhms===1000?[1,0,2]:[4,7,1];
           const rColl=buildCircuitResistor({scale:.31,b1:digits[0],b2:digits[1],b3:digits[2],label:state.tr.loadOhms+' Ω Load Resistor',desc:'Limits the load current; a higher resistance reduces LED brightness.'});
           rColl.root.position.set(-.65,.95,-1.65);activeGroup.add(rColl.root);
-          const led=buildLED(0xe04836,'Collector load LED');
+          const led=buildLED(0xe5533d,'Collector load LED');
           led.grp.position.set(2.85,.45,-1.65);activeGroup.add(led.grp);
           const ledA=v(2.73,-.27,-1.65),ledK=v(2.97,-.17,-1.65);
           const loadL=v(-.65-3.85*.31,.95,-1.65),loadR=v(-.65+3.85*.31,.95,-1.65);
           const swIn=v(-3.12,1.05,-1.65),swOut=v(-2.28,1.05,-1.65);
           const mainFlows=[],baseFlows=[],controlWires=[];
           function connect(points,hex,kind){
-            const info={name:kind==='base'?'Control path':kind==='gate'?'Gate voltage path':hex===0x3f3f46?'Return path':'Main load path',desc:kind==='gate'?'A gate voltage controls the MOSFET. No steady gate current is shown.':kind==='base'?'A small base current controls a larger main current.':'Conventional current follows this wire when the circuit conducts.',tip:'The arrows show current direction, not individual electron speed.',color:kind==='base'||kind==='gate'?'#2563eb':'#e04836',tag:'CIRCUIT CONNECTION'};
+            const info={name:kind==='base'?'Control path':kind==='gate'?'Gate voltage path':hex===0xa1a1aa?'Return path':'Main load path',desc:kind==='gate'?'A gate voltage controls the MOSFET. No steady gate current is shown.':kind==='base'?'A small base current controls a larger main current.':'Conventional current follows this wire when the circuit conducts.',tip:'The arrows show current direction, not individual electron speed.',color:kind==='base'||kind==='gate'?'#0a0a0a':'#e5533d',tag:'CIRCUIT CONNECTION'};
             const w=createWire(points,hex,.047,info);activeGroup.add(w.mesh);
             if(kind==='gate'){controlWires.push(w.mesh);return;}
-            const flow=wireFlow(w,kind==='base'?0x77b7ff:0xffb55c,kind==='base'?.059:.084);
+            const flow=wireFlow(w,kind==='base'?0x0a0a0a:0xe5533d,kind==='base'?.059:.084);
             (kind==='base'?baseFlows:mainFlows).push(flow);
           }
-          connect([batteryPos,v(-4.28,1.05,-1.65),swIn],0xe04836,'main');
+          connect([batteryPos,v(-4.28,1.05,-1.65),swIn],0xe5533d,'main');
           if(pnp){
-            connect([swOut,v(-2.28,.78,-.45),v(mainIn.x,-1.32,-.45),mainIn],0xe04836,'main');
-            connect([mainOut,v(mainOut.x,-1.35,-.55),v(loadL.x,-1.35,-.55),loadL],0xe04836,'main');
+            connect([swOut,v(-2.28,.78,-.45),v(mainIn.x,-1.32,-.45),mainIn],0xe5533d,'main');
+            connect([mainOut,v(mainOut.x,-1.35,-.55),v(loadL.x,-1.35,-.55),loadL],0xe5533d,'main');
           }else{
-            connect([swOut,loadL],0xe04836,'main');
+            connect([swOut,loadL],0xe5533d,'main');
           }
-          connect([loadR,v(2.73,.95,-1.65),ledA],0xe04836,'main');
+          connect([loadR,v(2.73,.95,-1.65),ledA],0xe5533d,'main');
           if(pnp){
-            connect([ledK,v(2.97,-1.53,-1.65),v(-3.72,-1.53,-1.65),batteryNeg],0x3f3f46,'main');
+            connect([ledK,v(2.97,-1.53,-1.65),v(-3.72,-1.53,-1.65),batteryNeg],0xa1a1aa,'main');
           }else{
-            connect([ledK,v(2.97,-1.20,-1.65),v(mainIn.x,-1.20,.2),mainIn],0xe04836,'main');
-            connect([mainOut,v(mainOut.x,-1.55,.2),v(-3.72,-1.55,.2),batteryNeg],0x3f3f46,'main');
+            connect([ledK,v(2.97,-1.20,-1.65),v(mainIn.x,-1.20,.2),mainIn],0xe5533d,'main');
+            connect([mainOut,v(mainOut.x,-1.55,.2),v(-3.72,-1.55,.2),batteryNeg],0xa1a1aa,'main');
           }
           if(!photo){
             const rBase=buildCircuitResistor({scale:.30,b1:1,b2:0,b3:3,label:'10 kΩ Control Resistor',desc:bjt?'Limits base current in the control branch.':'Limits the brief charging current of the insulated MOSFET gate.'});
@@ -1919,32 +1917,32 @@
             const left=v(-2.17,-.98,1.9),right=v(-1.33,-.98,1.9);
             const rl=v(.15-3.85*.30,-.92,1.9),rr=v(.15+3.85*.30,-.92,1.9);
             if(pnp){
-              connect([control,v(control.x,-1.25,1.9),rr],0x2563eb,'base');
-              connect([rl,right],0x2563eb,'base');
-              connect([left,v(-3.72,-1.15,1.9),batteryNeg],0x2563eb,'base');
+              connect([control,v(control.x,-1.25,1.9),rr],0x52525b,'base');
+              connect([rl,right],0x52525b,'base');
+              connect([left,v(-3.72,-1.15,1.9),batteryNeg],0x52525b,'base');
             }else{
-              connect([swOut,v(-2.28,.55,1.9),left],0x2563eb,mos?'gate':'base');
-              connect([right,rl],0x2563eb,mos?'gate':'base');
-              connect([rr,v(control.x,-.92,1.9),control],0x2563eb,mos?'gate':'base');
+              connect([swOut,v(-2.28,.55,1.9),left],0x52525b,mos?'gate':'base');
+              connect([right,rl],0x52525b,mos?'gate':'base');
+              connect([rr,v(control.x,-.92,1.9),control],0x52525b,mos?'gate':'base');
             }
             if(mos){
               const pull=buildCircuitResistor({scale:.19,b1:1,b2:0,b3:4,label:'100 kΩ gate pull-down',desc:'Discharges the gate when the control switch opens so it does not float.'});
               pull.root.position.set(2.1,-1.16,2.25);activeGroup.add(pull.root);
               const a=v(2.1-3.85*.19,-1.16,2.25),b=v(2.1+3.85*.19,-1.16,2.25);
-              connect([control,v(control.x,-1.42,2.25),a],0x2563eb,'gate');
-              connect([b,v(2.83,-1.55,2.25),v(-3.72,-1.55,2.25),batteryNeg],0x3f3f46,'gate');
+              connect([control,v(control.x,-1.42,2.25),a],0x52525b,'gate');
+              connect([b,v(2.83,-1.55,2.25),v(-3.72,-1.55,2.25),batteryNeg],0xa1a1aa,'gate');
               addLabelAnchor('100 kΩ pull-down',v(2.1,-1.4,2.5),'muted');
             }
             addLabelAnchor(mos?'10 kΩ gate resistor':'10 kΩ base resistor',v(.15,-1.35,2.15),'muted');
           }else{
-            addLabelAnchor('light only · no base wire',v(-1.75,-.5,1.9),'blue');
+            addLabelAnchor('light only · no base wire',v(-1.75,-.5,1.9),'dark');
           }
           addLabelAnchor(state.tr.supply+' V battery',v(-4,1.24,0),'red');
           addLabelAnchor('main power · click',v(-2.7,1.62,-1.65),'dark');
           addLabelAnchor(state.tr.loadOhms+' Ω load',v(-.65,1.48,-1.65),'muted');
           addLabelAnchor('load LED',v(2.85,1.6,-1.65),'red','lbl-load');
           addLabelAnchor(type.toUpperCase()+' transistor',v(1.85,1.25,.3),'dark');
-          addLabelAnchor(photo?'light switch · click':'control switch · click',v(-1.75,-1.45,2.35),'blue');
+          addLabelAnchor(photo?'light switch · click':'control switch · click',v(-1.75,-1.45,2.35),'dark');
           animatedActors={kind:'tr-switch',trModel,baseSw,powerSw,led,mainFlows,baseFlows,controlWires};
         } else if (proj === 'dark') {
           setCameraPreset(0.36, 0.94, 13.2, -0.25, 0.0, 0);
@@ -2032,25 +2030,25 @@
           const v=(x,y,z)=>new THREE.Vector3(x,y,z);
           const mainFlows=[],senseFlows=[],dividerFlows=[],ldrFlows=[];
           function link(pts,hex,kind){
-            const w=createWire(pts,hex,.045,{name:kind!=='main'?'Light sensor divider':'Streetlight current path',desc:kind!=='main'?'The divider supplies a base signal that changes with light.':'Current powers the LED when the transistor conducts.',tip:'Compare daylight and collector current.',color:kind==='sense'?'#2563eb':'#e04836',tag:'CIRCUIT CONNECTION'});
-            activeGroup.add(w.mesh);(kind==='sense'?senseFlows:kind==='divider'?dividerFlows:kind==='ldr'?ldrFlows:mainFlows).push(wireFlow(w,kind!=='main'?0x77b7ff:0xffb55c));
+            const w=createWire(pts,hex,.045,{name:kind!=='main'?'Light sensor divider':'Streetlight current path',desc:kind!=='main'?'The divider supplies a base signal that changes with light.':'Current powers the LED when the transistor conducts.',tip:'Compare daylight and collector current.',color:kind!=='main'?'#0a0a0a':'#e5533d',tag:'CIRCUIT CONNECTION'});
+            activeGroup.add(w.mesh);(kind==='sense'?senseFlows:kind==='divider'?dividerFlows:kind==='ldr'?ldrFlows:mainFlows).push(wireFlow(w,kind!=='main'?0x0a0a0a:0xe5533d));
           }
           const plus=v(-4.28,.92,.2),minus=v(-3.72,.9,.2);
           const c=v(1.15-.58*.68,-.15-1.55*.68,.2),b=v(1.15,-.15-1.55*.68,.2),e=v(1.15+.58*.68,-.15-1.55*.68,.2);
           const junction=v(-1.12,-1.14,1.55);
           const lampA=v(2.618,2.34,-.9),lampK=v(2.422,2.26,-.9);
-          link([plus,v(-4.28,.95,-1.55),v(.2335,.95,-1.55)],0xe04836,'main');
-          link([v(2.4665,.95,-1.55),v(3.55,.95,-1.55),v(3.55,1.75,-.9),lampA],0xe04836,'main');
-          link([lampK,v(3.38,1.5,-.9),v(3.38,-1.35,-.9),v(c.x,-1.35,.2),c],0xe04836,'main');
-          link([e,v(e.x,-1.58,.2),v(-3.72,-1.58,.2),minus],0x3f3f46,'main');
-          link([plus,v(-4.28,1.2,-1.55),v(-2.686,.95,-1.55)],0x2563eb,'divider');
-          link([v(.086,.95,-1.55),v(-1.12,.5,.1),junction],0x2563eb,'divider');
-          link([junction,b],0x2563eb,'sense');
+          link([plus,v(-4.28,.95,-1.55),v(.2335,.95,-1.55)],0xe5533d,'main');
+          link([v(2.4665,.95,-1.55),v(3.55,.95,-1.55),v(3.55,1.75,-.9),lampA],0xe5533d,'main');
+          link([lampK,v(3.38,1.5,-.9),v(3.38,-1.35,-.9),v(c.x,-1.35,.2),c],0xe5533d,'main');
+          link([e,v(e.x,-1.58,.2),v(-3.72,-1.58,.2),minus],0xa1a1aa,'main');
+          link([plus,v(-4.28,1.2,-1.55),v(-2.686,.95,-1.55)],0x52525b,'divider');
+          link([v(.086,.95,-1.55),v(-1.12,.5,.1),junction],0x52525b,'divider');
+          link([junction,b],0x52525b,'sense');
           // Separate LDR return; keep wire endpoints physically distinct.
-          link([v(-1.48,-1.14,1.55),v(-1.48,-1.62,1.55),v(-3.72,-1.62,.2),minus],0x3f3f46,'ldr');
+          link([v(-1.48,-1.14,1.55),v(-1.48,-1.62,1.55),v(-3.72,-1.62,.2),minus],0xa1a1aa,'ldr');
 
           addLabelAnchor('daylight', new THREE.Vector3(-1.3, 2.9, 1.55), 'red', 'lbl-sun');
-          addLabelAnchor('ldr sensor', new THREE.Vector3(-1.3, -1.05, 2.05), 'blue');
+          addLabelAnchor('ldr sensor', new THREE.Vector3(-1.3, -1.05, 2.05), 'dark');
           addLabelAnchor('transistor switch', new THREE.Vector3(1.15, 1.25, 0.3), 'dark');
           addLabelAnchor('streetlight', new THREE.Vector3(2.6, 2.25, -0.9), 'red', 'lbl-lamp');
           addLabelAnchor('9V battery', new THREE.Vector3(-4.0, 1.25, 0.2), 'muted');
@@ -2075,7 +2073,7 @@
           micGroup.position.set(-3.7, -0.1, 0.8);
           const micHead = new THREE.Mesh(
             new THREE.SphereGeometry(0.42, 18, 18),
-            new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.4, metalness: 0.3 })
+            new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.4, metalness: 0.3 })
           );
           micHead.position.y = 0.55;
           const micStem = new THREE.Mesh(
@@ -2088,8 +2086,8 @@
           const micInfo = {
             name: 'Microphone (Tiny AC Input Signal)',
             desc: "Your voice creates a super-tiny electrical wiggle (only a few millivolts). Too weak to drive a speaker by itself, so we feed it into the transistor's Base!",
-            tip: 'Watch the small blue wave enter the Base on the left and leave as a huge red wave on the right!',
-            color: '#2563eb',
+            tip: 'Watch the small black wave enter the Base on the left and leave as a huge coral-red wave on the right!',
+            color: '#0a0a0a',
             tag: 'SMALL SIGNAL IN'
           };
           registerClickable(micHead, micInfo);
@@ -2107,23 +2105,23 @@
           const inWaveGeo = new THREE.BufferGeometry();
           const inWavePos = new Float32Array(45 * 3);
           inWaveGeo.setAttribute('position', new THREE.BufferAttribute(inWavePos, 3));
-          const inWaveLine = new THREE.Line(inWaveGeo, new THREE.LineBasicMaterial({ color: 0x2563eb, linewidth: 2 }));
+          const inWaveLine = new THREE.Line(inWaveGeo, new THREE.LineBasicMaterial({ color: 0x0a0a0a, linewidth: 2 }));
           activeGroup.add(inWaveLine);
 
           const outWaveGeo = new THREE.BufferGeometry();
           const outWavePos = new Float32Array(55 * 3);
           outWaveGeo.setAttribute('position', new THREE.BufferAttribute(outWavePos, 3));
-          const outWaveLine = new THREE.Line(outWaveGeo, new THREE.LineBasicMaterial({ color: 0xe04836, linewidth: 2 }));
+          const outWaveLine = new THREE.Line(outWaveGeo, new THREE.LineBasicMaterial({ color: 0xe5533d, linewidth: 2 }));
           activeGroup.add(outWaveLine);
 
           const gnd = createWire([
             new THREE.Vector3(-3.7, -0.95, 0.8),
             new THREE.Vector3(-0.2, -1.45, 0.2),
             new THREE.Vector3(3.55, -0.95, 0.2)
-          ], 0x3f3f46, 0.036);
+          ], 0xa1a1aa, 0.036);
           activeGroup.add(gnd.mesh);
 
-          addLabelAnchor('tiny voice wave (in)', new THREE.Vector3(-3.6, 1.35, 0.8), 'blue');
+          addLabelAnchor('tiny voice wave (in)', new THREE.Vector3(-3.6, 1.35, 0.8), 'dark');
           addLabelAnchor(type.toUpperCase() + ' amplifier', new THREE.Vector3(-0.2, 2.05, 0.0), 'dark');
           addLabelAnchor('amplified wave (out)', new THREE.Vector3(1.85, 1.35, 0.1), 'red');
           addLabelAnchor('speaker', new THREE.Vector3(3.55, 1.2, 0.2), 'red');
@@ -2269,7 +2267,7 @@
           setLamp(led,collectorMa);
           mainFlows.forEach(f=>animateFlow(f,collectorMa,dt));
           baseFlows.forEach(f=>animateFlow(f,baseUa/1000,dt));
-          controlWires.forEach(w=>{w.material.emissive.setHex(0x2563eb);w.material.emissiveIntensity=gateV>0&&w.material.color.getHex()!==0x3f3f46?.5:0;});
+          controlWires.forEach(w=>{w.material.emissive.setHex(0xe5533d);w.material.emissiveIntensity=gateV>0&&w.material.color.getHex()!==0xa1a1aa?.35:0;});
           const label=labelAnchors.find(l=>l.id==='lbl-load');
           if(label)label.el.textContent='LED · '+collectorMa.toFixed(1)+' mA';
         } else if (animatedActors.kind === 'tr-dark') {
@@ -2324,6 +2322,7 @@
       function renderTelemetryAndScope() {
         const titleEl = document.getElementById('telemetry-title');
         const readoutEl = document.getElementById('telemetry-readout');
+        const unitEl = document.getElementById('telemetry-unit');
         const rowsEl = document.getElementById('telemetry-rows');
 
         const type = state.tr.type;
@@ -2333,15 +2332,19 @@
         const on = state.metrics.transistorOn;
         const cMa = state.metrics.collectorCurrentMa;
         if (proj === 'amp') {
-          readoutEl.textContent = state.tr.powerOn ? 'AMPLIFIED SIGNAL' : 'OFF · 0 mA';
+          readoutEl.textContent = state.tr.powerOn ? (cMa.toFixed(1) + ' mA') : '0.0 mA';
+          unitEl.textContent = state.tr.powerOn ? 'AC AMPLIFIED · LIVE' : 'OFF · STANDBY';
+          unitEl.style.color = state.tr.powerOn ? 'var(--red)' : 'var(--faint)';
         } else {
-          readoutEl.textContent = (on ? 'ON · ' : 'OFF · ') + cMa.toFixed(1) + ' mA';
+          readoutEl.textContent = cMa.toFixed(1) + ' mA';
+          unitEl.textContent = on ? 'ON · CONDUCTING' : 'OFF · BLOCKED';
+          unitEl.style.color = on ? 'var(--red)' : 'var(--faint)';
         }
 
         const typeLabel = { npn: 'NPN BJT (BC547)', pnp: 'PNP BJT (BC557)', mosfet: 'N-MOSFET (IRF540)', photo: 'Phototransistor' }[type];
         const ctrlKey = type === 'mosfet' ? 'gate Vgs' : type === 'photo' ? 'light input' : 'base Ib';
         const ctrlVal = type === 'mosfet'
-          ? state.metrics.gateVoltage.toFixed(1) + ' V (≈0 µA steady)'
+          ? state.metrics.gateVoltage.toFixed(1) + ' V (≈0 µA)'
           : type === 'photo'
           ? Math.round((proj === 'switch' ? (state.tr.baseOn ? 100 : 0) : state.tr.baseDrive * 100)) + '% light'
           : state.metrics.baseCurrentUa.toFixed(0) + ' µA';
@@ -2352,41 +2355,41 @@
 
         rowsEl.innerHTML = `
           <div class="telemetry-row"><span class="k">type</span><span class="v">${typeLabel}</span></div>
-          <div class="telemetry-row"><span class="k">${ctrlKey}</span><span class="v" style="color:var(--blue)">${ctrlVal}</span></div>
+          <div class="telemetry-row"><span class="k">${ctrlKey}</span><span class="v">${ctrlVal}</span></div>
           ${extraRow}
-          <div class="telemetry-row"><span class="k">conducting</span><span class="v" style="color:${on ? 'var(--red)' : 'var(--faint)'}">${on ? 'YES · CURRENT FLOWS' : 'NO · BLOCKED'}</span></div>
+          <div class="telemetry-row"><span class="k">conducting</span><span class="v" style="color:${on ? 'var(--red)' : 'var(--faint)'}">${on ? 'YES · FLOWING' : 'NO · BLOCKED'}</span></div>
         `;
 
         const w = scopeCanvas.parentElement.clientWidth;
         const h = scopeCanvas.parentElement.clientHeight;
         scopeCtx.clearRect(0, 0, w, h);
 
-        scopeCtx.strokeStyle = '#eceef2';
+        scopeCtx.strokeStyle = 'rgba(10, 10, 10, 0.14)';
         scopeCtx.lineWidth = 1;
         scopeCtx.beginPath();
         scopeCtx.moveTo(0, h * 0.5);
         scopeCtx.lineTo(w, h * 0.5);
         scopeCtx.stroke();
 
-        // Blue Trace: Base/Gate Input
-        scopeCtx.strokeStyle = '#2563eb';
-        scopeCtx.lineWidth = 1.25;
+        // Neutral Ink Trace: Base/Gate Input
+        scopeCtx.strokeStyle = 'rgba(10, 10, 10, 0.45)';
+        scopeCtx.lineWidth = 1.2;
         scopeCtx.beginPath();
         for (let i = 0; i < state.scopeB.length; i++) {
           const x = (i / (state.scopeB.length - 1)) * w;
-          const y = h - 8 - state.scopeB[i] * (h - 16);
+          const y = h - 6 - state.scopeB[i] * (h - 12);
           if (i === 0) scopeCtx.moveTo(x, y);
           else scopeCtx.lineTo(x, y);
         }
         scopeCtx.stroke();
 
-        // Red Trace: Collector / Amplified Output
-        scopeCtx.strokeStyle = '#e04836';
+        // Coral Trace: Collector / Amplified Output
+        scopeCtx.strokeStyle = '#e5533d';
         scopeCtx.lineWidth = 1.6;
         scopeCtx.beginPath();
         for (let i = 0; i < state.scopeA.length; i++) {
           const x = (i / (state.scopeA.length - 1)) * w;
-          const y = h - 8 - state.scopeA[i] * (h - 16);
+          const y = h - 6 - state.scopeA[i] * (h - 12);
           if (i === 0) scopeCtx.moveTo(x, y);
           else scopeCtx.lineTo(x, y);
         }
@@ -2408,8 +2411,8 @@
           } else {
             const x = (projVec.x * 0.5 + 0.5) * w;
             const y = (-projVec.y * 0.5 + 0.5) * h;
-            const overlapLeft = (w > 850 && x < 355 && y > 50 && y < h - 105);
-            const overlapRight = (w > 850 && x > w - 275 && y > 55 && y < 325);
+            const overlapLeft = (w > 850 && x < 450 && y > 60 && y < h - 135);
+            const overlapRight = (w > 850 && x > w - 275 && y > 65 && y < 325);
             item.el.style.opacity = (overlapLeft || overlapRight) ? '0.18' : '0.96';
             item.el.style.left = x.toFixed(1) + 'px';
             item.el.style.top = y.toFixed(1) + 'px';
@@ -2426,11 +2429,9 @@
         row.innerHTML = '';
 
         legend.innerHTML = `
-          <span class="legend-item"><span class="legend-swatch" style="background:#ffb55c"></span>main current →</span>
-          <span class="legend-item">&middot;</span>
-          <span class="legend-item"><span class="legend-swatch" style="background:#77b7ff"></span>base current / gate voltage</span>
-          <span class="legend-item">&middot;</span>
-          <span class="legend-item"><span class="legend-swatch" style="background:#3f3f46"></span>ground (−)</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#e5533d"></span>main current →</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#0a0a0a"></span>base / gate control</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:rgba(10,10,10,0.30)"></span>ground (−)</span>
         `;
 
         const btnPwr = document.createElement('button');
@@ -2444,7 +2445,7 @@
 
         if (state.tr.project === 'switch') {
           const btnSw = document.createElement('button');
-          btnSw.className = 'sci-btn' + (state.tr.baseOn ? ' active-blue' : '');
+          btnSw.className = 'sci-btn' + (state.tr.baseOn ? ' active' : '');
           btnSw.textContent = state.tr.baseOn ? 'base switch: ON' : 'base switch: OFF';
           btnSw.onclick = () => {
             state.tr.baseOn = !state.tr.baseOn;
@@ -2463,7 +2464,7 @@
         } else if (state.tr.project === 'inside') {
           for(const mode of ['outer','cutaway','xray','exploded']){
             const b=document.createElement('button');
-            b.className='sci-btn'+(state.tr.view===mode?' active-blue':'');
+            b.className='sci-btn'+(state.tr.view===mode?' active':'');
             b.textContent=mode==='xray'?'X-ray':mode==='exploded'?'exploded':mode;
             b.setAttribute('aria-pressed',String(state.tr.view===mode));
             b.onclick=()=>{state.tr.view=mode;buildTransistorScene();renderControls();};
@@ -2540,7 +2541,7 @@
         ];
         types.forEach((t) => {
           const b = document.createElement('button');
-          b.className = 'sci-btn' + (state.tr.type === t.id ? ' active-blue' : '');
+          b.className = 'sci-btn' + (state.tr.type === t.id ? ' active' : '');
           b.textContent = t.label;
           b.onclick = () => {
             state.tr.type = t.id;
@@ -2576,9 +2577,7 @@
         action('rotate →',()=>{orbit.targetTheta-=.35;});
         action('zoom +',()=>{orbit.targetRadius=Math.max(5.2,orbit.targetRadius-Math.max(1.2,orbit.targetRadius*.1));});
         action('zoom −',()=>{orbit.targetRadius=Math.min(70,orbit.targetRadius+Math.max(1.2,orbit.targetRadius*.1));});
-        const note=document.getElementById('motion-note');
-        note.textContent=state.tr.project==='switch'?'Model: 2 V LED, 0.2 V switch drop, β ≈ 100; gate and light response illustrative (not SPICE).':state.tr.project==='dark'?'NPN example · 9 V, 10 kΩ divider, 470 Ω load · simplified base loading.':state.tr.project==='amp'?'NPN signal illustration; not a complete audio amplifier circuit.':'Enlarged schematic cutaway · not to scale. Arrows show conventional current, not electron speed.';
-        legend.title=note.textContent;
+        legend.title=state.tr.project==='switch'?'Model: 2 V LED, 0.2 V switch drop, β ≈ 100; gate and light response illustrative (not SPICE).':state.tr.project==='dark'?'NPN example · 9 V, 10 kΩ divider, 470 Ω load · simplified base loading.':state.tr.project==='amp'?'NPN signal illustration; not a complete audio amplifier circuit.':'Enlarged schematic cutaway · not to scale. Arrows show conventional current, not electron speed.';
         frameScene(false);
       }
 
@@ -2744,7 +2743,7 @@
 
       const dotCursor = document.getElementById('tiny-dot-cursor');
       if (dotCursor && window.matchMedia('(pointer: fine)').matches) {
-        const hoverSel = 'a, button, input, select, canvas, [role="button"], .scene-label';
+        const hoverSel = 'a, button, input, select, label, canvas, [role="button"], .scene-label';
         window.addEventListener('pointermove', (e) => {
           dotCursor.style.opacity = '1';
           dotCursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
