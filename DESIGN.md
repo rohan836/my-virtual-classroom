@@ -1,39 +1,42 @@
 ---
-version: alpha
+version: field-studies-2.0
 name: My Virtual Classroom
-description: White Swiss-editorial scientific classroom lessons with projector-scale explanations and meaningful interactive motion.
+description: White Swiss-editorial field-studies design system inspired by field-studies.ai.studio (IBM Plex Sans + IBM Plex Mono, #0a0a0a ink, #e5533d coral accent, #2b56d6 cobalt, #tiny-dot-cursor) with unified interactive lessons and separate 19-study portals for Electronics & AI.
 colors:
-  primary: "#2563eb"
-  secondary: "#e04836"
+  accent: "#e5533d"
+  selection: "#F84431"
+  cobalt: "#2b56d6"
   background: "#ffffff"
-  surface: "#fafafa"
-  ink: "#111111"
-  muted: "#626262"
-  border: "#e5e5e5"
-  blue-soft: "#f0f5ff"
+  surface: "#fbfbf9"
+  ink: "#0a0a0a"
+  muted: "rgba(10, 10, 10, 0.58)"
+  border: "rgba(10, 10, 10, 0.14)"
+  accent-soft: "rgba(229, 83, 61, 0.08)"
+  cobalt-soft: "rgba(43, 86, 214, 0.06)"
   success: "#13733b"
   error: "#b33225"
 typography:
   heading:
-    fontFamily: "system-ui, Arial, sans-serif"
+    fontFamily: '"IBM Plex Sans", system-ui, sans-serif'
     fontSize: 48px
-    fontWeight: 550
+    fontWeight: 300
     lineHeight: 1.06
-    letterSpacing: "-0.045em"
+    letterSpacing: "-0.035em"
   body:
-    fontFamily: "system-ui, Arial, sans-serif"
-    fontSize: 22px
-    lineHeight: 1.45
+    fontFamily: '"IBM Plex Sans", system-ui, sans-serif'
+    fontSize: 21px
+    lineHeight: 1.5
   metadata:
-    fontFamily: "ui-monospace, monospace"
-    fontSize: 13px
+    fontFamily: '"IBM Plex Mono", ui-monospace, monospace'
+    fontSize: 11.5px
 spacing:
+  headerHeight: 41px
   panel: 20px
   gap: 18px
   grid: 32px
 rounded:
   panel: 0px
-  button: 0px
+  button: 2px
 motion:
   reveal:
     duration: 420ms
@@ -42,55 +45,33 @@ motion:
     duration: 250ms
     timingFunction: ease
 ---
-# DESIGN.md — Universal classroom visual system
+# DESIGN.md — Universal classroom visual system (`field-studies.ai.studio` edition)
 
 ## Overview
-The approved visual reference is the 45-minute version of `@testing/artificial-intelligence/what-is-ai.html` (commit 455e9c127c84085f4db2ec42e6ad9c44701c7615). Its white editorial shell, progressive explanations, clear animated illustrations and simple controls define the experience for all new and revised lessons. Do not copy its fruit theme to unrelated topics. Teach using topic-specific diagrams, simulations and examples. Existing homepage/portal identity and routes remain intact.
+All portals and labs share the crisp white Swiss-editorial `field-studies.ai.studio` aesthetic:
+- **Catalog & Separate Subject Websites:** Both Electronics & Robotics (`/electronics/`) and Artificial Intelligence (`/artificial-intelligence/`) are presented as separate websites sharing the exact same hairline visual architecture (`41px` sticky top bar, `2fr / 1fr` editorial hero, flush 3-column index grid numbered `1..19` with `fig. 01`..`fig. 19`). Never collapse both subjects into one mixed list or apply older green/dark UI chrome.
+- **Unified AI Lesson + Explainer Reference:** `testing/artificial-intelligence/what-is-ai.html` is the single unified `[1] /what-is-ai` entry combining the progressive 10-chapter lesson, 5 named stories & 5 Think Together questions per chapter, interactive fruit recognizer experiment, Word Explorer (`#gloss`), and the built-in narrated film explainer modal (`#filmDialog` opened via `▶ Explainer film`). Do not create duplicate `-video-explainer` sibling pages that split the same topic.
+- **Interactive 3D Electronics Reference:** `testing/electronics/resistor.html` and `testing/electronics/transistor.html` use a zero-scroll split studio (`340px` left explanation column + full-height right 3D Canvas simulator with top-right telemetry card, bottom-left part inspector, and bottom action dock) styled with the exact `field-studies` tokens.
 
-## Colors
-White canvas, near-black ink, subtle gray borders and grid. Signal blue indicates primary actions, selected steps, information and learning flow. Red indicates important contrast, errors or a physical signal when explicitly labelled. Green indicates success or safe state where useful. The primary button is white text on blue. Diagram objects may use realistic semantic colors (fruit, wire, resistor bands, robot parts); the UI itself stays restrained. Always pair color cues with labels, line styles, or symbols.
+## Colors & Cursor
+- Pure `#ffffff` background, `#0a0a0a` crisp black ink, subtle hairline borders (`rgba(10, 10, 10, 0.14)`), and delicate graph grid lines (`rgba(10, 10, 10, 0.035)`).
+- `#e5533d` coral red is the primary interactive accent (active tabs, primary buttons, coral active borders, text highlight terms, `::selection` `#F84431` with `#fff` text).
+- `#2b56d6` cobalt blue highlights technical measurements, current/signal cues, and formula readouts.
+- Diagram internals may use realistic semantic colors (resistor bands, silicon layers, mango/apple pigments, LEDs); all surrounding UI chrome stays Swiss-editorial white with hairline rules.
+- **Custom Cursor (`#tiny-dot-cursor`):** On fine-pointer desktop devices, hide the default cursor and render the 5px `#0a0a0a` dot cursor (`#tiny-dot-cursor`) that expands to 7px `#e5533d` with a subtle coral ring over links, buttons, inputs, selects, `<summary>`, and `<canvas>`. When a native modal (`<dialog open>`) is open in the browser top layer, restore native `cursor: auto` / `pointer` inside dialogs so buttons remain unmistakably clickable.
 
 ## Typography
-Use the approved lesson's system sans-serif stack and monospace only for metadata, step labels, small control text or actual code. Optional serif italics for editorial emphasis; not a required title pattern. No runtime font download required. Projector headings scale from 32–57px, subheadings 23–32px, teaching text 19–25px (aim 21–24px), example and feedback text 18–22px. Metadata may be 13–15px; never hide essential explanation in tiny technical labels. Body line height around 1.45. Use sentence case and plain English; see PEDAGOGY.md.
+Use **IBM Plex Sans** (light `300` for display headings, `400`/`500` for body copy) and **IBM Plex Mono** for top navigation (`11.5px`), index numbers (`fig. 01`), metadata, step buttons, controls, and formulas—always including `system-ui, sans-serif` and `ui-monospace, monospace` fallbacks for offline resilience. Favicon uses `<link rel="icon" href="data:image/svg+xml,...🍎...">` to match the `field-studies` identity.
 
-## Layout
-Use the reference lesson shell as the default for AI, Python, electronics and robotics.
-- Viewport: CSS grid with header, scrollable main area and footer; use 100dvh with 100vh fallback. Header and footer remain reachable. At small widths allow wrapping and vertical scrolling, never clip material.
-- Header: subject breadcrumb, lesson/day and total duration, jump-to-slide select, Word bank and Full screen.
-- Main: subtle 32px architectural grid, 16–48px padding adjusted to viewport. Figure number and duration, large title, step selectors with question IDs and selected state.
-- Desktop: two white hairline panels with roughly 38/62 split and 18px gap. Left is visible explanation, example callout and replay/previous-step/next-explanation controls. Right is large illustration or interactive experiment with caption and feedback. Below is a short Think together prompt and revealable explanation.
-- At 1280×720 reduce padding and graphic height before shrinking teaching text. At 1920×1080 use generous white space. At roughly 780px or less stack panels in logical reading order; allow scroll. Do not force a sidebar, chart or telemetry card when it reduces clarity.
-- Footer: previous slide, current slide and planned cumulative time, next slide. Keep controls accessible. Final notebook slide replaces the two-panel view with a centered copy-friendly page.
-- Front page and subject portals retain the existing hairline top bar, two-subject navigation, editorial split hero, flush lab grids and catalog metadata. No source-folder names or developer notices in the published interface.
+## Layout & Modes
+1. **Conceptual / AI Lesson Shell (`what-is-ai.html`):** Viewport grid (`header`, scrollable `main`, `footer`), `41px` sticky header with subject link (`/ ai studies`), metadata, jump-to-slide `<select>`, `▶ Explainer film` button (when a film companion is included), `Word bank`, and `Full screen`; two-panel progressive stage (`~38/62` split) followed by the chapter's 5 real-world stories and 5 revealable Think Together questions, and finishing with a clean one-page Notebook summary.
+2. **Hardware / 3D Circuit Lab Shell (`resistor.html`, `transistor.html`):** Full-viewport workspace (`100dvh`, `overflow: hidden` on desktop) with a `41px` top nav bar, left scrollable editorial explanation sidebar (`340px`) covering law/try/notice/life/history + lab notes, and right-side interactive 3D simulator (`three.js` / fallback Canvas) with floating hairline HUD cards and real-time bottom controls so students never have to scroll away from the live circuit.
 
-## Elevation & Depth
-Flat white panels, 1px borders, no heavy shadows. Dialogs may use a neutral translucent backdrop. Meaningful 3D diagrams are welcome when they teach physical structure better; they are not a universal requirement.
-
-## Shapes
-Square panels and controls, minimal radius only for specific illustrated objects. No decorative bubble cards, gradients, neon effects or unrelated gamification.
-
-## Motion & Micro-interaction
-Animate the mechanism: show a signal traveling, a value changing, a circuit responding, a comparison being made, a program executing, or an actuator moving. Use staged before/during/after states and captions explaining what changed. Enter transitions around 250–650ms; longer instructional motion when useful. Replay reruns the current animation without losing experiment state. Continuous movement must support pause where needed; reduced-motion mode must preserve every explanatory state. No automatic slide advance; classroom pace is controlled by the presenter. Avoid flashes, decorative particles and perpetual distractions. Use meaningful interaction feedback and disabled states.
-
-## Voice & Content Strategy
-The visible explanation is primary, not hidden behind a quiz. Each teaching step includes one short answer, concrete example, corresponding visual and optional revealable reasoning. Use progressive steps for detailed content instead of walls of text. Vocabulary popups, discussion answers, experiments and notes must be self-contained and student-facing. PEDAGOGY.md owns the complete content requirements.
-
-## Components
-- Primary control: blue background and white text; secondary control: white with gray 1px border. Clear focus ring, touch-friendly targets, disabled feedback.
-- Step navigation: numbered question IDs, selected state, back/next and replay; use arrow keys for slides and Space for next explanation when focus is outside interactive inputs. Use native keyboard behavior when a control has focus.
-- Word explorer: blue dotted-underlined terms; accessible dialog with word, short meaning, concrete example and illustrated scene/part. All words opens the global word bank. Close/Escape restores prior lesson context.
-- Visual stage: scalable SVG, Canvas or a labelled 3D model. Meaningful clickable parts should update explanatory feedback. Label axes, units and visual states. Never present fabricated readings.
-- Example callout: pale blue with a blue left border; feedback: clear text and color with correct/incorrect reason.
-- Experiment: clear starting state, controls, result and reset/replay. Show current state and genuine calculations or logic, with assumptions. Add telemetry, x-ray/cutaway, code panels or sliders only when the concept warrants them.
-- Notebook: white centered panel with short numbered definitions, optional comparison table or labelled sketch, one example and takeaway. Large enough to copy from a projector.
+## Elevation, Shapes & Motion
+- Flat `#ffffff` surfaces, `1px solid rgba(10, 10, 10, 0.14)` hairline borders, sharp corners (`0px` on panels, `2px` max on mono buttons), zero heavy shadows, neon glows, or green scientific-journal sidebars.
+- Animate the mechanism directly: carrier flow particles, color-band changes, seekable SVG layers, or narrated canvas scenes. Respect `prefers-reduced-motion` while keeping every explanatory state legible.
 
 ## Do's and Don'ts
-- Do reproduce the approved interaction pattern and overall appearance; adapt visual subject matter, step count and experiment.
-- Do use inline graphics and system fonts. Do not depend on external assets for teaching.
-- Do test projector and mobile sizes, focus, keyboard, touch, reduced motion, all controls and actual experiment logic.
-- Do not use dark mode, dense technical dashboards, mandatory charts, unrelated 3D, long text walls, decorative-only animation, or question-only pages.
-- Do not change the homepage, subject catalogs or existing lessons merely to enforce the new design without a specific request.
-- Follow the skill and PEDAGOGY.md for content and verification. The YAML tokens are a structured local design reference inspired by the DESIGN.md format; formal third-party lint validation is not assumed.
-
-## Animated film edition
-For short motion-graphics films, use VIDEO-EXPLAINER.md and the video-explainer skill. The local classroom-style.json aligns the upstream rendering theme with this white scientific design. Film composition is continuous and full-frame (one hero visual, short labels, caption-safe region), not the interactive two-panel lesson shell. Keep readable captions, meaningful scene/word-timed motion and projector-safe contrast. The full classroom page still follows the lesson shell; both formats are complementary.
+- **Do** keep Electronics and Artificial Intelligence visually identical in Swiss-editorial craft while separating their subject websites (`/electronics/` and `/artificial-intelligence/`), each presenting a 19-study catalog (`[1]`–`[19]`).
+- **Do** integrate short video explainers cleanly inside the main lesson page (`#filmDialog` + `▶ Explainer film` button) rather than spawning duplicate lesson cards.
+- **Do not** revert to the old `#102a24` green theme, heavy dark backgrounds, `rgba` green cards, or unstyled plain-blue default buttons.

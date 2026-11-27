@@ -1,17 +1,19 @@
 # AGENTS.md — My Virtual Classroom
 
 ## Mission
-Create complete, projector-ready, animated interactive lessons for Indian ATL students in Grades 5–9. A lesson is a guided explanation, not just a quiz, dashboard, PDF, or collection of apps. The approved benchmark is the 45-minute version of `testing/artificial-intelligence/what-is-ai.html` (commit `455e9c127c84085f4db2ec42e6ad9c44701c7615`). Match its teaching experience and design for every new concept, not its fruit example, subject matter, slide count or wording.
+Create complete, projector-ready, animated interactive lessons and 3D hardware studies for Indian ATL students in Grades 5–9, adhering strictly to the **white Swiss-editorial `field-studies.ai.studio` aesthetic** documented in `DESIGN.md` (`IBM Plex Sans` + `IBM Plex Mono`, `#ffffff` background, `#0a0a0a` ink, `#e5533d` coral accent, `#2b56d6` cobalt technical highlights, `rgba(10,10,10,0.14)` hairline borders, `41px` sticky header, `#tiny-dot-cursor`, and separate 19-study portals).
+- **Unified AI Lesson Reference:** `testing/artificial-intelligence/what-is-ai.html` (`[1] /what-is-ai` · `fig. 01`) is the approved unified AI reference combining the interactive 10-chapter lesson, 5 real-world stories & 5 Think Together questions per chapter, interactive fruit recognizer experiment, Word Explorer (`#gloss`), and the built-in narrated animated film explainer (`#filmDialog` opened via `▶ Explainer film`). Do NOT duplicate lessons into separate `-video-explainer` cards.
+- **3D Electronics Lab Reference:** `testing/electronics/resistor.html` and `testing/electronics/transistor.html` show the viewport-locked `field-studies` split studio (`340px` left explanation column + live right 3D simulator with floating telemetry HUD & bottom dock).
 
 ## Read before making changes
 - `PEDAGOGY.md`: authoritative teaching method, scope, vocabulary, timing and student content.
-- `DESIGN.md`: authoritative visual system, layout, animation and UI.
+- `DESIGN.md`: authoritative `field-studies.ai.studio` visual system, tokens (`#e5533d`, `#2b56d6`, `#tiny-dot-cursor`), layout, animation and UI.
 - `.agents/skills/create-virtual-lab/SKILL.md`: required workflow for creating, revising or expanding any lesson, lab or concept.
-- Read the current approved benchmark HTML before implementing a new lesson, and inspect an appropriate subject lab when needed. The pinned commit identifies the approved version if the current file has changed.
-- `README.md`: project overview and commands. Follow applicable nested agent instructions as well, and resolve conflicts explicitly rather than combining incompatible rules. Explicit user requirements control lesson topic, audience and duration.
+- Read the current `testing/artificial-intelligence/what-is-ai.html` (or `testing/electronics/resistor.html` for 3D electronics labs) before implementing a new study so typography, cursors, header bar, and palette match identically.
+- `README.md`: project overview and commands. Explicit user requirements control lesson topic, audience and duration.
 
 ## Repository boundaries
-- Two subject portals: Electronics & Robotics (`electronics`) and AI & Python (`artificial-intelligence`). Keep their source folders and published pages separate.
+- Two separate subject websites: Electronics & Robotics (`/electronics/`, `testing/electronics/`) and AI & Python (`/artificial-intelligence/`, `testing/artificial-intelligence/`). Keep their source folders and published portals completely separate while matching the identical `field-studies.ai.studio` visual architecture and 19-study catalog (`[1]`–`[19]`).
 - New lessons go in `testing/<subject>/<lowercase-hyphenated-slug>.html` unless publishing is explicitly requested. Existing lesson revisions keep their path and slug. The build also discovers `published/<subject>/`; published entries take precedence over duplicate testing slugs, so check for shadowing.
 - `index.html` is the front page template; `lib/catalog.mjs` discovers labs, extracts metadata and renders subject pages. `build.mjs` builds `dist/index.html`, `dist/electronics/` and `dist/artificial-intelligence/`; `server.js` serves `dist/` on port 3000.
 - Do not hand-edit generated dist, change deployment configuration, server.js or unrelated lessons without a task-specific reason and authorization. Preserve navigation and existing catalog metadata conventions.
