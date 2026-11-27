@@ -8,33 +8,48 @@
   <meta name="lab-formula" content="V = I × R" />
   <!-- fig. 01 · fig. 02 · fig. 03 · fig. 04 · fig. 05 · fig. 06 · fig. 07 · fig. 08 · fig. 09 -->
 
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍎</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
     /* =========================================================================
-       SWISS-EDITORIAL SCIENTIFIC DESIGN SYSTEM (/electronics studies — Resistor)
-       Matches transistor.html full-bleed white architectural 3D workbench.
+       FIELD-STUDIES INSPIRED SCIENTIFIC DESIGN SYSTEM (/electronics — Resistor)
        ========================================================================= */
     :root {
       --bg: #ffffff;
-      --ink: #111111;
-      --muted: #6e6e73;
-      --faint: #9a9aa0;
-      --border: #e5e5e5;
-      --border-strong: #d4d4d8;
-      --red: #e04836;
-      --red-soft: #fff6f5;
-      --blue: #2563eb;
-      --blue-soft: #f0f5ff;
+      --ink: #0a0a0a;
+      --muted: rgba(10, 10, 10, 0.58);
+      --faint: rgba(10, 10, 10, 0.42);
+      --border: rgba(10, 10, 10, 0.14);
+      --border-strong: rgba(10, 10, 10, 0.25);
+      --red: #e5533d;
+      --red-soft: rgba(229, 83, 61, 0.08);
+      --blue: #2b56d6;
+      --blue-soft: rgba(43, 86, 214, 0.08);
       --safe: #13733b;
       --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-      --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --serif: 'Newsreader', Georgia, serif;
+      --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      --serif: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
     }
+
+    ::selection { background: #F84431; color: #ffffff; text-shadow: none; }
+
+    @media (pointer: fine) {
+      html, body, a, button, input, select, canvas, [role="button"], * { cursor: none !important; }
+    }
+
+    #tiny-dot-cursor {
+      position: fixed; top: 0; left: 0; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+      border-radius: 50%; background-color: #0a0a0a; pointer-events: none; z-index: 2147483647;
+      opacity: 0; will-change: transform;
+      transition: background-color 0.15s ease, transform 0.08s ease, width 0.15s ease, height 0.15s ease, margin 0.15s ease, box-shadow 0.15s ease;
+    }
+    #tiny-dot-cursor.highlight { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background-color: #e5533d; box-shadow: 0 0 0 3px rgba(229, 83, 61, 0.2); }
+    #tiny-dot-cursor.active-click { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; background-color: #e5533d; box-shadow: 0 0 0 5px rgba(229, 83, 61, 0.35); }
 
     * {
       box-sizing: border-box;
@@ -155,18 +170,18 @@
     #hover-tooltip strong { display: block; color: #ffffff; margin-bottom: 2px; }
     #hover-tooltip span.tip-sub { display: block; color: #93c5fd; font-size: 9.5px; margin-top: 2px; }
 
-    /* Top Navigation Bar (44px high, hairline bottom border) */
+    /* Top Navigation Bar (41px high, matching field-studies.ai.studio) */
     #top-nav {
       position: fixed;
       top: 0; left: 0; right: 0;
-      height: 44px;
+      height: 41px;
       z-index: 30;
       background: rgba(255, 255, 255, 0.98);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11.5px;
+      font-size: 11px;
       padding: 0 18px;
     }
 
@@ -624,6 +639,7 @@
   </style>
 </head>
 <body>
+  <div id="tiny-dot-cursor" aria-hidden="true"></div>
 
   <!-- 1. TOP NAVIGATION BAR -->
   <header id="top-nav">
@@ -1705,6 +1721,20 @@
       renderLessonBody();
       rebuildAndSync();
       requestAnimationFrame(animate);
+
+      const dotCursor = document.getElementById('tiny-dot-cursor');
+      if (dotCursor && window.matchMedia('(pointer: fine)').matches) {
+        const hoverSel = 'a, button, input, select, canvas, [role="button"], .scene-label, .swatch';
+        window.addEventListener('pointermove', (e) => {
+          dotCursor.style.opacity = '1';
+          dotCursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+          const over = e.target && e.target.closest && e.target.closest(hoverSel);
+          dotCursor.classList.toggle('highlight', Boolean(over));
+        }, { passive: true });
+        window.addEventListener('pointerdown', () => dotCursor.classList.add('active-click'), { passive: true });
+        window.addEventListener('pointerup', () => dotCursor.classList.remove('active-click'), { passive: true });
+        document.addEventListener('mouseleave', () => { dotCursor.style.opacity = '0'; });
+      }
     })();
   </script>
 </body>
