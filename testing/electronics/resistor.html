@@ -11,45 +11,50 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍎</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
     /* =========================================================================
-       FIELD-STUDIES INSPIRED SCIENTIFIC DESIGN SYSTEM (/electronics — Resistor)
+       FIELD-STUDIES SCIENTIFIC DESIGN SYSTEM (/electronics — Resistor)
        ========================================================================= */
     :root {
       --bg: #ffffff;
       --ink: #0a0a0a;
-      --muted: rgba(10, 10, 10, 0.58);
-      --faint: rgba(10, 10, 10, 0.42);
+      --ink-62: rgba(10, 10, 10, 0.62);
+      --ink-60: rgba(10, 10, 10, 0.60);
+      --ink-55: rgba(10, 10, 10, 0.55);
+      --ink-50: rgba(10, 10, 10, 0.50);
+      --ink-45: rgba(10, 10, 10, 0.45);
+      --ink-42: rgba(10, 10, 10, 0.42);
+      --ink-36: rgba(10, 10, 10, 0.36);
       --border: rgba(10, 10, 10, 0.14);
       --border-strong: rgba(10, 10, 10, 0.25);
       --red: #e5533d;
-      --red-soft: rgba(229, 83, 61, 0.08);
-      --blue: #2b56d6;
-      --blue-soft: rgba(43, 86, 214, 0.08);
-      --safe: #13733b;
+      --red-soft: rgba(229, 83, 61, 0.10);
+      --red-tint: rgba(229, 83, 61, 0.06);
       --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
       --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-      --serif: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
     }
 
     ::selection { background: #F84431; color: #ffffff; text-shadow: none; }
+    ::-moz-selection { background: #F84431; color: #ffffff; text-shadow: none; }
 
     @media (pointer: fine) {
-      html, body, a, button, input, select, canvas, [role="button"], * { cursor: none !important; }
+      html, body, a, button, input, textarea, select, label, canvas, [role="button"], * { cursor: none !important; }
+      dialog[open], dialog[open] * { cursor: auto !important; }
+      dialog[open] a, dialog[open] button, dialog[open] input, dialog[open] select, dialog[open] label { cursor: pointer !important; }
     }
 
     #tiny-dot-cursor {
       position: fixed; top: 0; left: 0; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
       border-radius: 50%; background-color: #0a0a0a; pointer-events: none; z-index: 2147483647;
-      opacity: 0; will-change: transform;
+      opacity: 0; transform: translate3d(-100px, -100px, 0); will-change: transform;
       transition: background-color 0.15s ease, transform 0.08s ease, width 0.15s ease, height 0.15s ease, margin 0.15s ease, box-shadow 0.15s ease;
     }
-    #tiny-dot-cursor.highlight { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background-color: #e5533d; box-shadow: 0 0 0 3px rgba(229, 83, 61, 0.2); }
-    #tiny-dot-cursor.active-click { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; background-color: #e5533d; box-shadow: 0 0 0 5px rgba(229, 83, 61, 0.35); }
+    #tiny-dot-cursor.highlight { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background-color: #e5533d !important; box-shadow: 0 0 0 3px rgba(229, 83, 61, 0.2); }
+    #tiny-dot-cursor.active-click { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; background-color: #e5533d !important; box-shadow: 0 0 0 5px rgba(229, 83, 61, 0.35); }
 
     * {
       box-sizing: border-box;
@@ -69,7 +74,9 @@
       user-select: none;
     }
 
-    /* Full-bleed 3D canvas behind editorial overlays */
+    input[type="range"], input[type="checkbox"] { accent-color: var(--red); }
+
+    /* Full-bleed 3D canvas behind borderless editorial overlays */
     #viewport-wrap {
       position: fixed;
       inset: 0;
@@ -81,23 +88,18 @@
       display: block;
       width: 100%;
       height: 100%;
-      cursor: grab;
       touch-action: none;
     }
 
-    #three-canvas.dragging { cursor: grabbing; }
-    #three-canvas.hovering-part { cursor: pointer; }
-
     #schematic-wrap {
       position: fixed;
-      top: 52px;
-      left: 368px;
+      top: 64px;
+      left: 448px;
       right: 280px;
-      bottom: 84px;
+      bottom: 136px;
       z-index: 10;
-      background: rgba(255, 255, 255, 0.98);
+      background: #ffffff;
       border: 1px solid var(--border);
-      border-radius: 3px;
       display: none;
       align-items: center;
       justify-content: center;
@@ -123,297 +125,331 @@
       position: absolute;
       transform: translate(-50%, -50%);
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 10.5px;
       line-height: 1.25;
-      letter-spacing: -0.01em;
+      letter-spacing: 0.01em;
       white-space: nowrap;
       padding: 2px 6px;
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.94);
       border: 1px solid var(--border);
-      border-radius: 3px;
+      border-radius: 0;
       transition: opacity 0.15s ease, border-color 0.15s ease;
       pointer-events: auto;
       cursor: pointer;
     }
 
     .scene-label:hover { border-color: var(--ink); }
-    .scene-label.red { color: var(--red); }
-    .scene-label.blue { color: var(--blue); }
-    .scene-label.dark { color: #333333; }
-    .scene-label.muted { color: #707076; }
+    .scene-label.red { color: var(--red); border-color: rgba(229, 83, 61, 0.35); }
+    .scene-label.dark { color: var(--ink); }
+    .scene-label.muted { color: var(--ink-55); }
     .scene-label.alert {
       color: #ffffff;
       background: var(--red);
       border-color: var(--red);
-      font-weight: 600;
+      font-weight: 500;
       padding: 3px 7px;
     }
 
-    /* Hover Tooltip */
+    /* Hover Tooltip (clean Swiss-editorial hairline card, no dark box or blue text) */
     #hover-tooltip {
       position: fixed;
       z-index: 40;
       pointer-events: none;
       display: none;
       max-width: 230px;
-      background: rgba(17, 17, 17, 0.94);
-      color: #ffffff;
-      border: 1px solid #333338;
-      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--ink);
+      border: 1px solid var(--border-strong);
+      border-radius: 0;
       padding: 7px 10px;
       font-family: var(--mono);
       font-size: 10.5px;
-      line-height: 1.4;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+      line-height: 1.45;
     }
 
-    #hover-tooltip strong { display: block; color: #ffffff; margin-bottom: 2px; }
-    #hover-tooltip span.tip-sub { display: block; color: #93c5fd; font-size: 9.5px; margin-top: 2px; }
+    #hover-tooltip strong { display: block; color: var(--ink); font-weight: 500; margin-bottom: 2px; }
+    #hover-tooltip span.tip-sub { display: block; color: var(--red); font-size: 9.5px; margin-top: 2px; }
 
-    /* Top Navigation Bar (41px high, matching field-studies.ai.studio) */
+    /* Top Navigation Bar (41px high, flush hairline cells matching field-studies.ai.studio) */
     #top-nav {
       position: fixed;
       top: 0; left: 0; right: 0;
       height: 41px;
       z-index: 30;
-      background: rgba(255, 255, 255, 0.98);
+      background: #ffffff;
       border-bottom: 1px solid var(--border);
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      align-items: stretch;
+      font-family: var(--mono);
       font-size: 11px;
-      padding: 0 18px;
     }
 
-    .nav-group { display: flex; align-items: center; height: 100%; }
     .nav-cell {
       display: flex;
       align-items: center;
+      gap: 10px;
       height: 100%;
       padding: 0 16px;
       border-right: 1px solid var(--border);
       white-space: nowrap;
+      color: var(--ink-45);
     }
-    .nav-cell:first-child { padding-left: 0; }
 
-    .nav-switcher { display: flex; align-items: center; gap: 8px; height: 100%; }
-
-    .nav-link-btn {
-      background: transparent;
-      border: none;
-      font-family: var(--mono);
-      font-size: 11.5px;
-      color: var(--muted);
+    .nav-cell-brand {
+      color: var(--ink);
       text-decoration: none;
-      cursor: pointer;
-      padding: 6px 8px;
-      border-radius: 3px;
-      transition: color 0.15s ease, background 0.15s ease;
+      border-bottom: none;
     }
 
-    .nav-link-btn:hover { color: var(--ink); background: #f5f5f5; }
+    .nav-cell-brand:hover { color: var(--red); }
 
-    /* Left Minimal Editorial Panel (~336px wide) */
+    .nav-link-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 100%;
+      padding: 0 16px;
+      border-right: 1px solid var(--border);
+      border-bottom: none;
+      white-space: nowrap;
+      color: var(--ink-50);
+      text-decoration: none;
+      transition: color 0.14s ease;
+    }
+
+    .nav-link-cell.push-right {
+      margin-left: auto;
+      border-left: 1px solid var(--border);
+    }
+
+    .nav-link-cell.last { border-right: none; }
+    .nav-link-cell:hover { color: var(--ink); }
+
+    /* Left Borderless Editorial Panel */
     #left-panel {
       position: fixed;
-      top: 52px;
-      left: 24px;
-      bottom: 84px;
-      width: 336px;
+      top: 76px;
+      left: 44px;
+      width: min(396px, calc(100vw - 540px));
+      min-width: 300px;
+      max-height: calc(100vh - 230px);
       z-index: 20;
-      pointer-events: auto;
+      pointer-events: none;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      padding-right: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: #dcdcdc transparent;
-      background: linear-gradient(90deg, rgba(255,255,255,0.96) 86%, rgba(255,255,255,0) 100%);
+      overflow: hidden;
+      padding: 0 16px 12px 0;
+      background: rgba(255, 255, 255, 0.92);
     }
-
-    #left-panel::-webkit-scrollbar { width: 4px; }
-    #left-panel::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
 
     .breadcrumb {
-      font-size: 10.5px;
-      color: var(--faint);
+      font-size: 11px;
+      color: var(--ink-45);
       letter-spacing: 0.01em;
       white-space: nowrap;
-      margin-bottom: 6px;
     }
 
-    .editorial-headline { margin: 0 0 8px 0; line-height: 1.06; letter-spacing: -0.025em; }
+    .breadcrumb a {
+      pointer-events: auto;
+      color: inherit;
+      text-decoration: none;
+      border: none;
+    }
 
-    .headline-line1 {
-      display: block;
+    .breadcrumb a:hover { color: var(--ink); }
+
+    .editorial-headline {
+      margin: 14px 0 0 0;
       font-family: var(--sans);
-      font-weight: 500;
-      font-size: 25px;
+      font-size: 34px;
+      line-height: 1.1;
+      font-weight: 400;
+      letter-spacing: -0.03em;
       color: var(--ink);
     }
 
     .headline-line2 {
       display: block;
-      font-family: var(--serif);
       font-style: italic;
       font-weight: 400;
-      font-size: 27px;
-      color: var(--ink);
-      margin-top: 1px;
     }
 
     .editorial-intro {
+      margin: 16px 0 0 0;
       font-family: var(--mono);
-      font-size: 10.8px;
-      line-height: 1.48;
-      color: #3a3a40;
-      margin: 0 0 9px 0;
+      font-size: 12.5px;
+      line-height: 1.68;
+      font-weight: 400;
+      color: var(--ink-62);
+      letter-spacing: 0.005em;
+      pointer-events: auto;
     }
 
     .term {
       display: inline;
       padding: 0;
       border: 0;
-      border-bottom: 1.5px dotted var(--blue);
-      color: var(--blue);
+      border-bottom: 1px solid rgba(229, 83, 61, 0.35);
+      color: var(--red);
       font: inherit;
-      font-weight: 500;
       background: transparent;
       cursor: pointer;
+      transition: color 0.14s ease, border-color 0.14s ease;
     }
-    .term:hover { background: var(--blue-soft); }
+    .term:hover { color: var(--ink); border-bottom-color: var(--ink-50); }
 
-    .hairline-rule { border: none; border-top: 1px solid var(--border); margin: 2px 0 9px 0; }
+    .left-scroll {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(10, 10, 10, 0.2) transparent;
+      pointer-events: auto;
+    }
+
+    .left-scroll::-webkit-scrollbar { width: 4px; }
+    .left-scroll::-webkit-scrollbar-thumb { background: rgba(10, 10, 10, 0.18); }
 
     .notes-table {
       display: grid;
       grid-template-columns: 60px 1fr;
-      row-gap: 6px;
-      column-gap: 10px;
-      font-size: 10.5px;
-      line-height: 1.44;
-      margin-bottom: 10px;
+      row-gap: 10px;
+      column-gap: 16px;
+      font-size: 11.5px;
+      line-height: 1.65;
+      color: var(--ink-60);
+      padding-bottom: 6px;
     }
 
-    .notes-key { color: var(--faint); font-weight: 400; }
-    .notes-val { color: #3f3f46; }
+    .notes-key { color: var(--ink-36); font-weight: 400; }
+    .notes-val { color: var(--ink-60); }
 
-    /* Part Inspector Box (crisp hairline, bottom-left) */
+    /* Borderless Inline Part Inspection Readout */
     #inspector-box {
-      border: 1px solid #dcdcdc;
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 4px;
-      padding: 9px 11px;
-      margin-top: auto;
-      transition: border-color 0.2s ease;
+      border-top: 1px solid var(--border);
+      padding: 12px 0 4px 0;
+      margin-top: 12px;
+      background: transparent;
     }
 
-    #inspector-box.highlighted { border-color: var(--red); }
+    #inspector-box.highlighted .inspector-header { color: var(--red); }
 
     .inspector-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 10px;
-      letter-spacing: 0.08em;
-      color: var(--faint);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 6px;
-      margin-bottom: 8px;
+      letter-spacing: 0.12em;
+      color: var(--ink-36);
+      margin-bottom: 6px;
     }
 
     .inspector-title {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--ink);
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
 
     .inspector-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
-    .inspector-desc { font-size: 11px; line-height: 1.5; color: #3f3f46; margin: 0 0 7px 0; }
+    .inspector-desc { font-size: 11px; line-height: 1.55; color: var(--ink-60); margin: 0 0 6px 0; }
 
     .inspector-tip {
       font-size: 10.5px;
-      line-height: 1.45;
-      color: var(--muted);
-      background: #fafafa;
-      border-left: 2px solid var(--blue);
-      padding: 5px 8px;
-      border-radius: 0 3px 3px 0;
+      line-height: 1.5;
+      color: var(--ink-50);
+      border-left: 2px solid var(--red);
+      padding: 2px 0 2px 8px;
     }
 
-    /* Top-Right Floating Telemetry Box (248px wide) */
+    /* Top-Right Borderless Telemetry Readout (matching field-studies.ai.studio) */
     #telemetry-box {
       position: fixed;
-      top: 64px;
-      right: 24px;
-      width: 248px;
+      top: 86px;
+      right: 44px;
+      width: 224px;
       z-index: 20;
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid #dcdcdc;
-      border-radius: 3px;
-      overflow: hidden;
+      text-align: right;
+      pointer-events: none;
+      background: transparent;
     }
 
     .telemetry-head {
-      padding: 9px 13px;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-45);
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
+      gap: 8px;
     }
 
     .telemetry-readout {
-      padding: 12px 13px 10px 13px;
-      font-size: 22px;
-      font-weight: 500;
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 26px;
+      font-weight: 400;
       letter-spacing: -0.02em;
       color: var(--ink);
-      border-bottom: 1px solid var(--border);
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       font-variant-numeric: tabular-nums;
     }
 
+    .telemetry-units {
+      margin-top: 4px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-45);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .telemetry-rows {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--ink-55);
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .telemetry-row .k { color: var(--ink-42); text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; }
+    .telemetry-row .v { color: var(--ink-62); font-weight: 400; text-align: right; }
+
     .telemetry-scope-wrap {
-      position: relative;
-      height: 76px;
-      border-bottom: 1px solid var(--border);
-      background: #ffffff;
+      margin: 10px 0 0 auto;
+      width: 176px;
+      height: 40px;
+      background: transparent;
     }
 
     #scope-canvas { display: block; width: 100%; height: 100%; }
 
-    .telemetry-rows {
-      padding: 10px 13px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      font-size: 10.5px;
-    }
-
-    .telemetry-row { display: flex; justify-content: space-between; gap: 8px; }
-    .telemetry-row .k { color: var(--faint); }
-    .telemetry-row .v { color: #27272a; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
-
     /* Bottom Interactive Control Bar */
     #bottom-bar {
       position: fixed;
-      left: 24px;
-      right: 24px;
-      bottom: 14px;
+      left: 44px;
+      right: 44px;
+      bottom: 36px;
       z-index: 25;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      gap: 12px;
+      gap: 20px;
       pointer-events: none;
     }
 
@@ -421,89 +457,94 @@
       pointer-events: auto;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      max-width: calc(100vw - 210px);
+      gap: 16px;
+      max-width: calc(100vw - 340px);
     }
 
     .legend-line {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
-      font-size: 10.5px;
-      color: var(--muted);
+      gap: 8px 18px;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: var(--ink-60);
+      pointer-events: none;
     }
 
-    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
-    .legend-swatch { display: inline-block; width: 10px; height: 2px; border-radius: 1px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 9px; }
+    .legend-swatch { display: block; width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
 
     .controls-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 5px;
-      background: rgba(255, 255, 255, 0.94);
-      padding: 2px 0;
+      gap: 8px;
+      background: transparent;
+      padding: 0;
     }
 
-    /* Hairline Rectangular Buttons */
+    /* Hairline Rectangular Buttons (matching field-studies.ai.studio) */
     .sci-btn {
       font-family: var(--mono);
-      font-size: 10.5px;
-      color: #222222;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--ink-60);
       background: #ffffff;
-      border: 1px solid #d4d4d8;
-      border-radius: 3px;
-      padding: 5px 8.5px;
+      border: 1px solid var(--border-strong);
+      border-radius: 2px;
+      padding: 8px 12px;
       cursor: pointer;
       transition: all 0.14s ease;
       white-space: nowrap;
       line-height: 1.2;
     }
 
-    .sci-btn:hover { border-color: #888888; background: #fafafa; }
-    .sci-btn.active { border-color: var(--red); color: var(--ink); background: var(--red-soft); }
-    .sci-btn.active-blue { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+    .sci-btn:hover { border-color: var(--ink-50); color: var(--ink); }
+    .sci-btn:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+    .sci-btn.active { border-color: var(--red); color: var(--ink); background: #fcf0ee; }
     .btn-divider { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
 
     .slider-inline {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      border: 1px solid #d4d4d8;
+      gap: 8px;
+      border: 1px solid var(--border-strong);
       background: #ffffff;
-      border-radius: 3px;
-      padding: 3px 8px;
-      font-size: 10.5px;
-      color: var(--muted);
+      border-radius: 2px;
+      padding: 6px 11px;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--ink-60);
     }
     .slider-inline input[type="range"] { width: 72px; accent-color: var(--red); cursor: pointer; margin: 0; }
 
     /* Bottom-Right Hint Block */
     #hint-block {
       pointer-events: none;
+      width: 250px;
       text-align: right;
-      font-size: 10px;
-      line-height: 1.45;
-      color: var(--faint);
+      font-size: 11px;
+      line-height: 1.8;
+      letter-spacing: 0.04em;
+      color: var(--ink-42);
       white-space: nowrap;
       flex-shrink: 0;
     }
 
-    /* Floating Popovers (sit cleanly above bottom bar so 3D view stays front & center!) */
+    /* Floating Popovers (crisp editorial panels in open stage area, zero overlap) */
     .bench-popover {
       position: fixed;
-      bottom: 104px;
-      left: 376px;
+      bottom: 162px;
+      left: 456px;
       z-index: 32;
-      background: rgba(255, 255, 255, 0.98);
-      border: 1px solid #d4d4d8;
-      border-radius: 4px;
-      padding: 12px 14px;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      border-radius: 0;
+      padding: 14px 16px;
       display: none;
-      max-width: min(560px, calc(100vw - 410px));
-      max-height: calc(100vh - 160px);
+      max-width: min(620px, calc(100vw - 480px));
+      max-height: calc(100vh - 220px);
       overflow-y: auto;
     }
 
@@ -513,13 +554,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 7px;
-      margin-bottom: 9px;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
       gap: 8px;
     }
 
-    .popover-title { font-size: 11px; font-weight: 600; color: var(--ink); }
+    .popover-title { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: var(--ink); white-space: nowrap; }
 
     .band-row {
       display: flex;
@@ -530,12 +572,12 @@
       font-size: 10.5px;
     }
 
-    .band-label { width: 84px; color: var(--muted); flex-shrink: 0; }
+    .band-label { width: 84px; color: var(--ink-50); flex-shrink: 0; }
     .swatch-strip { display: flex; flex-wrap: wrap; gap: 3px; }
     .swatch {
       width: 17px; height: 17px;
-      border-radius: 2px;
-      border: 1px solid rgba(0,0,0,0.22);
+      border-radius: 0;
+      border: 1px solid rgba(10, 10, 10, 0.25);
       cursor: pointer;
     }
     .swatch.selected { outline: 2px solid var(--ink); outline-offset: 1px; }
@@ -544,40 +586,43 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
-      margin-bottom: 9px;
+      margin-bottom: 10px;
     }
     .calc-field {
       border: 1px solid var(--border);
-      background: #fafafa;
-      padding: 6px 8px;
-      border-radius: 3px;
+      background: #ffffff;
+      padding: 7px 9px;
+      border-radius: 0;
       font-size: 10.5px;
     }
-    .calc-field label { display: block; color: var(--muted); margin-bottom: 3px; }
+    .calc-field label { display: block; color: var(--ink-50); margin-bottom: 4px; }
     .calc-field input, .calc-field select {
       width: 100%;
       font-family: var(--mono);
       font-size: 11.5px;
       padding: 4px 6px;
       border: 1px solid var(--border-strong);
-      border-radius: 2px;
+      border-radius: 0;
       background: #ffffff;
+      color: var(--ink);
     }
+    .calc-field input:focus, .calc-field select:focus { outline: 1px solid var(--red); border-color: var(--red); }
     .calc-out {
       border: 1px solid var(--border);
-      border-left: 2px solid var(--blue);
-      background: var(--blue-soft);
+      border-left: 2px solid var(--red);
+      background: var(--red-tint);
       padding: 8px 10px;
-      font-size: 10.8px;
-      line-height: 1.5;
+      font-size: 11px;
+      line-height: 1.55;
+      color: var(--ink);
     }
 
-    .lesson-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
-    .lesson-section-body { font-size: 11px; line-height: 1.55; color: #27272a; }
-    .quiz-item { border: 1px solid var(--border); padding: 8px 10px; border-radius: 3px; margin-bottom: 8px; }
-    .quiz-item legend { font-weight: 600; font-size: 11px; margin-bottom: 5px; }
-    .quiz-fb { margin: 5px 0 0; font-size: 10.5px; }
-    .quiz-fb.good { color: var(--safe); }
+    .lesson-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .lesson-section-body { font-size: 11.5px; line-height: 1.6; color: var(--ink-62); }
+    .quiz-item { border: 1px solid var(--border); padding: 9px 11px; border-radius: 0; margin-bottom: 8px; }
+    .quiz-item legend { font-weight: 500; font-size: 11px; color: var(--ink); margin-bottom: 6px; }
+    .quiz-fb { margin: 6px 0 0; font-size: 10.5px; }
+    .quiz-fb.good { color: var(--ink); }
     .quiz-fb.bad { color: var(--red); }
 
     /* Pop-up Dialogs (Component Click Pop-up & Word Explorer) */
@@ -589,73 +634,68 @@
       background: #ffffff;
       color: var(--ink);
       border: 1px solid var(--border-strong);
-      border-radius: 4px;
-      padding: 20px;
+      border-radius: 0;
+      padding: 22px;
       font-family: var(--mono);
-      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.14);
     }
 
-    dialog::backdrop { background: rgba(17, 17, 17, 0.35); }
+    dialog::backdrop { background: rgba(10, 10, 10, 0.28); }
 
     .popup-sym {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: #fafafa;
+      background: #ffffff;
       border: 1px solid var(--border);
       padding: 9px 12px;
       margin: 10px 0;
       font-size: 11px;
     }
 
-    .dictionary-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0 14px; }
+    .dictionary-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
 
-    @media (max-width: 960px) {
-      #left-panel { width: 270px; left: 14px; }
-      #telemetry-box { width: 210px; right: 14px; }
-      .bench-popover { left: 14px; max-width: calc(100vw - 28px); }
-      #schematic-wrap { left: 292px; right: 232px; }
+    @media (max-width: 1120px) {
+      #left-panel { width: 320px; left: 24px; top: 64px; }
+      #telemetry-box { right: 24px; top: 72px; width: 200px; }
+      #bottom-bar { left: 24px; right: 24px; bottom: 20px; }
+      .controls-stack { max-width: calc(100vw - 260px); }
+      .bench-popover { left: 24px; bottom: 128px; max-width: calc(100vw - 48px); }
+      #schematic-wrap { left: 360px; right: 240px; }
     }
 
     @media (max-width: 720px) {
-      .nav-cell.hide-sm, .nav-link-btn.hide-sm { display: none; }
+      .hide-sm { display: none !important; }
       #left-panel {
         width: calc(100vw - 24px);
         max-height: 36vh;
-        bottom: auto;
         top: 50px;
         left: 12px;
-        background: rgba(255,255,255,0.95);
-        border: 1px solid var(--border);
-        padding: 10px;
+        background: rgba(255, 255, 255, 0.96);
+        border-bottom: 1px solid var(--border);
+        padding: 8px 4px 10px;
       }
-      #telemetry-box { top: auto; bottom: 92px; right: 12px; width: 195px; }
-      .telemetry-scope-wrap { height: 48px; }
-      #bottom-bar { left: 12px; right: 12px; bottom: 10px; }
-      .controls-stack { max-width: 100%; }
+      #telemetry-box { top: auto; bottom: 112px; right: 12px; width: 170px; }
+      .telemetry-scope-wrap { display: none; }
+      #bottom-bar { left: 12px; right: 12px; bottom: 12px; }
+      .controls-stack { max-width: 100%; gap: 10px; }
       #hint-block { display: none; }
-      #schematic-wrap { left: 12px; right: 12px; top: 44vh; bottom: 90px; }
+      #schematic-wrap { left: 12px; right: 12px; top: 44vh; bottom: 104px; }
     }
   </style>
 </head>
 <body>
   <div id="tiny-dot-cursor" aria-hidden="true"></div>
 
-  <!-- 1. TOP NAVIGATION BAR -->
+  <!-- 1. TOP NAVIGATION BAR (41px flush hairline cells) -->
   <header id="top-nav">
-    <div class="nav-group">
-      <div class="nav-cell" style="font-weight:600; color:#111;"><a href="./" style="color:inherit; text-decoration:none;" title="Back to Electronics Studies">/electronics studies</a></div>
-      <div class="nav-cell">
-        <span id="nav-fig-badge" style="color:var(--red); font-weight:500; margin-right:8px;">fig. 01</span>
-        <span id="nav-fig-sub" style="color:var(--muted);">slowing the rush of electric current</span>
-      </div>
-      <div class="nav-cell hide-sm" id="nav-equation" style="color:var(--muted);">V = I &times; R</div>
-    </div>
-
-    <div class="nav-switcher">
-      <a href="./" class="nav-link-btn hide-sm">&larr; /electronics</a>
-      <a href="./transistor.html" class="nav-link-btn">next: transistor &rarr;</a>
-    </div>
+    <a href="./" class="nav-cell nav-cell-brand" title="Back to Electronics Studies">/electronics studies</a>
+    <span class="nav-cell">
+      <span id="nav-fig-badge" style="color:var(--red);">fig. 01</span>
+      <span id="nav-fig-sub">slowing the rush of electric current</span>
+    </span>
+    <span class="nav-cell hide-sm" id="nav-equation">V = I &times; R</span>
+    <a href="./" class="nav-link-cell push-right hide-sm">&larr; /electronics</a>
+    <a href="./transistor.html" class="nav-link-cell last">next: transistor &rarr;</a>
   </header>
 
   <!-- 2. FULL-BLEED 3D VIEWPORT, 2D SCHEMATIC & FLOATING LABELS -->
@@ -666,64 +706,67 @@
   <div id="labels-layer"></div>
   <div id="hover-tooltip" role="tooltip"></div>
 
-  <!-- 3. LEFT MINIMAL EDITORIAL PANEL -->
+  <!-- 3. LEFT BORDERLESS EDITORIAL PANEL -->
   <aside id="left-panel">
-    <div id="editorial-breadcrumb" class="breadcrumb">/electronics studies &middot; [ fig. 01 ] resistor</div>
+    <div id="editorial-breadcrumb" class="breadcrumb"><a href="./">/electronics studies</a> &nbsp;&middot;&nbsp; [ fig. 01 ] &nbsp;resistor</div>
 
     <h1 class="editorial-headline">
-      <span id="headline-1" class="headline-line1">Slowing the rush</span>
-      <span id="headline-2" class="headline-line2">of electric current</span>
+      <span id="headline-1">Slowing the rush</span>
+      <em id="headline-2" class="headline-line2">of electric current</em>
     </h1>
 
     <p id="editorial-intro" class="editorial-intro">
       Electricity wants to race through a wire as fast as it can. A <button type="button" class="term" data-word="resistor">resistor</button> adds a thin <button type="button" class="term" data-word="film">carbon path</button> that slows <button type="button" class="term" data-word="current">current</button> down, protecting delicate parts like <button type="button" class="term" data-word="LED">LEDs</button> from burning out.
     </p>
 
-    <hr class="hairline-rule" />
+    <div class="left-scroll">
+      <div id="notes-table" class="notes-table">
+        <span class="notes-key">what</span>
+        <span class="notes-val">A 3D carbon-film <button type="button" class="term" data-word="resistor">resistor</button> wired in series with an AA battery pack, brass knife switch, and 5 mm red <button type="button" class="term" data-word="LED">LED</button>.</span>
+        <span class="notes-key">law</span>
+        <span class="notes-val"><button type="button" class="term" data-word="ohmslaw">V = I &times; R</button> (Ohm's Law). With an LED (<button type="button" class="term" data-word="forward">V<sub>f</sub> &approx; 2.0 V</button>), current is <span style="color:var(--ink);">I = (V &minus; 2.0) &divide; R</span>.</span>
+        <span class="notes-key">try</span>
+        <span class="notes-val">Open <span style="color:var(--ink);">color bands</span> or <span style="color:var(--ink);">ohm's law calc</span> below to change resistance live, or drop to <span style="color:var(--ink);">10 &Omega;</span> to trigger LED overload.</span>
+        <span class="notes-key">notice</span>
+        <span class="notes-val">Higher <button type="button" class="term" data-word="resistance">resistance</button> carves more <button type="button" class="term" data-word="groove">spiral turns</button> into the carbon film on the <button type="button" class="term" data-word="core">ceramic core</button>. Resistors have no <button type="button" class="term" data-word="polarity">polarity</button>, unlike LEDs (<button type="button" class="term" data-word="anode">anode +</button> / <button type="button" class="term" data-word="cathode">cathode &minus;</button>).</span>
+        <span class="notes-key">in life</span>
+        <span class="notes-val">Inside every phone charger, TV, LED lamp, and volume knob &mdash; billions are made every day.</span>
+        <span class="notes-key">found by</span>
+        <span class="notes-val">Georg Simon Ohm published V = I &times; R in 1827; modern spiral-cut carbon film resistors came in the 1950s.</span>
+      </div>
 
-    <div id="notes-table" class="notes-table">
-      <div class="notes-key">law</div>
-      <div class="notes-val"><button type="button" class="term" data-word="ohmslaw">V = I &times; R</button> (Ohm's Law). With an LED (<button type="button" class="term" data-word="forward">V<sub>f</sub> &approx; 2.0 V</button>), current is <span style="font-weight:600;">I = (V &minus; 2.0) &divide; R</span>.</div>
-      <div class="notes-key">try</div>
-      <div class="notes-val">Click <strong>color bands</strong> or <strong>ohm's law calc</strong> below to change resistance in real time, or drop to <strong>10 &Omega;</strong> to see LED overload!</div>
-      <div class="notes-key">notice</div>
-      <div class="notes-val">Higher <button type="button" class="term" data-word="resistance">resistance</button> carves more <button type="button" class="term" data-word="groove">spiral turns</button> into the carbon film on the white <button type="button" class="term" data-word="core">ceramic core</button>.</div>
-      <div class="notes-key">polarity</div>
-      <div class="notes-val">Resistors have no <button type="button" class="term" data-word="polarity">polarity</button>, but LEDs do: longer <button type="button" class="term" data-word="anode">anode (+)</button> vs shorter <button type="button" class="term" data-word="cathode">cathode (&minus;)</button>.</div>
-      <div class="notes-key">in life</div>
-      <div class="notes-val">Inside every phone charger, TV, LED lamp, and volume knob &mdash; billions are made every day.</div>
+      <!-- Borderless Inline Part Inspection Readout -->
+      <section id="inspector-box" aria-live="polite">
+        <div class="inspector-header">
+          <span>SELECTED PART</span>
+          <span id="inspector-hint">CLICK 3D MODEL</span>
+        </div>
+        <div class="inspector-title">
+          <span id="inspector-dot" class="inspector-dot"></span>
+          <span id="inspector-name">Click any 3D part</span>
+        </div>
+        <p id="inspector-desc" class="inspector-desc">
+          Hover or click the AA battery pack, brass knife switch, resistor color bands, inner spiral track, ceramic core, or 5 mm LED.
+        </p>
+        <div id="inspector-tip" class="inspector-tip">
+          <strong>tip:</strong> Drag empty space to orbit 360&deg;, scroll to zoom, or click any 3D part for its pop-up guide.
+        </div>
+      </section>
     </div>
-
-    <!-- Interactive Part Inspector Box -->
-    <section id="inspector-box" aria-live="polite">
-      <div class="inspector-header">
-        <span>PART INSPECTOR</span>
-        <span id="inspector-hint">CLICK 3D MODEL</span>
-      </div>
-      <div class="inspector-title">
-        <span id="inspector-dot" class="inspector-dot"></span>
-        <span id="inspector-name">Click any 3D part</span>
-      </div>
-      <p id="inspector-desc" class="inspector-desc">
-        Hover or click the AA battery pack, brass knife switch, resistor color bands, inner spiral track, ceramic core, or 5 mm LED (anode + / cathode &minus;).
-      </p>
-      <div id="inspector-tip" class="inspector-tip">
-        <strong>classroom tip:</strong> Drag empty space to orbit 360&deg;, scroll to zoom, or click any 3D part for its pop-up guide.
-      </div>
-    </section>
   </aside>
 
-  <!-- 4. TOP-RIGHT FLOATING TELEMETRY BOX -->
+  <!-- 4. TOP-RIGHT BORDERLESS TELEMETRY READOUT -->
   <aside id="telemetry-box">
     <div class="telemetry-head">
-      <span id="telemetry-title">CURRENT &amp; OHM'S LAW</span>
+      <span id="telemetry-title">CIRCUIT CURRENT</span>
       <span id="telemetry-badge" style="color:var(--red);">LIVE</span>
     </div>
     <div id="telemetry-readout" class="telemetry-readout">18.2 mA</div>
+    <div id="telemetry-units" class="telemetry-units">I = (V &minus; V<sub>f</sub>) &divide; R &middot; switch closed</div>
+    <div id="telemetry-rows" class="telemetry-rows"></div>
     <div class="telemetry-scope-wrap">
       <canvas id="scope-canvas"></canvas>
     </div>
-    <div id="telemetry-rows" class="telemetry-rows"></div>
   </aside>
 
   <!-- POPOVER 1: 4/5-BAND COLOR CODE (REAL-TIME) -->
@@ -731,13 +774,13 @@
     <div class="popover-head">
       <span class="popover-title" id="band-pop-title">COLOR CODE &mdash; 220 &Omega; &plusmn;5%</span>
       <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-        <button type="button" class="sci-btn active" id="btn-band4" style="padding:3px 7px; font-size:10px;">4-band</button>
-        <button type="button" class="sci-btn" id="btn-band5" style="padding:3px 7px; font-size:10px;">5-band</button>
-        <button type="button" class="sci-btn preset-btn" data-preset="10" style="padding:3px 7px; font-size:10px;">10 &Omega;</button>
-        <button type="button" class="sci-btn preset-btn" data-preset="220" style="padding:3px 7px; font-size:10px;">220 &Omega;</button>
-        <button type="button" class="sci-btn preset-btn" data-preset="470" style="padding:3px 7px; font-size:10px;">470 &Omega;</button>
-        <button type="button" class="sci-btn preset-btn" data-preset="1000" style="padding:3px 7px; font-size:10px;">1 k&Omega;</button>
-        <button type="button" class="sci-btn" data-close-pop="color-band-popover" style="padding:3px 7px; font-size:10px;">&times;</button>
+        <button type="button" class="sci-btn active" id="btn-band4" style="padding:3px 8px; font-size:10px;">4-band</button>
+        <button type="button" class="sci-btn" id="btn-band5" style="padding:3px 8px; font-size:10px;">5-band</button>
+        <button type="button" class="sci-btn preset-btn" data-preset="10" style="padding:3px 8px; font-size:10px;">10 &Omega;</button>
+        <button type="button" class="sci-btn preset-btn" data-preset="220" style="padding:3px 8px; font-size:10px;">220 &Omega;</button>
+        <button type="button" class="sci-btn preset-btn" data-preset="470" style="padding:3px 8px; font-size:10px;">470 &Omega;</button>
+        <button type="button" class="sci-btn preset-btn" data-preset="1000" style="padding:3px 8px; font-size:10px;">1 k&Omega;</button>
+        <button type="button" class="sci-btn" data-close-pop="color-band-popover" style="padding:3px 8px; font-size:10px;">&times;</button>
       </div>
     </div>
     <div class="band-row"><span class="band-label">band 1 (1st)</span><div id="strip-b1" class="swatch-strip"></div></div>
@@ -745,7 +788,7 @@
     <div class="band-row" id="row-b3d" style="display:none;"><span class="band-label">band 3 (3rd)</span><div id="strip-b3d" class="swatch-strip"></div></div>
     <div class="band-row"><span class="band-label" id="lbl-mul-row">band 3 (&times;)</span><div id="strip-mul" class="swatch-strip"></div></div>
     <div class="band-row"><span class="band-label" id="lbl-tol-row">band 4 (&plusmn;)</span><div id="strip-tol" class="swatch-strip"></div></div>
-    <div id="band-range-note" style="margin-top:7px; font-size:10px; color:var(--muted);"></div>
+    <div id="band-range-note" style="margin-top:8px; font-size:10px; color:var(--ink-50);"></div>
   </div>
 
   <!-- POPOVER 2: OHM'S LAW & POWER CALCULATOR (REAL-TIME) -->
@@ -753,10 +796,10 @@
     <div class="popover-head">
       <span class="popover-title">OHM'S LAW &amp; POWER CALCULATOR</span>
       <div style="display:flex; gap:4px; align-items:center;">
-        <button type="button" class="sci-btn active" id="calc-solve-i" style="padding:3px 7px; font-size:10px;">solve I</button>
-        <button type="button" class="sci-btn" id="calc-solve-r" style="padding:3px 7px; font-size:10px;">solve R</button>
-        <button type="button" class="sci-btn" id="calc-solve-v" style="padding:3px 7px; font-size:10px;">solve V</button>
-        <button type="button" class="sci-btn" data-close-pop="calc-popover" style="padding:3px 7px; font-size:10px;">&times;</button>
+        <button type="button" class="sci-btn active" id="calc-solve-i" style="padding:3px 8px; font-size:10px;">solve I</button>
+        <button type="button" class="sci-btn" id="calc-solve-r" style="padding:3px 8px; font-size:10px;">solve R</button>
+        <button type="button" class="sci-btn" id="calc-solve-v" style="padding:3px 8px; font-size:10px;">solve V</button>
+        <button type="button" class="sci-btn" data-close-pop="calc-popover" style="padding:3px 8px; font-size:10px;">&times;</button>
       </div>
     </div>
     <div class="calc-grid">
@@ -765,7 +808,7 @@
       <div class="calc-field"><label for="calc-i">Current I (mA)</label><input type="number" id="calc-i" value="18.2" min="0.1" max="1000" step="1" disabled /></div>
       <div class="calc-field"><label for="calc-vf">Load / LED Drop</label><select id="calc-vf"><option value="2.0" selected>Red LED (Vf = 2.0 V)</option><option value="3.2">Blue/White LED (Vf = 3.2 V)</option><option value="0">Resistor Only (0 V)</option></select></div>
     </div>
-    <label style="font-size:10.5px; color:var(--muted); display:flex; align-items:center; gap:6px; margin-bottom:8px; cursor:pointer;">
+    <label style="font-size:10.5px; color:var(--ink-55); display:flex; align-items:center; gap:6px; margin-bottom:8px; cursor:pointer;">
       <input type="checkbox" id="calc-autosync" checked /> Live-sync directly to 3D circuit &amp; color bands
     </label>
     <div id="calc-out" class="calc-out"></div>
@@ -775,7 +818,7 @@
   <div id="lesson-popover" class="bench-popover">
     <div class="popover-head">
       <span class="popover-title">CLASSROOM GUIDE, ANALOGY &amp; QUIZ</span>
-      <button type="button" class="sci-btn" data-close-pop="lesson-popover" style="padding:3px 7px; font-size:10px;">&times;</button>
+      <button type="button" class="sci-btn" data-close-pop="lesson-popover" style="padding:3px 8px; font-size:10px;">&times;</button>
     </div>
     <div class="lesson-tabs">
       <button type="button" class="sci-btn active" data-ltab="analogy">water pipe analogy</button>
@@ -790,9 +833,9 @@
   <footer id="bottom-bar">
     <div class="controls-stack">
       <div id="legend-line" class="legend-line">
-        <span class="legend-item"><span class="legend-swatch" style="background:var(--red);"></span>conventional current (+ &rarr; &minus;)</span>
-        <span class="legend-item"><span class="legend-swatch" style="background:var(--blue);"></span>electron drift / voltage</span>
-        <span class="legend-item"><span class="legend-swatch" style="background:#3f3f46;"></span>return / ground (&minus;)</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--red);"></span>CONVENTIONAL CURRENT (+ &rarr; &minus;)</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--ink);"></span>RETURN / GROUND (&minus;)</span>
+        <span class="legend-item"><span class="legend-swatch" style="border:1.5px solid rgba(10,10,10,0.55);"></span>3D PART &mdash; CLICK TO INSPECT</span>
       </div>
       <div id="controls-row" class="controls-row"></div>
     </div>
@@ -800,35 +843,35 @@
     <div id="hint-block">
       <div>drag empty space &mdash; orbit</div>
       <div>click any part &mdash; inspect</div>
-      <div>&rarr; transistor lab &middot; / index</div>
+      <div>scroll &mdash; zoom</div>
     </div>
   </footer>
 
   <!-- COMPONENT POP-UP CARD -->
   <dialog id="part-popup">
-    <div style="font-size:10px; color:var(--faint); letter-spacing:0.08em;" id="popup-tag">COMPONENT</div>
-    <h2 id="popup-title" style="margin:4px 0 6px; font-family:var(--sans); font-size:17px;"></h2>
+    <div style="font-size:10px; color:var(--ink-42); letter-spacing:0.12em;" id="popup-tag">COMPONENT</div>
+    <h2 id="popup-title" style="margin:6px 0 8px; font-family:var(--sans); font-weight:400; font-size:20px;"></h2>
     <div class="popup-sym">
       <div id="popup-svg" style="flex-shrink:0;"></div>
       <div id="popup-math"></div>
     </div>
-    <p id="popup-desc" style="margin:0 0 10px; font-size:11.5px; line-height:1.55; color:#27272a;"></p>
-    <p id="popup-tip" style="margin:0 0 14px; font-size:10.8px; color:var(--muted); border-left:2px solid var(--blue); padding:6px 9px; background:var(--blue-soft);"></p>
+    <p id="popup-desc" style="margin:0 0 10px; font-size:11.5px; line-height:1.6; color:var(--ink-62);"></p>
+    <p id="popup-tip" style="margin:0 0 14px; font-size:11px; color:var(--ink-60); border-left:2px solid var(--red); padding:6px 10px; background:var(--red-tint);"></p>
     <div style="display:flex; justify-content:flex-end;">
-      <button type="button" class="sci-btn active-blue" id="close-part-popup">close &times;</button>
+      <button type="button" class="sci-btn active" id="close-part-popup">close &times;</button>
     </div>
   </dialog>
 
   <!-- WORD EXPLORER DIALOG -->
   <dialog id="gloss">
-    <div style="font-size:10px; color:var(--faint); letter-spacing:0.08em;">WORD EXPLORER</div>
-    <h2 id="word" style="margin:4px 0 8px; font-family:var(--sans); font-size:17px;"></h2>
-    <p id="meaning" style="margin:0 0 10px; font-size:11.5px; line-height:1.55;"></p>
-    <p id="example" style="margin:0 0 12px; font-size:11px; color:var(--blue); border-left:2px solid var(--blue); padding:6px 9px; background:var(--blue-soft);"></p>
+    <div style="font-size:10px; color:var(--ink-42); letter-spacing:0.12em;">WORD EXPLORER</div>
+    <h2 id="word" style="margin:6px 0 8px; font-family:var(--sans); font-weight:400; font-size:20px;"></h2>
+    <p id="meaning" style="margin:0 0 10px; font-size:11.5px; line-height:1.6; color:var(--ink-62);"></p>
+    <p id="example" style="margin:0 0 14px; font-size:11px; color:var(--ink); border-left:2px solid var(--red); padding:6px 10px; background:var(--red-tint);"></p>
     <div id="wordlist" class="dictionary-chips" hidden></div>
-    <div style="display:flex; gap:6px; justify-content:flex-end;">
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
       <button type="button" class="sci-btn" id="allwords">all words</button>
-      <button type="button" class="sci-btn active-blue" id="close-gloss">close &times;</button>
+      <button type="button" class="sci-btn active" id="close-gloss">close &times;</button>
     </div>
   </dialog>
 
@@ -944,10 +987,10 @@
       document.getElementById('close-part-popup').addEventListener('click', () => partPopup.close());
 
       const SYMBOLS = {
-        resistor: '<svg width="78" height="34" viewBox="0 0 86 38"><path d="M4 19 H18 L23 8 L31 30 L39 8 L47 30 L55 8 L63 30 L68 19 H82" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        battery: '<svg width="78" height="34" viewBox="0 0 86 38"><path d="M6 19 H34 M52 19 H80" stroke="#111" stroke-width="3"/><path d="M34 6 V32 M42 12 V26 M48 6 V32 M56 12 V26" stroke="#111" stroke-width="3" stroke-linecap="round"/><text x="20" y="13" font-size="11" font-family="monospace" fill="#e04836">+</text><text x="64" y="13" font-size="11" font-family="monospace" fill="#2563eb">−</text></svg>',
-        led: '<svg width="78" height="34" viewBox="0 0 86 38"><path d="M6 19 H32 M54 19 H80" stroke="#111" stroke-width="3"/><polygon points="32,9 32,29 52,19" fill="#e04836"/><path d="M52 9 V29" stroke="#111" stroke-width="3"/><path d="M48 8 L58 2 M56 12 L66 6" stroke="#e04836" stroke-width="2" stroke-linecap="round"/></svg>',
-        switch: '<svg width="78" height="34" viewBox="0 0 86 38"><path d="M6 24 H28 M58 24 H80" stroke="#111" stroke-width="3"/><circle cx="28" cy="24" r="3.5" fill="#111"/><circle cx="58" cy="24" r="3.5" fill="#111"/><path d="M28 24 L56 10" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/></svg>'
+        resistor: '<svg width="78" height="34" viewBox="0 0 86 38"><path d="M4 19 H18 L23 8 L31 30 L39 8 L47 30 L55 8 L63 30 L68 19 H82" fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        battery: '<svg width="78" height="34" viewBox="0 0 86 38"><path d="M6 19 H34 M52 19 H80" stroke="#0a0a0a" stroke-width="3"/><path d="M34 6 V32 M42 12 V26 M48 6 V32 M56 12 V26" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round"/><text x="20" y="13" font-size="11" font-family="monospace" fill="#e5533d">+</text><text x="64" y="13" font-size="11" font-family="monospace" fill="#0a0a0a">−</text></svg>',
+        led: '<svg width="78" height="34" viewBox="0 0 86 38"><path d="M6 19 H32 M54 19 H80" stroke="#0a0a0a" stroke-width="3"/><polygon points="32,9 32,29 52,19" fill="#e5533d"/><path d="M52 9 V29" stroke="#0a0a0a" stroke-width="3"/><path d="M48 8 L58 2 M56 12 L66 6" stroke="#e5533d" stroke-width="2" stroke-linecap="round"/></svg>',
+        switch: '<svg width="78" height="34" viewBox="0 0 86 38"><path d="M6 24 H28 M58 24 H80" stroke="#0a0a0a" stroke-width="3"/><circle cx="28" cy="24" r="3.5" fill="#0a0a0a"/><circle cx="58" cy="24" r="3.5" fill="#0a0a0a"/><path d="M28 24 L56 10" stroke="#e5533d" stroke-width="3" stroke-linecap="round"/></svg>'
       };
 
       function setInspector(info) {
@@ -1005,10 +1048,10 @@
       let animatedActors = {};
 
       const orbit = {
-        theta: 0.42, phi: 0.94, radius: 11.8,
-        targetTheta: 0.42, targetPhi: 0.94, targetRadius: 11.8,
-        target: hasThree ? new THREE.Vector3(-0.35, -0.05, 0) : null,
-        desiredTarget: hasThree ? new THREE.Vector3(-0.35, -0.05, 0) : null,
+        theta: 0.42, phi: 0.94, radius: 12.6,
+        targetTheta: 0.42, targetPhi: 0.94, targetRadius: 12.6,
+        target: hasThree ? new THREE.Vector3(-1.05, -0.35, 0) : null,
+        desiredTarget: hasThree ? new THREE.Vector3(-1.05, -0.35, 0) : null,
         isDragging: false, lastPos: { x: 0, y: 0 }, movedDist: 0
       };
 
@@ -1017,10 +1060,10 @@
         c.width = 128; c.height = 128;
         const ctx = c.getContext('2d');
         const g = ctx.createRadialGradient(64, 64, 4, 64, 64, 64);
-        g.addColorStop(0, 'rgba(255, 110, 95, 1.0)');
-        g.addColorStop(0.28, 'rgba(224, 72, 54, 0.62)');
-        g.addColorStop(0.62, 'rgba(224, 72, 54, 0.16)');
-        g.addColorStop(1, 'rgba(224, 72, 54, 0)');
+        g.addColorStop(0, 'rgba(255, 118, 102, 1.0)');
+        g.addColorStop(0.28, 'rgba(229, 83, 61, 0.62)');
+        g.addColorStop(0.62, 'rgba(229, 83, 61, 0.16)');
+        g.addColorStop(1, 'rgba(229, 83, 61, 0)');
         ctx.fillStyle = g; ctx.fillRect(0, 0, 128, 128);
         return new THREE.CanvasTexture(c);
       }
@@ -1038,8 +1081,8 @@
         camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 120);
         scene.add(new THREE.AmbientLight(0xffffff, 0.74));
         const keyLight = new THREE.DirectionalLight(0xffffff, 0.74); keyLight.position.set(8, 14, 10); scene.add(keyLight);
-        const fillLight = new THREE.DirectionalLight(0xeef5ff, 0.38); fillLight.position.set(-10, 6, -6); scene.add(fillLight);
-        pointGlowLight = new THREE.PointLight(0xe04836, 0, 6); scene.add(pointGlowLight);
+        const fillLight = new THREE.DirectionalLight(0xfafafa, 0.36); fillLight.position.set(-10, 6, -6); scene.add(fillLight);
+        pointGlowLight = new THREE.PointLight(0xe5533d, 0, 6); scene.add(pointGlowLight);
 
         // Subtle Swiss-editorial architectural 3D floor grid
         floorGrid = new THREE.Group();
@@ -1253,7 +1296,7 @@
           grp.add(body, cap, nub);
         }
 
-        const posPost = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.22, 14), new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.35 }));
+        const posPost = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.22, 14), new THREE.MeshStandardMaterial({ color: 0xe5533d, roughness: 0.35 }));
         posPost.position.set(-holderW / 2 + 0.18, 0.52, -0.98);
         const negPost = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.22, 14), new THREE.MeshStandardMaterial({ color: 0x111417, roughness: 0.4 }));
         negPost.position.set(-holderW / 2 + 0.18, 0.52, 0.98);
@@ -1276,7 +1319,7 @@
 
         const pivot = new THREE.Group(); pivot.position.set(0.50, 0.34, 0);
         const blade = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.06, 0.10), brassMat); blade.position.x = -0.52;
-        const handle = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 14), new THREE.MeshStandardMaterial({ color: 0xe04836, roughness: 0.35 }));
+        const handle = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 14), new THREE.MeshStandardMaterial({ color: 0xe5533d, roughness: 0.35 }));
         handle.position.x = -1.10;
         pivot.add(blade, handle); pivot.rotation.z = isOn ? 0 : -0.68; grp.add(pivot);
 
@@ -1287,7 +1330,7 @@
 
       function buildRealisticLED(reversed, burnt) {
         const grp = new THREE.Group();
-        const col = burnt ? 0x2a2a2e : 0xe04836;
+        const col = burnt ? 0x2a2a2e : 0xe5533d;
         const lensMat = new THREE.MeshPhysicalMaterial({ color: col, roughness: 0.15, metalness: 0.05, transparent: true, opacity: burnt ? 0.85 : 0.72, emissive: new THREE.Color(col), emissiveIntensity: burnt ? 0 : 0.18 });
         const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.54, 28), lensMat); cyl.position.y = 0.50;
         const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2), lensMat); dome.position.y = 0.77;
@@ -1302,7 +1345,7 @@
         const anvilCathode = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.38, 0.06), metalMat); anvilCathode.position.set(xCathode, 0.47, 0);
         grp.add(legAnode, legCathode, postAnode, anvilCathode);
 
-        const glowMat = new THREE.SpriteMaterial({ map: makeSoftGlowTexture(), color: 0xe04836, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+        const glowMat = new THREE.SpriteMaterial({ map: makeSoftGlowTexture(), color: 0xe5533d, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
         const glowSprite = new THREE.Sprite(glowMat); glowSprite.position.set(0, 0.68, 0); glowSprite.scale.set(2.4, 2.4, 1);
         grp.add(glowSprite);
 
@@ -1324,7 +1367,7 @@
         const R = getResistanceValue();
 
         if (state.mode === 'closeup') {
-          orbit.targetTheta = 0.40; orbit.targetPhi = 1.14; orbit.targetRadius = 9.0; orbit.desiredTarget.set(-0.3, 0.05, 0);
+          orbit.targetTheta = 0.40; orbit.targetPhi = 1.14; orbit.targetRadius = 9.0; orbit.desiredTarget.set(-0.75, 0.05, 0);
           const resAsm = buildRealisticResistor({ scale: 1.24, viewMode: state.view, resistance: R });
           activeGroup.add(resAsm.root);
 
@@ -1335,20 +1378,20 @@
             for (let i = 0; i < count; i++) { const m = new THREE.Mesh(geo, mat); m.userData.offset = i / count; g.add(m); dots.push(m); }
             return { g, dots, curve };
           };
-          const pIn = makeDots(new THREE.LineCurve3(new THREE.Vector3(-4.6, 0, 0), new THREE.Vector3(-1.6, 0, 0)), 5, 0x2563eb);
-          const pOut = makeDots(new THREE.LineCurve3(new THREE.Vector3(1.6, 0, 0), new THREE.Vector3(4.6, 0, 0)), 5, 0x2563eb);
-          const pSpiral = makeDots(resAsm.helixCurve, Math.min(26, Math.max(10, resAsm.spiralTurns * 2)), 0xe04836);
+          const pIn = makeDots(new THREE.LineCurve3(new THREE.Vector3(-4.6, 0, 0), new THREE.Vector3(-1.6, 0, 0)), 5, 0x0a0a0a);
+          const pOut = makeDots(new THREE.LineCurve3(new THREE.Vector3(1.6, 0, 0), new THREE.Vector3(4.6, 0, 0)), 5, 0x0a0a0a);
+          const pSpiral = makeDots(resAsm.helixCurve, Math.min(26, Math.max(10, resAsm.spiralTurns * 2)), 0xe5533d);
           pSpiral.g.scale.setScalar(1.24);
           activeGroup.add(pIn.g, pOut.g, pSpiral.g);
 
           addLabelAnchor(`band 1 · ${COLOR_DIGITS[state.b1].name.toLowerCase()}`, new THREE.Vector3(-0.95, 1.02, 0.3), 'dark');
           addLabelAnchor(`multiplier · ${MUL_OPTIONS[state.mulIdx].str}`, new THREE.Vector3(0.25, 1.02, 0.3), 'dark');
           addLabelAnchor(`carbon spiral · ${resAsm.spiralTurns} turns`, new THREE.Vector3(0, -1.08, 0.4), 'red');
-          addLabelAnchor('current in (+)', new THREE.Vector3(-2.65, -0.45, 0), 'blue');
-          addLabelAnchor('current out (−)', new THREE.Vector3(2.65, -0.45, 0), 'blue');
+          addLabelAnchor('current in (+)', new THREE.Vector3(-2.65, -0.45, 0), 'dark');
+          addLabelAnchor('current out (−)', new THREE.Vector3(2.65, -0.45, 0), 'dark');
           animatedActors = { kind: 'closeup', pIn, pOut, pSpiral };
         } else if (state.mode === 'circuit') {
-          orbit.targetTheta = 0.42; orbit.targetPhi = 0.94; orbit.targetRadius = 11.8; orbit.desiredTarget.set(-0.35, -0.05, 0);
+          orbit.targetTheta = 0.42; orbit.targetPhi = 0.94; orbit.targetRadius = 12.6; orbit.desiredTarget.set(-1.05, -0.35, 0);
 
           const batt = buildRealisticBatteryPack(state.voltage);
           batt.grp.position.set(-3.4, -1.35, 0.0); activeGroup.add(batt.grp);
@@ -1365,9 +1408,9 @@
           };
           const bPos = new THREE.Vector3(-3.4 + batt.posAnchor.x, -1.35 + batt.posAnchor.y, batt.posAnchor.z);
           const bNeg = new THREE.Vector3(-3.4 + batt.negAnchor.x, -1.35 + batt.negAnchor.y, batt.negAnchor.z);
-          makeWire([bPos, new THREE.Vector3(-3.4, -0.35, -1.9), new THREE.Vector3(-2.5, -0.35, -1.9)], 0xe04836);
-          makeWire([new THREE.Vector3(2.5, -0.35, -1.9), new THREE.Vector3(3.26, -0.35, -1.9), new THREE.Vector3(3.26, -1.0, 0)], 0xe04836);
-          makeWire([new THREE.Vector3(3.54, -1.0, 0), new THREE.Vector3(3.54, -1.2, 2.0), new THREE.Vector3(0.50, -1.1, 2.0)], 0x2563eb);
+          makeWire([bPos, new THREE.Vector3(-3.4, -0.35, -1.9), new THREE.Vector3(-2.5, -0.35, -1.9)], 0xe5533d);
+          makeWire([new THREE.Vector3(2.5, -0.35, -1.9), new THREE.Vector3(3.26, -0.35, -1.9), new THREE.Vector3(3.26, -1.0, 0)], 0xe5533d);
+          makeWire([new THREE.Vector3(3.54, -1.0, 0), new THREE.Vector3(3.54, -1.2, 2.0), new THREE.Vector3(0.50, -1.1, 2.0)], 0x18181b);
           makeWire([new THREE.Vector3(-0.50, -1.1, 2.0), new THREE.Vector3(-3.4, -1.2, 2.0), bNeg], 0x3f3f46);
 
           const loopPts = [
@@ -1380,7 +1423,7 @@
           const loopCurve = new THREE.CatmullRomCurve3(loopPts, true);
           const flowGroup = new THREE.Group(), dots = [];
           const dGeo = new THREE.SphereGeometry(0.082, 10, 10);
-          const dMat = new THREE.MeshBasicMaterial({ color: 0xe04836 });
+          const dMat = new THREE.MeshBasicMaterial({ color: 0xe5533d });
           for (let i = 0; i < 24; i++) { const m = new THREE.Mesh(dGeo, dMat); m.userData.offset = i / 24; flowGroup.add(m); dots.push(m); }
           activeGroup.add(flowGroup);
 
@@ -1398,29 +1441,29 @@
          ----------------------------------------------------------------------- */
       function renderSchematicView(phys) {
         const R = formatOhms(phys.R);
-        const ledCol = state.ledBurnt ? '#52525b' : (phys.currentMa > 0 ? '#e04836' : '#94a3b8');
+        const ledCol = state.ledBurnt ? '#52525b' : (phys.currentMa > 0 ? '#e5533d' : '#94a3b8');
         const ledPoly = state.reverseLed ? '538,175 582,175 560,130' : '538,130 582,130 560,175';
         const ledBar = state.reverseLed ? 130 : 175;
         const swLine = state.powerOn ? 'M295 255 H365' : 'M295 255 L355 225';
-        const flowStroke = phys.currentMa > 0 && !state.flowPaused ? `<path d="M120 130 V60 H560 V255 H120 V178" fill="none" stroke="${state.flowDir === 1 ? '#e04836' : '#2563eb'}" stroke-width="3.5" stroke-dasharray="4 18"><animate attributeName="stroke-dashoffset" from="0" to="${state.flowDir === 1 ? -44 : 44}" dur="${Math.max(0.35, 2.0 - phys.currentMa * 0.05)}s" repeatCount="indefinite"/></path>` : '';
+        const flowStroke = phys.currentMa > 0 && !state.flowPaused ? `<path d="M120 130 V60 H560 V255 H120 V178" fill="none" stroke="${state.flowDir === 1 ? '#e5533d' : '#0a0a0a'}" stroke-width="3.5" stroke-dasharray="4 18"><animate attributeName="stroke-dashoffset" from="0" to="${state.flowDir === 1 ? -44 : 44}" dur="${Math.max(0.35, 2.0 - phys.currentMa * 0.05)}s" repeatCount="indefinite"/></path>` : '';
 
         schematicWrap.innerHTML = `<svg viewBox="0 0 720 315" role="img" aria-label="2D Circuit Schematic Diagram">
-          <g fill="none" stroke="#111111" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <g fill="none" stroke="#0a0a0a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M120 130 V60 H280 M440 60 H560 V130 M560 175 V255 H365 M295 255 H120 V178"/>
-            <path d="M280 60 l13 -16 13 32 13 -32 13 32 13 -32 13 32 13 -32 13 32 13 -16 h13" stroke="#111111"/>
+            <path d="M280 60 l13 -16 13 32 13 -32 13 32 13 -32 13 32 13 -32 13 32 13 -16 h13" stroke="#0a0a0a"/>
             <path d="M92 130 H148 M104 146 H136 M92 162 H148 M104 178 H136"/>
-            <circle cx="295" cy="255" r="4.5" fill="#111111"/><circle cx="365" cy="255" r="4.5" fill="#111111"/>
-            <path d="${swLine}" stroke="#2563eb"/>
-            <polygon points="${ledPoly}" fill="${ledCol}" stroke="#111111"/>
+            <circle cx="295" cy="255" r="4.5" fill="#0a0a0a"/><circle cx="365" cy="255" r="4.5" fill="#0a0a0a"/>
+            <path d="${swLine}" stroke="#e5533d"/>
+            <polygon points="${ledPoly}" fill="${ledCol}" stroke="#0a0a0a"/>
             <path d="M538 ${ledBar} H582"/>
             <path d="M590 142 L610 122 M598 162 L618 142" stroke="${ledCol}"/>
           </g>
           ${flowStroke}
-          <text x="360" y="30" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="600" fill="#111111">Resistor R = ${R}</text>
-          <text x="68" y="158" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="600" fill="#111111">${phys.V.toFixed(1)} V</text>
-          <text x="134" y="116" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="700" fill="#e04836">+</text>
-          <text x="134" y="202" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="700" fill="#2563eb">&minus;</text>
-          <text x="520" y="148" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="600" fill="#111111">${state.reverseLed ? 'LED Reversed' : 'Red LED'}</text>
+          <text x="360" y="30" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="500" fill="#0a0a0a">Resistor R = ${R}</text>
+          <text x="68" y="158" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="500" fill="#0a0a0a">${phys.V.toFixed(1)} V</text>
+          <text x="134" y="116" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="700" fill="#e5533d">+</text>
+          <text x="134" y="202" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="700" fill="#0a0a0a">&minus;</text>
+          <text x="520" y="148" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="500" fill="#0a0a0a">${state.reverseLed ? 'LED Reversed' : 'Red LED'}</text>
           <text x="520" y="166" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="#6e6e73">${state.reverseLed ? '(Blocked)' : '(Vf ≈ 2.0 V)'}</text>
           <text x="330" y="287" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="#6e6e73">Switch: ${state.powerOn ? 'CLOSED' : 'OPEN'} &middot; Current I = ${phys.currentMa.toFixed(1)} mA</text>
         </svg>`;
@@ -1488,7 +1531,7 @@
         };
         row.innerHTML = '';
         row.appendChild(btn('b-pwr', state.powerOn ? 'power: on' : 'power: off', state.powerOn ? 'active' : '', () => { state.powerOn = !state.powerOn; if (!state.powerOn) state.ledBurnt = false; syncControls(); }));
-        row.appendChild(btn('b-view', 'view: ' + state.view, state.view !== 'outer' ? 'active-blue' : '', () => {
+        row.appendChild(btn('b-view', 'view: ' + state.view, state.view !== 'outer' ? 'active' : '', () => {
           state.view = state.view === 'cutaway' ? 'x-ray' : (state.view === 'x-ray' ? 'outer' : 'cutaway'); rebuildAndSync();
         }));
 
@@ -1500,16 +1543,18 @@
         const d1 = document.createElement('span'); d1.className = 'btn-divider'; row.appendChild(d1);
         row.appendChild(btn('b-circ', 'led circuit', state.mode === 'circuit' ? 'active' : '', () => { state.mode = 'circuit'; rebuildAndSync(); }));
         row.appendChild(btn('b-close', '3d resistor', state.mode === 'closeup' ? 'active' : '', () => { state.mode = 'closeup'; rebuildAndSync(); }));
-        row.appendChild(btn('b-schem', '2d schematic', state.mode === 'schematic' ? 'active-blue' : '', () => { state.mode = 'schematic'; syncControls(); }));
+        row.appendChild(btn('b-schem', '2d schematic', state.mode === 'schematic' ? 'active' : '', () => { state.mode = 'schematic'; syncControls(); }));
 
         const d2 = document.createElement('span'); d2.className = 'btn-divider'; row.appendChild(d2);
-        row.appendChild(btn('b-bands', 'color bands', state.openPopover === 'color-band-popover' ? 'active-blue' : '', () => togglePopover('color-band-popover')));
-        row.appendChild(btn('b-calc', "ohm's law calc", state.openPopover === 'calc-popover' ? 'active-blue' : '', () => togglePopover('calc-popover')));
+        row.appendChild(btn('b-bands', 'color bands', state.openPopover === 'color-band-popover' ? 'active' : '', () => togglePopover('color-band-popover')));
+        row.appendChild(btn('b-calc', "ohm's law calc", state.openPopover === 'calc-popover' ? 'active' : '', () => togglePopover('calc-popover')));
         row.appendChild(btn('b-rev', state.reverseLed ? 'led: reversed' : 'reverse led', state.reverseLed ? 'active' : '', () => { state.reverseLed = !state.reverseLed; state.ledBurnt = false; rebuildAndSync(); }));
         if (state.ledBurnt) row.appendChild(btn('b-fix', 'replace led', 'active', () => { state.ledBurnt = false; rebuildAndSync(); }));
-        row.appendChild(btn('b-guide', 'lesson & quiz', state.openPopover === 'lesson-popover' ? 'active-blue' : '', () => togglePopover('lesson-popover')));
+        row.appendChild(btn('b-guide', 'lesson & quiz', state.openPopover === 'lesson-popover' ? 'active' : '', () => togglePopover('lesson-popover')));
         row.appendChild(btn('b-words', 'word bank', '', openAllWords));
         row.appendChild(btn('b-rst', 'reset', '', () => {
+          state.openPopover = null;
+          document.querySelectorAll('.bench-popover').forEach(p => p.classList.remove('visible'));
           Object.assign(state, { mode: 'circuit', view: 'cutaway', bandCount: 4, b1: 2, b2: 2, mulIdx: 3, tolIdx: 0, voltage: 6.0, powerOn: true, reverseLed: false, ledBurnt: false, flowPaused: false, flowDir: 1 });
           rebuildAndSync();
         }));
@@ -1524,15 +1569,19 @@
         if (isSchem || !webglReady) renderSchematicView(phys);
 
         const iStr = phys.currentMa >= 100 ? phys.currentMa.toFixed(0) + ' mA' : phys.currentMa.toFixed(1) + ' mA';
-        document.getElementById('telemetry-readout').textContent = (state.powerOn ? 'ON · ' : 'OFF · ') + iStr;
-        document.getElementById('telemetry-badge').textContent = state.ledBurnt ? 'BURNT' : (phys.currentMa > 22 ? 'OVERLOAD' : 'LIVE');
-        document.getElementById('telemetry-badge').style.color = (state.ledBurnt || phys.currentMa > 22) ? 'var(--red)' : 'var(--blue)';
+        document.getElementById('telemetry-readout').textContent = iStr;
+        document.getElementById('telemetry-units').textContent = state.mode === 'closeup'
+          ? (state.powerOn ? 'I = V ÷ R · resistor only' : 'switch open · 0 mA')
+          : (state.powerOn ? 'I = (V − Vf) ÷ R · switch closed' : 'switch open · 0 mA');
+        const badge = document.getElementById('telemetry-badge');
+        badge.textContent = state.ledBurnt ? 'BURNT' : (phys.currentMa > 22 ? 'OVERLOAD' : (state.powerOn ? 'LIVE' : 'OFF'));
+        badge.style.color = (state.ledBurnt || phys.currentMa > 22 || state.powerOn) ? 'var(--red)' : 'var(--ink-45)';
 
         document.getElementById('telemetry-rows').innerHTML = `
           <div class="telemetry-row"><span class="k">resistance</span><span class="v">${formatOhms(phys.R)}</span></div>
           <div class="telemetry-row"><span class="k">supply</span><span class="v">${phys.V.toFixed(1)} V (${Math.round(phys.V / 1.5)} AA)</span></div>
           <div class="telemetry-row"><span class="k">power (I²R)</span><span class="v">${phys.powerMw.toFixed(0)} mW</span></div>
-          <div class="telemetry-row"><span class="k">led state</span><span class="v" style="color:${state.ledBurnt || state.reverseLed ? 'var(--red)' : 'var(--safe)'};">${phys.status}</span></div>`;
+          <div class="telemetry-row"><span class="k">led state</span><span class="v" style="color:${state.ledBurnt || state.reverseLed || phys.currentMa > 22 ? 'var(--red)' : 'var(--ink)'};">${phys.status}</span></div>`;
 
         renderBottomControls();
       }
@@ -1549,10 +1598,10 @@
       let activeLTab = 'analogy';
       function renderLessonBody() {
         const el = document.getElementById('lesson-body');
-        document.querySelectorAll('[data-ltab]').forEach(b => b.classList.toggle('active-blue', b.dataset.ltab === activeLTab));
+        document.querySelectorAll('[data-ltab]').forEach(b => b.classList.toggle('active', b.dataset.ltab === activeLTab));
         if (activeLTab === 'analogy') {
           el.innerHTML = `<p style="margin-top:0;"><strong>Water Pipe Analogy:</strong> Voltage is like pump pressure; resistance is a narrow section of pipe; current is how much water flows per second.</p>
-            <svg viewBox="0 0 600 130" style="width:100%; background:#fafafa; border:1px solid var(--border);"><path d="M30 25 H220 L250 50 H350 L380 25 H570 V105 H380 L350 80 H250 L220 105 H30 Z" fill="#f0f5ff" stroke="#2563eb" stroke-width="2.5"/><text x="300" y="18" text-anchor="middle" font-size="11" fill="#111">Narrow passage opposes flow (higher resistance R)</text></svg>`;
+            <svg viewBox="0 0 600 130" style="width:100%; background:#ffffff; border:1px solid var(--border);"><path d="M30 25 H220 L250 50 H350 L380 25 H570 V105 H380 L350 80 H250 L220 105 H30 Z" fill="rgba(229,83,61,0.08)" stroke="#e5533d" stroke-width="2.2"/><text x="300" y="18" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#0a0a0a">Narrow passage opposes flow (higher resistance R)</text></svg>`;
         } else if (activeLTab === 'guide') {
           el.innerHTML = `<ol style="margin:0; padding-left:18px; line-height:1.6;">
             <li><strong>Why protect an LED:</strong> A 5 mm red LED needs 10–20 mA. Without a resistor, a 6 V battery pushes hundreds of mA and burns it out.</li>
@@ -1637,21 +1686,21 @@
       let scopePhase = 0;
 
       function drawScope(currentMa) {
-        const w = scopeCanvas.clientWidth || 248, h = scopeCanvas.clientHeight || 76;
+        const w = scopeCanvas.clientWidth || 176, h = scopeCanvas.clientHeight || 40;
         if (scopeCanvas.width !== w || scopeCanvas.height !== h) { scopeCanvas.width = w; scopeCanvas.height = h; }
-        scopeCtx.fillStyle = '#ffffff'; scopeCtx.fillRect(0, 0, w, h);
-        scopeCtx.strokeStyle = '#eceef2'; scopeCtx.lineWidth = 1;
-        for (let y = 18; y < h; y += 19) { scopeCtx.beginPath(); scopeCtx.moveTo(0, y); scopeCtx.lineTo(w, y); scopeCtx.stroke(); }
-        const yRed = h - 10 - Math.min(0.86, currentMa / 45) * (h - 20);
-        scopeCtx.strokeStyle = '#e04836'; scopeCtx.lineWidth = 1.8; scopeCtx.beginPath();
+        scopeCtx.clearRect(0, 0, w, h);
+        scopeCtx.strokeStyle = 'rgba(10, 10, 10, 0.08)'; scopeCtx.lineWidth = 1;
+        for (let y = 10; y < h; y += 14) { scopeCtx.beginPath(); scopeCtx.moveTo(0, y); scopeCtx.lineTo(w, y); scopeCtx.stroke(); }
+        const yRed = h - 6 - Math.min(0.84, currentMa / 45) * (h - 12);
+        scopeCtx.strokeStyle = '#e5533d'; scopeCtx.lineWidth = 1.6; scopeCtx.beginPath();
         for (let x = 0; x < w; x++) {
-          const y = yRed + (currentMa > 0 && !state.flowPaused ? Math.sin(x * 0.08 + scopePhase) * 1.4 : 0);
+          const y = yRed + (currentMa > 0 && !state.flowPaused ? Math.sin(x * 0.09 + scopePhase) * 1.2 : 0);
           if (x === 0) scopeCtx.moveTo(x, y); else scopeCtx.lineTo(x, y);
         }
         scopeCtx.stroke();
-        const yBlue = h - 10 - (state.voltage / 9.0) * (h - 22) * 0.55;
-        scopeCtx.strokeStyle = '#2563eb'; scopeCtx.lineWidth = 1.3; scopeCtx.beginPath();
-        scopeCtx.moveTo(0, yBlue); scopeCtx.lineTo(w, yBlue); scopeCtx.stroke();
+        const yRef = h - 6 - (state.voltage / 9.0) * (h - 14) * 0.55;
+        scopeCtx.strokeStyle = 'rgba(10, 10, 10, 0.28)'; scopeCtx.lineWidth = 1; scopeCtx.beginPath();
+        scopeCtx.moveTo(0, yRef); scopeCtx.lineTo(w, yRef); scopeCtx.stroke();
       }
 
       let flowT = 0, lastTime = performance.now(), smokeTime = 0;
@@ -1687,7 +1736,7 @@
             });
           } else if (animatedActors.kind === 'circuit') {
             animatedActors.sw.pivot.rotation.z += ((state.powerOn ? 0 : -0.68) - animatedActors.sw.pivot.rotation.z) * 0.16;
-            animatedActors.dMat.color.setHex(state.flowDir === 1 ? 0xe04836 : 0x2563eb);
+            animatedActors.dMat.color.setHex(state.flowDir === 1 ? 0xe5533d : 0x0a0a0a);
             animatedActors.dots.forEach((s) => { s.visible = phys.currentMa > 0; s.position.copy(animatedActors.loopCurve.getPointAt((s.userData.offset + flowT) % 1)); });
             const led = animatedActors.led;
             if (state.ledBurnt) {
@@ -1696,21 +1745,25 @@
             } else {
               led.smokePuffs.forEach(sm => { sm.material.opacity = 0; });
               const b = (state.powerOn && !state.reverseLed) ? Math.min(1, phys.currentMa / 20) : 0;
-              led.lensMat.color.setHex(0xe04836); led.lensMat.emissiveIntensity = 0.15 + b * 1.15;
+              led.lensMat.color.setHex(0xe5533d); led.lensMat.emissiveIntensity = 0.15 + b * 1.15;
               led.glowMat.opacity = b * 0.85; led.glowSprite.scale.set(1.6 + b * 1.4, 1.6 + b * 1.4, 1);
               pointGlowLight.position.set(3.4, -0.2, 0); pointGlowLight.intensity = b * 1.3;
             }
           }
 
           const w = window.innerWidth, h = window.innerHeight;
-          const minLeft = w > 960 ? 395 : (w > 720 ? 310 : 72);
+          const leftRect = document.getElementById('left-panel').getBoundingClientRect();
+          const botRect = document.getElementById('bottom-bar').getBoundingClientRect();
+          const leftSafe = w > 720 ? leftRect.right + 10 : 12;
+          const maxTop = Math.max(120, botRect.top - 18);
           labelAnchors.forEach((lbl) => {
             const p = lbl.pos.clone().project(camera);
             if (p.z > 1) lbl.el.style.display = 'none';
             else {
               lbl.el.style.display = 'block';
-              lbl.el.style.left = Math.min(w - 72, Math.max(minLeft, (p.x * 0.5 + 0.5) * w)) + 'px';
-              lbl.el.style.top = Math.min(h - 96, Math.max(54, (-p.y * 0.5 + 0.5) * h)) + 'px';
+              const halfW = (lbl.el.offsetWidth || 96) / 2;
+              lbl.el.style.left = Math.min(w - halfW - 18, Math.max(leftSafe + halfW, (p.x * 0.5 + 0.5) * w)) + 'px';
+              lbl.el.style.top = Math.min(maxTop, Math.max(58, (-p.y * 0.5 + 0.5) * h)) + 'px';
             }
           });
           renderer.render(scene, camera);
@@ -1724,7 +1777,7 @@
 
       const dotCursor = document.getElementById('tiny-dot-cursor');
       if (dotCursor && window.matchMedia('(pointer: fine)').matches) {
-        const hoverSel = 'a, button, input, select, canvas, [role="button"], .scene-label, .swatch';
+        const hoverSel = 'a, button, input, textarea, select, label, canvas, [style-hover], [role="button"], [onClick], .scene-label, .swatch';
         window.addEventListener('pointermove', (e) => {
           dotCursor.style.opacity = '1';
           dotCursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
