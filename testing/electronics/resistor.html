@@ -655,12 +655,18 @@
     .dictionary-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
 
     @media (max-width: 1120px) {
-      #left-panel { width: 320px; left: 24px; top: 64px; }
+      #left-panel { width: 320px; left: 24px; top: 64px; max-height: calc(100vh - 300px); }
       #telemetry-box { right: 24px; top: 72px; width: 200px; }
       #bottom-bar { left: 24px; right: 24px; bottom: 20px; }
       .controls-stack { max-width: calc(100vw - 260px); }
-      .bench-popover { left: 24px; bottom: 128px; max-width: calc(100vw - 48px); }
+      .bench-popover { left: 24px; bottom: 180px; max-width: calc(100vw - 48px); }
       #schematic-wrap { left: 360px; right: 240px; }
+    }
+
+    @media (max-width: 900px) {
+      #hint-block, #nav-equation { display: none; }
+      .controls-stack { max-width: 100%; }
+      .nav-cell, .nav-link-cell { padding: 0 11px; }
     }
 
     @media (max-width: 720px) {
@@ -1023,6 +1029,7 @@
           document.getElementById(pid).classList.toggle('visible', pid === state.openPopover);
         });
         renderBottomControls();
+        updateSafeLayout();
       }
 
       document.querySelectorAll('[data-close-pop]').forEach(b => {
@@ -1584,7 +1591,24 @@
           <div class="telemetry-row"><span class="k">led state</span><span class="v" style="color:${state.ledBurnt || state.reverseLed || phys.currentMa > 22 ? 'var(--red)' : 'var(--ink)'};">${phys.status}</span></div>`;
 
         renderBottomControls();
+        updateSafeLayout();
       }
+
+      function updateSafeLayout() {
+        const leftEl = document.getElementById('left-panel');
+        const botEl = document.getElementById('bottom-bar');
+        if (!leftEl || !botEl) return;
+        const botTop = botEl.getBoundingClientRect().top;
+        if (window.innerWidth > 720) {
+          const leftTop = leftEl.getBoundingClientRect().top;
+          leftEl.style.maxHeight = Math.max(160, Math.floor(botTop - leftTop - 16)) + 'px';
+        } else {
+          leftEl.style.maxHeight = '';
+        }
+        const popBottom = Math.max(120, Math.ceil(window.innerHeight - botTop + 14));
+        document.querySelectorAll('.bench-popover').forEach(p => { p.style.bottom = popBottom + 'px'; });
+      }
+      window.addEventListener('resize', updateSafeLayout);
 
       function rebuildAndSync() {
         renderBandSwatches();
