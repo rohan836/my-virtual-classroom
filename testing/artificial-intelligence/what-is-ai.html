@@ -70,6 +70,21 @@ mark{background:#e1edff;color:#153c82;padding:1px 3px;font-weight:700}
 .motion-feedback.motion-waiting{visibility:hidden}
 #wordart .motion-scene{width:100%;height:auto;display:block}
 @media(max-width:780px){.motion-phase-list span{font-size:10px}.motion-now{font-size:15px}.motion-actions button{padding:7px 9px}.stage .motion-scene{min-height:130px!important}}
+
+.stage .cinematic-scene{max-width:1000px;aspect-ratio:760/426;background:#101b2d;border-radius:12px;box-shadow:0 8px 20px #1a34531b;min-height:0!important}
+.stage .motion-controls{max-width:1000px;background:#f8fbff}
+.motion-phase-list{grid-template-columns:repeat(4,minmax(0,1fr))}
+.motion-phase-list span{font-family:system-ui,sans-serif;font-size:12px;white-space:normal}
+.motion-now{min-height:43px;display:flex;align-items:center;line-height:1.45}
+#stage:fullscreen{background:#101b2d;color:#edf4ff;display:flex;flex-direction:column;align-items:center;justify-content:safe center;padding:12px 18px;overflow:auto;gap:12px}
+#stage:fullscreen .cinematic-scene{max-width:min(1100px,calc((100dvh - 220px)*760/426));width:100%;flex-shrink:0}
+#stage:fullscreen .motion-controls{max-width:900px;color:#243955;flex-shrink:0}
+#stage:fullscreen>.meta{color:#b9cae0}
+#stage:fullscreen .cap{color:#edf4ff;font-size:18px}
+#stage:fullscreen .feedback{color:#243955;background:white}
+#stage:fullscreen button{color:#243955;background:#fff}
+#stage:fullscreen .motion-actions button:first-child{color:white;background:#2563eb}
+@media(max-width:780px){.motion-phase-list span{font-size:10px}.stage .cinematic-scene{min-height:0!important}.motion-now{font-size:14px}}
 </style></head><body><div id="app"><header><a href="../">/ ai studies</a><span>AI FOUNDATIONS · SELF-PACED</span><select id="jump" aria-label="Jump to slide"></select><div class="row"><button id="dictionary" class="compact">Word bank</button><button id="full" class="compact">Full screen</button></div></header><main id="main"></main><footer><button id="prev">← Previous</button><span id="progress" aria-live="polite"></span><button id="next" class="primary">Next slide →</button></footer></div><dialog id="gloss"><div class="mono meta">WORD EXPLORER</div><h2 id="word"></h2><div id="wordart"></div><p id="meaning"></p><p id="example" class="example"></p><div class="row"><button id="allwords">All words</button><button id="close">Close ×</button></div></dialog>
 <script>
 'use strict';const $=id=>document.getElementById(id);const terms={intelligence:['Intelligence','The ability to learn, understand and solve problems.','A child recognizes a green mango after seeing other mangoes.','human'],artificial:['Artificial','Made by people rather than produced by nature.','A plastic mango is artificial; a mango growing on a tree is natural.','natural'],AI:['Artificial Intelligence (AI)','Technology that allows computers to perform tasks that usually need human intelligence.','A computer identifies fruit in a picture.','machine'],computer:['Computer','A machine that follows instructions and works with information.','A phone is a small computer.','machine'],rule:['Fixed rule','An instruction that says exactly what to do.','If the fruit is yellow, call it a mango.','rule'],data:['Data','Information that a computer can use. It can be pictures, words, numbers or sounds.','Pictures of four fruits are data.','data'],label:['Label','The name or correct answer attached to an example.','A picture marked “mango” has a label.','label'],pattern:['Pattern','A feature or similarity that appears repeatedly.','Many mangoes have a similar oval shape even when colours differ.','pattern'],training:['Training','The process of learning from examples.','Showing a computer different named fruit pictures.','training'],model:['Model','The result of learning that a computer uses to make an answer.','A fruit recognizer that compares new fruit with learned examples.','machine'],prediction:['Prediction','An answer or guess based on information already learned.','The computer says “mango” when it sees a new fruit.','predict'],automatic:['Automatic','Something that works by itself after being set up.','A school bell rings at a set time without anyone pressing it.','clock'],feature:['Feature','A detail that helps describe something.','The colour and shape of a fruit are two features.','pattern']};
@@ -78,106 +93,120 @@ function fruit(i,x=0,y=0,s=1){let f=F[i];return '<g transform="translate('+x+' '
 const svg=(s,label='Illustration')=>'<svg class="scene" viewBox="0 0 660 260" role="img" aria-label="'+label+'">'+s+'</svg>';const text=(x,y,s,size=20,color='#111')=>'<text x="'+x+'" y="'+y+'" font-family="system-ui,sans-serif" font-size="'+size+'" text-anchor="middle" fill="'+color+'">'+s+'</text>';const box=(x,y,w,h,fill='#fff',stroke='#bbb')=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.5"/>';const arrow=(x,y,x2,y2)=>'<path d="M'+x+' '+y+' L'+x2+' '+y2+'" fill="none" stroke="#2563eb" stroke-width="3" class="trace"/><path d="M'+(x2-12)+' '+(y2-7)+' L'+x2+' '+y2+' L'+(x2-12)+' '+(y2+7)+'" fill="none" stroke="#2563eb" stroke-width="3"/>';const group=(s,c='fade')=>'<g class="'+c+'">'+s+'</g>';function computer(x,y,label='?',w=160){return '<g transform="translate('+x+' '+y+')">'+box(0,0,w,95,'#f0f5ff','#2563eb')+box(9,9,w-18,70,'#fff','#d3dff9')+text(w/2,53,label,21,'#1548a6')+'<path d="M'+w/2+' 95v18m-30 0h60" stroke="#111" stroke-width="3"/></g>'}function human(x,y){return '<g transform="translate('+x+' '+y+')"><circle cx="45" cy="40" r="31" fill="#e7b48b" stroke="#433b34"/><path d="M16 32 Q12 0 45 5 Q78 5 76 32 Q45 12 16 32" fill="#38312f"/><circle cx="34" cy="40" r="2.7"/><circle cx="57" cy="40" r="2.7"/><path d="M36 55q10 9 20 0" stroke="#593b2b" stroke-width="2" fill="none"/><path d="M5 128v-22q0-30 40-30t40 30v22" fill="#dde8ff" stroke="#2563eb" stroke-width="2"/></g>'}function picture(i,x,y,label=''){return box(x,y,122,130,'white','#c7c7c7')+fruit(i,x+20,y+3,.84)+(label?text(x+61,y+119,label,17):'')}
 
 /* Declarative, seekable animation diagrams. Coordinates remain stable while timed layers are revealed. */
-const MOTION_END=7200;
-const motionInk='#243955',motionBlue='#2563eb',motionGreen='#13733b',motionRed='#b33225';
-const mx=(s)=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-const mt=(x,y,s,size=17,color=motionInk,weight=500)=>'<text x="'+x+'" y="'+y+'" font-family="system-ui,Arial,sans-serif" font-size="'+size+'" font-weight="'+weight+'" text-anchor="middle" fill="'+color+'">'+mx(s)+'</text>';
-const mr=(x,y,w,hh,fill='#fff',stroke='#cdd9e7',rad=10)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+hh+'" rx="'+rad+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.6"/>';
-const phase=(at,body,mode='rise',span=520)=>'<g data-enter="'+at+'" data-span="'+span+'" data-mode="'+mode+'">'+body+'</g>';
-const moveDot=(x1,y1,x2,y2,at,end,color=motionBlue)=>'<g data-path="'+[x1,y1,x2,y2].join(',')+'" data-from="'+at+'" data-to="'+end+'" opacity="0"><circle r="10" fill="'+color+'" opacity=".15"/><circle r="4.5" fill="'+color+'"/><circle cx="-9" r="2" fill="'+color+'" opacity=".45"/></g>';
-function flow(x1,y1,x2,y2,at,end,color=motionBlue){
- return '<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" stroke="'+color+'" stroke-opacity=".28" stroke-width="2.5" stroke-dasharray="5 5" fill="none"/><path d="M'+(x2-8)+' '+(y2-5)+' L'+x2+' '+y2+' L'+(x2-8)+' '+(y2+5)+'" stroke="'+color+'" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'+moveDot(x1,y1,x2,y2,at,end,color);
+
+/* Cinematic, seekable SVG teaching scenes. All motion is driven by a single playhead. */
+const MOTION_END=12000;
+const C={bg:'#101b2d',ink:'#edf4ff',muted:'#a7b9d0',blue:'#64b5ff',gold:'#ffd16a',green:'#71e2b0',red:'#ff8e86',line:'#344b66',panel:'#192b42'};
+const mx=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const mt=(x,y,s,size=20,color=C.ink,weight=500,anchor='middle')=>'<text x="'+x+'" y="'+y+'" text-anchor="'+anchor+'" font-family="system-ui, sans-serif" font-size="'+size+'" font-weight="'+weight+'" fill="'+color+'">'+mx(s)+'</text>';
+const cr=(x,y,w,hh,fill=C.panel,stroke=C.line,rad=10)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+hh+'" rx="'+rad+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.5"/>';
+const cc=(x,y,r,fill,stroke='none',sw=2)=>'<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>';
+const cl=(x,y,x2,y2,color=C.line,sw=2,dash='')=>'<path d="M'+x+' '+y+' L'+x2+' '+y2+'" fill="none" stroke="'+color+'" stroke-width="'+sw+'" stroke-linecap="round"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';
+const tr=(x,y,s,body)=>'<g transform="translate('+x+' '+y+') scale('+s+')">'+body+'</g>';
+const show=(at,body,until=-1,span=500)=>'<g data-film-layer="'+[at,until,span].join(',')+'">'+body+'</g>';
+const tween=(body,from,to,a,b,fade=null)=>'<g data-film-tween="'+[from,to,...a,...b].join(',')+'"'+(fade?' data-film-fade="'+fade.join(',')+'"':'')+'>'+body+'</g>';
+const draw=(d,color=C.blue,sw=2.5,at=0,end=1000)=>'<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round" pathLength="1" data-film-draw="'+[at,end].join(',')+'"/>';
+const pulse=(x,y,r,color,at,end)=>'<g data-film-pulse="'+[at,end,x,y,r].join(',')+'">'+cc(x,y,r,'none',color,2)+'</g>';
+const packet=(x,y,x2,y2,at,end,color=C.blue)=>tween(cc(0,0,10,color)+cc(0,0,4,'#fff'),at,end,[x,y,.7],[x2,y2,.7],[at,end,200]);
+const arr=(x,y,x2,y2,at=0,end=900,color=C.blue)=>draw('M'+x+' '+y+' L'+x2+' '+y2,color,2.5,at,end)+show(end-150,'<path d="M'+(x2-8)+' '+(y2-5)+' L'+x2+' '+y2+' L'+(x2-8)+' '+(y2+5)+'" stroke="'+color+'" stroke-width="2.5" fill="none" stroke-linejoin="round"/>');
+function cf(i,x,y,s=1){return tr(x,y,s,fruit(i))}
+function outline(i,x,y,s,color=C.blue){return tr(x,y,s,'<path d="'+(F[i][1]==='mango'?'M57 16 C94 18 94 64 59 91 C30 112 8 82 15 55 C21 31 39 15 57 16Z':'M50 31 C18 7 4 43 17 75 C28 102 43 97 50 91 C65 106 84 91 91 65 C100 32 74 14 50 31Z')+'" fill="none" stroke="'+color+'" stroke-width="3" stroke-dasharray="5 4"/>')}
+const person=(x,y,s=1)=>tr(x,y,s,human(0,0));
+const tick=(x,y,yes=true,s=1)=>tr(x,y,s,cc(0,0,26,yes?'#203d3c':'#462f39',yes?C.green:C.red,2)+'<path d="'+(yes?'M-12 0l8 9 17-20':'M-10 -10l20 20m0-20l-20 20')+'" fill="none" stroke="'+(yes?C.green:C.red)+'" stroke-width="4" stroke-linecap="round"/>');
+const beat=(a,b,c,d)=>[[0,'Observe',a],[3000,'Explore',b],[6500,'Connect',c],[9500,'Understand',d]];
+const banner=(s,color=C.green)=>cr(90,326,580,42,'#192e42',color,7)+mt(380,353,s,19,color,650);
+function filmSvg(title,body,beats){return '<svg class="scene motion-scene cinematic-scene" viewBox="0 0 760 426" role="img" aria-label="'+mx(title)+'" data-beats="'+mx(JSON.stringify(beats))+'"><rect x="1" y="1" width="758" height="424" rx="14" fill="'+C.bg+'" stroke="#283d57"/><path d="M24 63H736M24 375H736" stroke="#344b66" stroke-width="1"/>'+mt(30,25,'AI FOUNDATIONS / VISUAL EXPLAINER',10,C.muted,650,'start')+mt(380,51,title,24,C.ink,680)+body+mt(380,405,'ILLUSTRATIVE DIAGRAM · NOT A RECORDING OF A REAL MODEL',10,'#899fba')+'</svg>'}
+function humanFilm(n){
+ let b=show(0,cf(0,62,115,1.45)+mt(135,291,'A mango',19,C.gold,650),n===2?7100:-1)+show(1400,person(315,120,1.23)+mt(370,291,'A person',19,C.ink,650));
+ b+=draw('M210 190 Q260 150 315 171',C.blue,2.8,1700,3000)+packet(212,190,307,171,2200,3100);
+ b+=show(3000,cr(500,91,218,205)+mt(609,116,'Remembered examples',15,C.muted,650));
+ [0,2,4].forEach((i,k)=>b+=show(3300+k*470,cf(i,510+k*67,145,.61)));
+ b+=show(5200,mt(609,246,'Different colours',16)+mt(609,268,'Similar shape',16,C.blue,650))+pulse(609,179,65,C.blue,5300,6600);
+ if(n===2)b+=tween(fruit(2),6300,7900,[577,150,.61],[62,115,1.45],[6300,12000,350])+show(7900,outline(2,62,115,1.45)+mt(135,291,'Green mango',19,C.green,650));
+ b+=show(9600,banner(n===2?'Different colour, same kind of fruit':'Recognized: mango'));
+ return filmSvg(n===2?'Recognizing a changed appearance':n===1?'Learning from experience':'How people recognize things',b,beat('Look at the fruit.','Recall earlier examples.','Compare useful similarities, such as shape.','Recognize the fruit using past experience.'));
 }
-function scanLine(x,y,w,hh,at,end){
- return '<g data-scan="'+[x,y,w,hh].join(',')+'" data-from="'+at+'" data-to="'+end+'" opacity="0"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="12" rx="5" fill="#2563eb" opacity=".12"/><path d="M'+x+' '+(y+6)+'h'+w+'" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round"/></g>';
+function naturalFilm(n){
+ let b=show(0,'<path d="M180 268v-95m0 27l-40-38m40 25l47-45" stroke="#a57c52" stroke-width="18" stroke-linecap="round"/>'+cc(130,146,48,'#3b795a')+cc(186,117,57,'#4d9867')+cc(239,151,43,'#438962')+cc(171,162,47,'#478b65')+cl(65,269,299,269,'#4d826a',3)+mt(180,300,'Living tree',19,C.green,650));
+ b+=show(800,cc(67,88,20,C.gold)+mt(67,122,'Sunlight',13,C.gold))+show(1800,'<path d="M300 76q-25 34 0 39q25-5 0-39Z" fill="#64b5ff"/>'+mt(300,132,'Water',13,C.blue));
+ [0,2,4].forEach((i,k)=>b+=tween(fruit(i),2600+k*400,4400+k*400,[110+k*54,150,.02],[110+k*54,150,.43],[2600+k*400,-1,200]));
+ if(n===0){b+=tween(fruit(0),6000,8100,[160,150,.43],[503,111,1.45],[6000,-1,300])+show(8200,mt(575,282,'Real mango',21,C.green,650)+mt(575,303,'Grows and ripens',15,C.muted));}
+ else {b+=show(3200,cl(380,80,380,316,C.line,1,'5 7')+mt(560,94,'Made by people',17,C.blue,650));
+ b+=show(3400,'<path d="M455 235v-89l41 22v-40l43 25v-58h27v140Z" fill="#2f5279" stroke="#82b7ee" stroke-width="2" stroke-linejoin="round"/>'+[0,1,2].map(k=>cr(468+k*31,203,20,20,'#99c9fb','none',2)).join('')+mt(510,268,'Factory shapes plastic',16,C.muted),6500);
+ b+=tween(fruit(0),6200,8200,[515,151,.15],[503,111,1.45],[6200,-1,300])+show(8200,mt(575,282,'Plastic mango',21,C.blue,650)+mt(575,303,'Does not grow',15,C.muted));}
+ b+=show(9600,banner(n===0?'Produced by nature':n===1?'Natural ≠ artificial':'Made by people ≠ intelligent',n===0?C.green:C.gold));
+ return filmSvg(n===0?'How a natural fruit grows':n===1?'Natural and artificial':'Artificial does not mean intelligent',b,beat('Observe a living tree.','Sunlight, water and time support growth.',n===0?'See a fruit grow and ripen.':'Compare the fruit with a human-made object.',n===0?'Natural means produced by nature.':'Artificial means made by people; not everything artificial is AI.'));
 }
-function cardArt(x,y,w,hh,kicker,title,art='',sub='',tone='blue'){
- const color=tone==='red'?motionRed:tone==='green'?motionGreen:motionBlue;
- const tint=tone==='red'?'#fff5f3':tone==='green'?'#f0faf3':'#f2f6ff';
- return mr(x,y,w,hh,'#fff','#cdd9e7')+mr(x+8,y+8,w-16,26,tint,tint,5)+mt(x+w/2,y+26,kicker,11,color,700)+art+mt(x+w/2,y+hh-29,title,19,motionInk,700)+(sub?mt(x+w/2,y+hh-10,sub,12,'#526780',500):'');
+function pixels(i,x,y,s){let b='';for(let yy=0;yy<10;yy++)for(let xx=0;xx<10;xx++){const dx=(xx-4.5)/3.2,dy=(yy-5)/4.1;b+=cr(x+xx*s,y+yy*s,s-1,s-1,dx*dx+dy*dy<1?F[i][2]:'#253c56','none',1);}return b}
+function machineFilm(n){
+ if(n===0)return humanFilm(0);
+ let b=show(0,cf(0,40,114,1.5)+mt(115,293,'Fruit photo',19,C.gold,650))+show(1000,cr(31,103,175,180,'none',C.blue,4));
+ b+=tween(cl(0,0,166,0,C.blue,3),1000,2800,[35,110,1],[35,268,1],[1000,2800,220])+arr(210,190,270,190,2300,3300)+packet(210,190,270,190,2600,3350);
+ b+=show(3000,pixels(0,281,116,15)+mt(356,294,'Image data',19,C.blue,650)+mt(356,312,'Illustrative pixels',12,C.muted));
+ b+=arr(434,190,491,190,4800,5800)+packet(434,190,491,190,5100,5900);
+ b+=show(5500,cr(503,100,216,211)+mt(611,125,'LEARNED PATTERNS',14,C.blue,650));
+ [0,2,4].forEach((i,k)=>b+=show(6100+k*240,cf(i,509+k*68,148,.63)+outline(i,509+k*68,148,.63,C.blue)));
+ b+=show(7700,mt(611,258,'Similar shapes',17,C.blue,650)+mt(611,280,'Different colours',14,C.muted));
+ b+=show(9600,banner('Prediction: mango')+(n>1?tick(690,347,true,.55):''));
+ return filmSvg(n===1?'How AI recognizes a fruit':'AI helps, people check',b,beat('Capture a picture of the fruit.','Represent the picture as data, such as pixels.','A trained model uses learned visual patterns.','The model predicts mango. A person can check it.'));
 }
-function fruitMini(i,x,y,s=.68){return fruit(i,x,y,s)}
-function chipArt(x,y,label='AI MODEL'){
- let out=mr(x,y,112,77,'#e8f0ff','#729be9',11)+mr(x+10,y+10,92,57,'#fff','#bdcff0',6);
- for(let k=0;k<4;k++){out+='<path d="M'+(x+20+k*24)+' '+(y-5)+'v5m0 77v5" stroke="#729be9" stroke-width="2"/>'}
- const pts=[[x+23,y+28],[x+23,y+50],[x+55,y+20],[x+55,y+39],[x+55,y+56],[x+89,y+30],[x+89,y+49]];
- [[0,2],[0,3],[1,3],[1,4],[2,5],[3,5],[3,6],[4,6]].forEach(([a,b])=>{out+='<path d="M'+pts[a].join(' ')+'L'+pts[b].join(' ')+'" stroke="#b0c7f1" stroke-width="1.5"/>'});
- pts.forEach(([xx,yy],i)=>{out+='<circle cx="'+xx+'" cy="'+yy+'" r="4.2" fill="'+(i>4?'#2563eb':'#94b6ef')+'"/>'});
- return out;
+function ruleFilm(n){
+ const i=n===0?0:n===1?2:5,yes=!!F[i][3],right=n===0;
+ let b=show(0,cf(i,45,124,1.5)+mt(120,299,F[i][0],18,C.ink,650))+show(1100,cc(120,98,11,F[i][2],C.ink,1)+mt(120,77,'Colour',13,C.muted));
+ b+=arr(212,196,286,196,1900,3000)+packet(212,196,286,196,2200,3100,C.gold);
+ b+=show(2900,'<path d="M380 108L472 196L380 284L288 196Z" fill="#25354a" stroke="'+C.gold+'" stroke-width="2.5"/>'+mt(380,187,'Is it',19)+mt(380,213,'yellow?',24,C.gold,700));
+ b+=draw('M445 136L532 106H604',yes?C.gold:C.line,3,4300,5500)+draw('M445 256L532 285H604',yes?C.line:C.blue,3,4300,5500);
+ b+=show(4900,mt(519,94,'YES',14,yes?C.gold:C.muted,700)+mt(519,307,'NO',14,yes?C.muted:C.blue,700));
+ b+=packet(445,yes?136:256,532,yes?106:285,5500,6400,yes?C.gold:C.blue)+packet(532,yes?106:285,604,yes?106:285,6400,7200,yes?C.gold:C.blue);
+ b+=show(6500,cr(595,78,133,56,'#23384a',yes?C.gold:C.line)+mt(661,112,'Mango',17,yes?C.gold:C.muted,650)+cr(595,257,133,56,'#23384a',yes?C.line:C.blue)+mt(661,291,'Not mango',16,yes?C.muted:C.blue,650));
+ b+=show(8200,tick(650,191,right,.9)+mt(650,231,right?'Correct':'Wrong',18,right?C.green:C.red,650))+show(9600,banner(right?'The rule works for this fruit':'Colour alone is not enough',right?C.green:C.red));
+ return filmSvg('Fixed rule: if yellow, say mango',b,beat('Observe the fruit colour.','Apply the same question: is it yellow?','Follow the yes or no branch.',right?'The rule happens to be right.':'The rule follows its instruction but gives the wrong name.'));
 }
-function checkArt(x,y,ok=true){const color=ok?motionGreen:motionRed;return '<circle cx="'+x+'" cy="'+y+'" r="24" fill="'+(ok?'#e5f5e9':'#fde8e4')+'" stroke="'+color+'" stroke-width="1.6"/><path d="'+(ok?'M'+(x-11)+' '+y+'l8 8 15-17':'M'+(x-9)+' '+(y-9)+'l18 18m0-18l-18 18')+'" stroke="'+color+'" stroke-width="3.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'}
-function motionSvg(body,labels,aria){
- return '<svg class="scene motion-scene" viewBox="0 0 660 302" role="img" aria-label="'+mx(aria)+'" data-phases="'+mx(JSON.stringify(labels))+'"><rect x="1" y="1" width="658" height="300" rx="13" fill="#f8fbff" stroke="#dbe5f0"/><path d="M18 268H642" stroke="#dbe5f0" stroke-width="1"/>'+body+mt(330,289,'INPUT  ·  PROCESS  ·  RESULT',11,'#6a7c93',650)+'</svg>';
+function dataFilm(kind){
+ let b='';[0,1,2,3].forEach((i,k)=>{let x=58+k*168;b+=show(k*380,cr(x,95,140,162)+cf(i,x+22,105,1)+mt(x+70,240,'Photo '+(k+1),15,C.muted),kind==='pattern'?6100:-1);
+ if(kind!=='data')b+=show(3000+k*340,cr(x,260,140,35,'#23384e',i%2===0?C.gold:C.green,5)+mt(x+70,283,F[i][1],17,i%2===0?C.gold:C.green,650),kind==='pattern'?6100:-1);
+ if(kind==='pattern')b+=tween(fruit(i),5800,7900,[x+22,105,1],[i%2===0?118+k*65:430+(k-1)*65,153,.95],[5800,-1,300]);
+ });
+ if(kind==='pattern'){b+=show(6900,cr(85,125,285,181,'none',C.gold,25)+cr(400,125,285,181,'none',C.green,25)+mt(228,147,'MANGOES',14,C.gold,650)+mt(542,147,'APPLES',14,C.green,650))+show(8700,mt(228,287,'Long / curved',16,C.gold,650)+mt(542,287,'Rounder shape',16,C.green,650));}
+ if(kind==='data')b+=draw('M58 265v18H702v-18',C.blue,3,3400,5200);
+ b+=show(9500,banner(kind==='data'?'Four photos = four pieces of data':kind==='label'?'Picture + correct name = labelled example':'A pattern is a repeated similarity',C.blue));
+ return filmSvg(kind==='data'?'What is data?':kind==='label'?'What is a label?':'Discovering a pattern',b,beat('Collect several fruit pictures.',kind==='data'?'Each picture is information.':'Attach the correct name to every picture.',kind==='pattern'?'Group fruits by shared shape.':'Look at the collected examples.',kind==='pattern'?'Notice the same shape even in different colours.':kind==='label'?'The name tells us what the picture represents.':'A collection of pictures is data.'));
 }
-function diagramThree(left,mid,right,labels,aria,extra=''){
- return motionSvg(phase(0,left)+flow(194,137,240,137,1250,2350)+phase(2000,mid)+flow(420,137,466,137,4100,5150)+phase(4900,right)+extra,labels,aria);
+// The classroom lab uses categorical colour and shape features, not real image classification.
+const px=i=>330+F[i][3]*200,py=i=>272-F[i][4]*135;
+function axes(){return cr(262,85,335,228,'#14243a',C.line,8)+cl(293,292,571,292,C.muted,1.5)+cl(293,292,293,103,C.muted,1.5)+cl(330,104,330,292,C.line,1,'4 5')+cl(530,104,530,292,C.line,1,'4 5')+cl(293,137,571,137,C.line,1,'4 5')+cl(293,272,571,272,C.line,1,'4 5')+mt(330,308,'Not yellow',12,C.muted)+mt(530,308,'Yellow',12,C.muted)+mt(283,137,'Long',10,C.muted,600,'end')+mt(283,272,'Round',10,C.muted,600,'end')+mt(430,100,'FEATURE SPACE',11,C.blue,700)}
+function featureFilm(mode,n=0,i=4,ids=[0,1,2,3],showRule=false){
+ const train=mode==='training',observe=mode==='observe',j=ids.length?nearest(i,ids):null;
+ let b=show(0,mt(119,86,train?'LABELLED EXAMPLES':observe?'FRUIT TO LABEL':'NEW FRUIT',12,C.muted,700));
+ if(train)ids.forEach((v,k)=>{let x=25+(k%2)*95,y=99+Math.floor(k/2)*104;b+=show(k*350,cf(v,x,y,.82)+mt(x+41,y+95,F[v][1],13,F[v][1]==='mango'?C.gold:C.green,650));});
+ else b+=show(0,cf(i,51,116,1.42)+mt(122,284,F[i][0],17,C.ink,650));
+ b+=show(1700,mt(121,306,'Colour + shape',15,C.blue,650))+show(2700,axes());
+ if(observe){b+=show(4000,mt(430,165,'Colour: '+(F[i][3]?'yellow':'not yellow'),20,C.gold,650)+mt(430,206,'Shape: '+(F[i][4]?'long':'round'),20,C.blue,650))+show(9500,banner('Choose the correct label',C.blue));return filmSvg('Observe before labelling',b,beat('Observe the new fruit.','Notice its colour and shape.','The lab uses two pre-set features.','Use the buttons to choose the correct label.'));}
+ ids.forEach((v,k)=>{
+ const same=ids.filter(z=>px(z)===px(v)&&py(z)===py(v)),off=same.indexOf(v)*17;
+ b+=tween(fruit(v),3400+k*350,4800+k*350,train?[25+(k%2)*95,99+Math.floor(k/2)*104,.82]:[180,188,.22],[px(v)-12+off,py(v)-12,.24],[3400+k*350,5300+k*350,250]);
+ b+=show(4900+k*350,cc(px(v)+off,py(v),8,F[v][1]==='mango'?C.gold:C.green,C.bg,1.5)+mt(px(v)+off,py(v)-13-k%2*13,F[v][1],11,F[v][1]==='mango'?C.gold:C.green,650));
+ });
+ if(train)b+=show(6600,cr(611,117,119,159)+mt(670,142,n===0?'COLLECT':n===1?'COMPARE':'READY',12,C.blue,700)+mt(670,178,'Shape',17)+mt(670,204,'Colour',17)+mt(670,245,n===0?'Saved':n===1?'Patterns':'Model',18,C.green,700))+show(9500,banner(n===0?'Save labelled examples':n===1?'Compare useful features':'Ready to test a new fruit',C.blue));
+ else{b+=tween(fruit(i),6300,7700,[51,116,1.42],[px(i)-17,py(i)-17,.33],[6300,8100,220])+show(7700,cc(px(i),py(i),16,'none',C.blue,3)+mt(px(i),py(i)+25,'new',13,C.blue,700));
+ if(j!==null){const d=Math.abs(F[i][3]-F[j][3])+2*Math.abs(F[i][4]-F[j][4]),yes=F[j][1]===F[i][1];
+ if(d)b+=draw('M'+px(i)+' '+py(i)+'L'+px(j)+' '+py(j),C.blue,3,7900,8800);else b+=pulse(px(j),py(j),18,C.blue,7700,9000);
+ b+=show(8300,cr(611,111,119,185)+mt(670,133,'CLOSEST',12,C.blue,700)+mt(670,151,'EXAMPLE',12,C.blue,700)+cf(j,638,160,.65)+mt(670,246,F[j][1],17,F[j][1]==='mango'?C.gold:C.green,650)+mt(670,273,'Distance: '+d,13,C.muted));
+ b+=show(9500,banner('Prediction: '+F[j][1]+'  ·  Actual: '+F[i][1]+(showRule?'  ·  Rule: '+(F[i][3]?'mango':'not mango'):''),yes?C.green:C.red));
+ }}
+ return filmSvg(train?'Learning from labelled examples':'Compare a new fruit with saved examples',b,beat(train?'Collect labelled fruits.':'Observe a new fruit.', 'Represent each fruit by two pre-set features.',train?'Plot the examples by colour and shape.':'Place the new fruit and compare its features.',train?'The toy model stores examples for later comparison.':'Choose the nearest example and check the prediction.'));
 }
-function fruitCard(x,i,kicker,title,sub,tone='blue'){
- return cardArt(x,49,174,185,kicker,title,fruitMini(i,x+52,91,.72),sub,tone);
+function clockFilm(){
+ let b=show(0,cc(173,190,91,'#1c3049',C.blue,2)+mt(173,310,'School clock',19,C.ink,650));
+ for(let k=0;k<12;k++){const a=k*Math.PI/6;b+=cl(173+Math.sin(a)*73,190-Math.cos(a)*73,173+Math.sin(a)*84,190-Math.cos(a)*84,C.muted,k%3===0?3:1);}
+ b+=show(500,cl(173,190,173,126,C.gold,3)+cl(173,190,134,167,C.ink,5)+cc(173,190,5,C.gold)+mt(173,86,'10:00',21,C.gold,700))+arr(275,190,352,190,2600,3800)+packet(275,190,352,190,3000,4000);
+ b+=show(3500,cr(363,143,168,95,'#24394e',C.gold,8)+mt(447,180,'IF time = 10:00',17,C.gold,650)+mt(447,210,'THEN ring',17))+arr(538,190,592,190,6300,7400);
+ b+=show(7100,tr(650,183,1.2,'<path d="M0-47q-25 0-25 31V2l-10 11h70L25 2v-18q0-31-25-31Z" fill="#ffd16a" stroke="#f2b947" stroke-width="2"/>'+cc(0,20,6,C.gold))+mt(650,270,'Bell rings',19,C.green,650))+pulse(650,183,48,C.gold,7800,9100)+pulse(650,183,48,C.gold,9000,10300)+show(9500,banner('Automatic ≠ AI',C.gold));
+ return filmSvg('A school bell follows a rule',b,beat('Read the current time.','Compare it with the scheduled time.','The condition matches, so the bell rings.','A fixed rule can automate a task without AI.'));
 }
-function resultCard(x,kicker,title,sub,ok=true){
- return cardArt(x,49,174,185,kicker,title,checkArt(x+87,134,ok),sub,ok?'green':'red');
-}
-function processCard(x,kicker,title,sub,art=chipArt(x+31,97)){
- return cardArt(x,49,180,185,kicker,title,art,sub);
-}
-function humanArt(x,y){return '<g transform="translate('+x+' '+y+') scale(.75)">'+human(0,0)+'</g>'}
 function scene(kind,n=0){
- if(kind==='human'){
-  const left=fruitCard(20,0,'01 · SEE','Yellow mango','A familiar example');
-  const mid=processCard(240,'02 · REMEMBER',n===0?'Recognize':n===1?'Use experience':'Compare shapes','Human memory',humanArt(296,89));
-  const right=n===2?fruitCard(466,2,'03 · RECOGNIZE','Green mango','Same kind of fruit','green'):resultCard(466,'03 · NAME','Mango',n===0?'Recognized fruit':'Remembered name');
-  return diagramThree(left,mid,right,['Look at the fruit',n===2?'Recall its shape, not just colour':'Use memory and experience',n===2?'Recognize a different-looking mango':'Recognize and name the fruit'],'Human recognition: see, remember and recognize');
- }
- if(kind==='natural'){
-  const tree='<path d="M107 168v-55m0 22l-24-23m24 18l23-25" stroke="#8c6948" stroke-width="9" stroke-linecap="round" fill="none"/><circle cx="82" cy="106" r="27" fill="#b5dba0"/><circle cx="118" cy="98" r="33" fill="#9dc985"/><circle cx="139" cy="123" r="23" fill="#b5dba0"/>'+fruitMini(0,82,110,.36);
-  const left=cardArt(20,49,174,185,'01 · NATURAL','Mango tree',tree,'Grows in nature','green');
-  const factory='<g transform="translate(277 96)"><path d="M0 67V31l28 15V22l30 17V9h20v58Z" fill="#dce8fc" stroke="#729be9" stroke-width="2" stroke-linejoin="round"/><rect x="14" y="52" width="12" height="12" fill="#fff"/><rect x="37" y="52" width="12" height="12" fill="#fff"/><rect x="60" y="52" width="12" height="12" fill="#fff"/></g>';
-  const mid=processCard(240,'02 · MADE BY PEOPLE',n===0?'Compare':n===1?'Manufacture':'Human-made','People design objects',n===0?humanArt(296,89):factory);
-  const right=fruitCard(466,0,n===0?'03 · NATURAL':'03 · ARTIFICIAL',n===0?'Real mango':'Plastic mango',n===0?'Grows and ripens':'Does not grow',n===0?'green':'blue');
-  if(n===0)return motionSvg(phase(0,left)+flow(194,137,240,137,1300,2350,'#238452')+phase(2100,processCard(240,'02 · GROWTH','Growing fruit','Water, sun and time','<g transform="translate(298 100)"><circle cx="30" cy="22" r="15" fill="#f6d478"/><path d="M30 0v6m0 32v6M8 22h6m32 0h6M15 7l5 5m20 20 5 5m0-30-5 5M20 32l-5 5" stroke="#c99826" stroke-width="2"/><path d="M17 64q13-30 26 0" fill="#c6e2fb" stroke="#6e9bd1"/></g>'))+flow(420,137,466,137,4100,5150,'#238452')+phase(4900,right),['See the living mango tree','Sunlight, water and time support growth','A natural mango grows on the tree'],'Natural fruit grows on a living tree');
-  return motionSvg(phase(0,left)+phase(1700,mid)+flow(420,137,466,137,3400,4700)+phase(4700,right)+phase(5700,mt(330,251,n===2?'Artificial = made by people, not automatically intelligent':'Natural fruit and a manufactured copy are different',15,motionInk,650)),['A real mango grows in nature','People make a model in a factory','The artificial mango does not grow or ripen'],'Compare natural fruit with a manufactured plastic mango');
- }
- if(kind==='machine'){
-  if(n===0)return diagramThree(fruitCard(20,0,'01 · SEE','Mango','Visual information'),processCard(240,'02 · UNDERSTAND','Human','Memory and experience',humanArt(296,89)),resultCard(466,'03 · SAY','A mango!','Human recognition'),['Look at the fruit','Use human memory and understanding','Say its name'],'A person recognises a fruit');
-  const left=fruitCard(20,0,'01 · INPUT','Fruit photo','Image data')+scanLine(49,91,116,70,500,1850);
-  const middle=processCard(240,'02 · PROCESS','AI model','Uses learned patterns')+scanLine(274,104,110,57,2600,3900);
-  return diagramThree(left,middle,resultCard(466,'03 · PREDICTION','Mango',n>1?'Person checks result':'Likely fruit name'),['Capture a fruit image','Compare visual patterns using the AI model',n>1?'Show the prediction and check it':'Output the likely fruit name'],'AI recognition: image, model, prediction');
- }
- if(kind==='rule'){
-  const i=n===0?0:n===1?2:5,yes=F[i][3]===1,ok=n===0;
-  const ruleArt=mr(278,95,104,29,'#fff5d6','#e4c46d',5)+mt(330,115,'Is it yellow?',14,motionInk,650)+phase(2650,mr(294,137,72,27,yes?'#e7f6eb':'#fde8e4',yes?'#87c09a':'#e2a29b',5)+mt(330,155,yes?'YES':'NO',15,yes?motionGreen:motionRed,700));
-  return diagramThree(fruitCard(20,i,'01 · INPUT',F[i][0],'Look at the colour'),processCard(240,'02 · FIXED RULE','If yellow','Then say mango',ruleArt),resultCard(466,'03 · RULE ANSWER',yes?'Mango':'Not mango',ok?'Correct this time':'Incorrect answer',ok),['Observe the fruit colour','Apply the same colour-only rule',ok?'The rule happens to be correct':'Compare with the real fruit: the rule fails'],'Fixed colour rule '+(ok?'succeeds':'fails')+' on '+F[i][0]);
- }
- if(kind==='data'||kind==='label'||kind==='pattern'){
-  let body='';
-  const ids=[0,1,2,3];
-  ids.forEach((i,k)=>{
-   const x=20+k*160;
-   const label=kind==='data'?'Photo '+(k+1):F[i][1]==='mango'?'Mango':'Apple';
-   body+=phase(k*480,mr(x,43,140,167,'#fff','#cdd9e7',9)+mt(x+70,63,'EXAMPLE 0'+(k+1),11,'#657d96',650)+fruitMini(i,x+38,69,.68));
-   if(kind==='data')body+=phase(2100+k*280,mt(x+70,183,label,17,motionInk,650));
-   else body+=phase(2100+k*280,mr(x+10,165,120,30,F[i][1]==='mango'?'#eaf1ff':'#f0f7eb','#d9e4f3',5)+mt(x+70,185,label,17,F[i][1]==='mango'?motionBlue:motionGreen,650));
-   if(kind==='pattern')body+=phase(3900+k*230,'<rect x="'+(x+30)+'" y="67" width="80" height="86" rx="'+(F[i][1]==='mango'?27:37)+'" fill="none" stroke="'+(F[i][1]==='mango'?motionBlue:motionGreen)+'" stroke-width="2.5" stroke-dasharray="6 4"/>');
-  });
-  body+=phase(5200,mt(330,246,kind==='data'?'Four pictures are four pieces of data':kind==='label'?'A picture + correct name = labelled example':'Mangoes share shape features even when colours differ',17,motionInk,650));
-  return motionSvg(body,kind==='data'?['Collect several different pictures','Keep each picture as information','A collection of pictures is data']:kind==='label'?['Collect the fruit pictures','Attach a correct name to each picture','The labelled examples are ready']:['Look at several labelled examples','Compare their names and visible features','Notice recurring shape patterns across colours'],kind+' illustrated using four different fruit pictures');
- }
- if(kind==='training'){
-  const left=cardArt(20,49,174,185,'01 · EXAMPLES','Labelled data',fruitMini(0,36,101,.58)+fruitMini(1,112,101,.58)+mt(65,177,'Mango',12,motionBlue,650)+mt(143,177,'Apple',12,motionGreen,650),'Show different fruit');
-  const mid=processCard(240,'02 · '+(n===0?'COLLECT':'TRAIN'),n===0?'Data collection':'Find patterns',n===0?'Save the examples':'Learn useful features')+scanLine(274,104,110,57,2650,4050);
-  const right=n===2?fruitCard(466,2,'03 · NEW INPUT','Green mango','Ready to test'):resultCard(466,'03 · READY',n===0?'Examples saved':'Model trained',n===0?'Not trained yet':'Can make predictions');
-  return diagramThree(left,mid,right,n===0?['Collect varied labelled examples','Store the pictures and their names','Examples are ready for training']:n===1?['Show labelled pictures to the learning system','Find useful patterns during training','A trained model is ready']:['Start with labelled training examples','Use the trained model','Show a new example for testing'],'Training process from labelled examples to a model');
- }
- if(kind==='predict'){
-  return diagramThree(fruitCard(20,4,'01 · NEW INPUT','Orange mango','Not in training'),processCard(240,'02 · COMPARE','Trained model','Use learned features')+scanLine(274,104,110,57,2650,4050),resultCard(466,'03 · PREDICTION',n===0?'Likely mango':'Mango',n>1?'Check actual fruit':'Model answer'),['Show a new fruit','Use the patterns learned during training',n>1?'Check the predicted name against reality':'Produce a likely fruit name'],'A trained model predicts the name of a new fruit');
- }
- if(kind==='clock'){
-  const clock='<circle cx="107" cy="134" r="33" fill="#fff" stroke="#8aa4c6" stroke-width="2"/><path d="M107 134v-22m0 22l-16-11" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/><circle cx="107" cy="134" r="3" fill="#2563eb"/>';
-  const bell='<path d="M550 109q-18 0-18 24v11l-8 8h52l-8-8v-11q0-24-18-24Z" fill="#f5d889" stroke="#ab842d" stroke-width="2"/><circle cx="550" cy="157" r="5" fill="#ab842d"/><path d="M521 119l-6-6m64 6 6-6" stroke="#ab842d" stroke-width="2" stroke-linecap="round"/>';
-  return diagramThree(cardArt(20,49,174,185,'01 · CLOCK','10:00 AM',clock,'Read the time'),processCard(240,'02 · FIXED RULE','Time matches','Follow instruction',mr(280,108,100,52,'#eaf1ff','#8eb1ef')+mt(330,139,'10:00 = 10:00',12,motionBlue,650)),cardArt(466,49,174,185,'03 · ACTION','Ring the bell',bell,'No AI needed','green'),['Check the current time','Compare with the scheduled time','Ring the bell using a fixed rule'],'An automatic school bell follows a fixed time rule');
- }
- return motionSvg(phase(0,mt(330,140,'Visual explanation',22,motionInk,650)),['Look at the example','Consider the information','Discuss the result'],'Visual explanation');
+ if(kind==='human')return humanFilm(n);if(kind==='natural')return naturalFilm(n);if(kind==='machine')return machineFilm(n);if(kind==='rule')return ruleFilm(n);if(['data','label','pattern'].includes(kind))return dataFilm(kind);if(kind==='training')return featureFilm('training',n);if(kind==='predict')return featureFilm('test',n,4,[0,1,2,3]);if(kind==='clock')return clockFilm();
+ return filmSvg('Visual explanation',show(0,mt(380,210,'Observe, explore and discuss',24)),beat('Observe.','Explore the information.','Connect the ideas.','Discuss the result.'));
 }
 
 const S=(h,p,e,kind,n,cap,ask,answer)=>({h,p,e,kind,n,cap,ask,answer});
@@ -197,19 +226,14 @@ const tile=(i,act,label)=>'<button class="fruitbutton" data-act="'+act+'" data-i
 const btn=(action,label,extra='')=>'<button data-act="'+action+'" '+extra+'>'+label+'</button>';
 const trainingIds=[0,1,2,3];function nearest(i,ids){if(!ids.length)return null;return ids.map(j=>({j,d:Math.abs(F[i][3]-F[j][3])+2*Math.abs(F[i][4]-F[j][4])})).sort((a,b)=>a.d-b.d)[0].j;}
 
+
 function compare(i,ids,showRule=false){
- const j=nearest(i,ids),actual=F[i][1];
- if(j===null)return '<div class="feedback">No examples yet. Add some training examples first.</div>';
- const guess=F[j][1],rule=F[i][3]?'mango':'not mango',ok=guess===actual;
- const left=fruitCard(20,i,'01 · NEW FRUIT',F[i][0],'Test example')+scanLine(49,91,116,70,500,1850);
- const middle=cardArt(240,49,180,185,'02 · CLOSEST EXAMPLE',F[j][0],fruitMini(j,296,93,.72),'Compare shape + colour')+phase(2900,'<rect x="290" y="91" width="83" height="85" rx="25" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6 4"/>');
- const right=resultCard(466,'03 · PREDICTION',guess.toUpperCase(),ok?'Correct prediction':'Incorrect prediction',ok);
- const ruleOk=(rule==='mango')===(actual==='mango');
- const extra=showRule?phase(5600,mt(330,251,'Colour-only rule: '+rule+' · '+(ruleOk?'correct':'wrong'),15,ruleOk?motionGreen:motionRed,650)):phase(5600,mt(330,251,'Actual fruit: '+actual,15,motionInk,650));
- return diagramThree(left,middle,right,['Show an unseen fruit','Compare shape and colour with stored examples','Reveal the prediction and check the actual fruit'],'A new fruit compared with its closest stored example',extra)+'<div class="feedback motion-feedback">'+(showRule?'<b>Colour rule:</b> '+rule+' · '+(ruleOk?'correct':'wrong')+'<br>':'')+'<b>Trained model:</b> '+guess+' · <b>Actual fruit:</b> '+actual+' <span class="'+(ok?'good':'bad')+'">'+(ok?'✓ Correct':'✗ Mistake')+'</span><br><span class="muted">Closest example: '+F[j][0]+'. The model compares shape and colour.</span></div>';
+ const j=nearest(i,ids),actual=F[i][1];if(j===null)return '<div class="feedback">No examples yet. Add some training examples first.</div>';
+ const guess=F[j][1],rule=F[i][3]?'mango':'not mango',yes=guess===actual,ruleOk=(rule==='mango')===(actual==='mango');
+ return featureFilm('test',0,i,ids,showRule)+'<div class="feedback motion-feedback">'+(showRule?'<b>Colour rule:</b> '+rule+' · '+(ruleOk?'correct':'wrong')+'<br>':'')+'<b>Trained model:</b> '+guess+' · <b>Actual fruit:</b> '+actual+' <span class="'+(yes?'good':'bad')+'">'+(yes?'✓ Correct':'✗ Mistake')+'</span><br><span class="muted">Closest example: '+F[j][0]+'. Distance = colour difference + 2 × shape difference. The lab compares two pre-set features.</span></div>';
 }
 
-function lab(){let i=trainingIds[training.length];let gallery='<div class="train-grid" aria-label="Saved examples">'+(training.length?training.map(j=>'<div class="pop"><svg viewBox="0 0 100 110" aria-hidden="true">'+fruit(j)+'</svg>'+F[j][1]+'</div>').join(''):'<div>Empty collection</div>')+'</div>';if(step===0)return '<div class="mono meta">TRAINING COLLECTION · '+training.length+' / 4</div>'+gallery+(i!==undefined?motionSvg(phase(0,fruitCard(20,i,'01 · EXAMPLE',F[i][0].split(' ')[0]+' fruit','Look at its shape'))+flow(194,137,240,137,1200,2300)+phase(2000,processCard(240,'02 · OBSERVE','Shape + colour','Choose the correct name',fruitMini(i,297,96,.65)))+phase(4800,cardArt(466,49,174,185,'03 · YOUR TURN','Add a label',mr(499,106,108,52,'#eaf1ff','#8eb1ef')+mt(553,139,'Mango or apple?',12,motionBlue,650),'Use the buttons below')),['Observe the new fruit','Look at its shape and colour','Choose its correct label below'],'Observe a fruit and choose its label')+'<div class="row">'+btn('teach','Mango','data-i="0"')+btn('teach','Apple','data-i="1"')+btn('reset','Reset')+'</div>':'<h2 class="good pop">Training collection complete!</h2><p>Four labelled examples are ready for testing.</p><div class="row">'+btn('advance','Test a new fruit','class="primary"')+btn('reset','Reset')+'</div>')+'<div id="feedback" class="feedback" aria-live="polite">'+(i!==undefined?'Choose a label for the fruit.':'Open the next step to test.')+'</div>';
+function lab(){let i=trainingIds[training.length];let gallery='<div class="train-grid" aria-label="Saved examples">'+(training.length?training.map(j=>'<div class="pop"><svg viewBox="0 0 100 110" aria-hidden="true">'+fruit(j)+'</svg>'+F[j][1]+'</div>').join(''):'<div>Empty collection</div>')+'</div>';if(step===0)return '<div class="mono meta">TRAINING COLLECTION · '+training.length+' / 4</div>'+gallery+(i!==undefined?featureFilm('observe',0,i,[])+'<div class="row">'+btn('teach','Mango','data-i="0"')+btn('teach','Apple','data-i="1"')+btn('reset','Reset')+'</div>':'<h2 class="good pop">Training collection complete!</h2><p>Four labelled examples are ready for testing.</p><div class="row">'+btn('advance','Test a new fruit','class="primary"')+btn('reset','Reset')+'</div>')+'<div id="feedback" class="feedback" aria-live="polite">'+(i!==undefined?'Choose a label for the fruit.':'Open the next step to test.')+'</div>';
 return '<div class="mono meta">'+training.length+' SAVED EXAMPLES · CHOOSE A NEW FRUIT</div><div class="row">'+[4,5,6].map((i,j)=>tile(i,'test','Fruit '+(j+1))).join('')+'</div>'+(tested!==null?compare(tested,training,step===2):'<div class="feedback">Select a fruit to see the comparison and answer.</div>')+'<div class="row">'+btn('backtrain','Add examples')+btn('resettest','Clear result')+'</div><p class="muted">Simplified learning model: compares two pre-set features, not real photos.</p>';}
 function mistakes(){const ids=step===0?[0,2]:[0,1,2,3];return '<div class="mono meta">'+(step===0?'ONLY MANGO EXAMPLES':'VARIED EXAMPLES')+'</div><div class="train-grid">'+ids.map(i=>'<div><svg viewBox="0 0 100 110" aria-hidden="true">'+fruit(i)+'</svg>'+F[i][1]+'</div>').join('')+'</div><div class="row">'+tile(5,'mistake','Test this fruit')+btn('clearMistake','Clear test')+'</div>'+(mistakeMode===step?compare(5,ids):'<div class="feedback">Tap the new fruit. Predict the result before checking.</div>');}
 
@@ -226,68 +250,79 @@ function lifeIcon(kind,x,y,out=false){
  return start+a+'</g>';
 }
 
-function lifeStage(){
- const d=life[lifeChoice];
- const labels=[['Capture an image of the face','Compare facial features with saved information','If the match is strong enough, unlock'],['Capture the spoken request','Recognise words from sound patterns','Identify the timer request and start the timer'],['Take a photo of the fruit','Compare visual features using a trained model','Predict the fruit type'],['Receive a new email','Look for patterns associated with spam','Mark the message as possible spam'],['Search the photo library','Compare learned image patterns','Return likely dog pictures']][lifeChoice];
- const middleTitles=['Face comparison','Speech recognition','Fruit recognition','Spam classification','Image matching'];
- const left=cardArt(20,49,174,185,'01 · INPUT',d.input[0],lifeIcon(d.icon,57,88),d.input[1])+scanLine(56,94,99,69,500,1850);
- const mid=processCard(240,'02 · AI MODEL',middleTitles[lifeChoice],'Use learned patterns')+scanLine(274,104,110,57,2650,4050);
- const right=cardArt(466,49,174,185,'03 · RESULT',d.output[0],lifeIcon(d.icon,503,88,true),d.output[1],'green');
- const art=diagramThree(left,mid,right,labels,'How '+d.name+' works: input, model and result');
- return '<div class="life-picker" aria-label="Choose an everyday AI illustration">'+life.map((a,i)=>btn('life',(i+1)+'. '+a.name,'data-i="'+i+'" aria-pressed="'+(lifeChoice===i)+'" '+(lifeChoice===i?'class="selected"':''))).join('')+'</div>'+art+'<div class="feedback motion-feedback"><b>'+chapterStories[8][lifeChoice][0]+'</b><p>'+highlightStory(chapterStories[8][lifeChoice][2])+'</p></div>';
+
+function everydayFilm(i){
+ if(i===2)return machineFilm(2);
+ let b='',title='',captions;
+ if(i===0){
+ title='Face recognition: matching features';
+ b+=show(0,cr(68,88,158,223,'#223b56',C.blue,15)+cr(80,102,134,182,'#14243a',C.line,7)+person(104,122,1.05)+cc(147,296,4,C.muted)+mt(147,337,'Camera image',17,C.muted));
+ const points=[[140,166],[163,166],[151,181],[141,195],[161,195]];
+ points.forEach(([x,y],k)=>b+=show(2000+k*200,cc(x,y,4,C.blue)));
+ b+=draw('M140 166L163 166L151 181L141 195L161 195',C.blue,2,2600,4000)+arr(234,205,303,205,3900,4800)+packet(234,205,303,205,4200,4900);
+ b+=show(4500,cr(315,101,213,212)+mt(421,126,'Compare features',17,C.blue,650));
+ [[365,181],[471,181]].forEach(([x,y])=>{b+=show(4900,cc(x,y,32,'#213d56',C.muted,1.5)+cc(x-10,y-4,3,C.blue)+cc(x+10,y-4,3,C.blue)+cc(x,y+7,3,C.blue))+draw('M'+(x-10)+' '+(y-4)+'L'+(x+10)+' '+(y-4)+'L'+x+' '+(y+7)+'Z',C.blue,1.6,5100,6500);});
+ b+=show(6500,mt(421,267,'Saved face vs new image',15)+mt(421,288,'Illustrative comparison',12,C.muted))+show(8800,tick(642,193,true,1.5)+mt(642,268,'Unlock',22,C.green,700));
+ captions=beat('A camera captures a face image.','A recognition system can represent useful features.','Compare new and saved face information.','A strong match may unlock the phone; otherwise use the passcode.');
+ }else if(i===1){
+ title='Speech recognition: sound to words';b+=show(0,person(43,112,1.13)+mt(94,287,'Arjun speaks',16,C.ink,650));
+ let wave='M175 203';for(let k=0;k<55;k++)wave+='L'+(175+k*4.2).toFixed(1)+' '+(203+Math.sin(k*1.7)*(12+26*Math.abs(Math.sin(k*.27)))).toFixed(1);
+ b+=draw(wave,C.blue,2.8,1100,3600)+show(1500,mt(289,151,'Sound waveform',17,C.blue,650))+tween(cl(0,0,0,86,C.gold,2),2800,5100,[174,160,1],[405,160,1],[2800,5100,300]);
+ ['Set','a timer','for five','minutes'].forEach((w,k)=>b+=show(4900+k*470,cr(422+(k%2)*147,141+Math.floor(k/2)*48,132,35,'#263d55',C.blue,5)+mt(488+(k%2)*147,164+Math.floor(k/2)*48,w,18,C.ink,650)));
+ b+=show(7500,mt(570,268,'Recognized request',17,C.blue,650))+show(9500,banner('Timer set: 05:00'));
+ captions=beat('Arjun speaks into the phone.','The microphone records a changing sound signal.','A trained speech model predicts the words.','The assistant starts an ordinary timer; Arjun checks the time.');
+ }else if(i===3){
+ title='Spam detection: suspicious patterns';
+ b+=show(0,cr(37,96,342,215)+mt(55,122,'NEW EMAIL',12,C.muted,700,'start')+mt(55,153,'You won a prize!',24,C.ink,700,'start')+mt(55,190,'Claim your reward now.',18,C.ink,500,'start')+mt(55,225,'Unknown sender',17,C.muted,500,'start')+mt(55,260,'Click this unfamiliar link.',17,C.ink,500,'start'));
+ [150,187,222,257].forEach((y,k)=>b+=show(1800+k*520,cr(50,y-18,[230,253,171,260][k],27,'none',C.gold,4)));
+ b+=arr(390,203,456,203,4500,5600)+packet(390,203,456,203,4900,5700)+show(5300,cr(468,110,253,190)+mt(594,136,'Learned warning signs',17,C.blue,650));
+ ['Prize claim','Unknown sender','Suspicious link'].forEach((w,k)=>b+=show(5800+k*650,cc(491,172+k*38,5,C.gold)+mt(507,177+k*38,w,16,C.ink,500,'start')));
+ b+=show(9500,banner('Possible spam · check first',C.gold));
+ captions=beat('Rahul receives an unexpected prize email.','Notice several signs associated with spam.','A trained filter uses learned patterns and other information.','The message may be flagged as spam. Do not trust unknown links.');
+ }else{
+ title='Photo search: find pictures by meaning';
+ const dog='<path d="M-28-15Q-49-34-44-44L-17-29Q0-36 17-29L44-44Q49-34 28-15L25 19Q0 39-25 19Z" fill="#d6ad83" stroke="#f5dbc2" stroke-width="1.8"/>'+cc(-11,-7,3,C.bg)+cc(11,-7,3,C.bg)+'<path d="M-5 5h10l-5 6Z" fill="#34435a"/>';
+ b+=show(0,cr(37,85,321,43,'#20364d',C.blue,8)+mt(55,112,'Search: dog',20,C.ink,650,'start'));
+ for(let k=0;k<6;k++){let x=37+(k%3)*109,y=140+Math.floor(k/3)*86,doggy=[1,3,5].includes(k);b+=show(900+k*240,cr(x,y,101,79,'#243c56',C.line,6)+(doggy?tr(x+50,y+43,.7,dog):'<path d="M'+(x+9)+' '+(y+62)+'l26-30 17 16 13-10 27 24Z" fill="#629b83"/>'+cc(x+26,y+21,8,C.gold)));if(doggy)b+=show(4200+k*260,cr(x,y,101,79,'none',C.green,6));}
+ b+=arr(370,223,438,223,6500,7400)+packet(370,223,438,223,6800,7550,C.green)+show(7100,mt(580,109,'Likely matches',17,C.green,650));
+ [0,1,2].forEach(k=>b+=show(7600+k*420,cr(454+k*89,145,80,92,'#233a50',C.green,6)+tr(494+k*89,190,.66,dog)));
+ b+=show(9500,banner('Check the returned photos'));
+ captions=beat('Farah searches for dog in a photo library.','A model compares learned visual patterns.','Likely dog pictures are selected.','Farah checks the pictures and finds Bruno.');
+ }
+ return filmSvg(title,b,captions);
 }
+function lifeStage(){return '<div class="life-picker" aria-label="Choose an everyday AI illustration">'+life.map((a,i)=>btn('life',(i+1)+'. '+a.name,'data-i="'+i+'" aria-pressed="'+(lifeChoice===i)+'" '+(lifeChoice===i?'class="selected"':''))).join('')+'</div>'+everydayFilm(lifeChoice)+'<div class="feedback motion-feedback"><b>'+chapterStories[8][lifeChoice][0]+'</b><p>'+highlightStory(chapterStories[8][lifeChoice][2])+'</p></div>';}
 
 const quizzes=[["A school bell rings every day at 10 AM.",["AI","Not AI"],1,"A simple timer checks the clock and rings at the time a person set. It does not need to learn from examples. Automatic does not always mean AI."],["A computer learned to recognize mangoes from named examples.",["AI","Not AI"],0,"This system learned useful patterns from labelled fruit examples. When a new fruit picture arrives, it uses that learning to make a prediction. That is an example of AI."],["A calculator adds 2 + 3.",["AI","Not AI"],1,"An ordinary calculator follows mathematical instructions to get 5. It does not need training examples to learn addition for this task."],["A trained fruit recognizer gives a wrong answer. Is that possible?",["Yes","No"],0,"Yes. An unusual fruit or missing examples can lead to a wrong prediction. Check the result against the actual fruit instead of accepting every AI answer."],["A photo app finds dog pictures without you naming every photo.",["AI","Not AI"],0,"If it uses a trained model to recognize dogs in pictures, it is using AI for image recognition. Different dogs can look different, so learned patterns help the search."],["A phone alarm rings at the exact time you set.",["AI","Not AI"],1,"The alarm just follows the time you entered. Even if you used an AI voice assistant to set it, the alarm itself can work using a fixed instruction."]];
 function quiz(){let q=quizzes[quizIndex];return '<div class="mono meta">CHECK '+(quizIndex+1)+' / '+quizzes.length+'</div><h2>'+q[0]+'</h2><div class="row">'+q[1].map((a,i)=>btn('quiz',a,'data-i="'+i+'" '+(quizChoice===i?'class="selected"':''))).join('')+'</div><div class="feedback" aria-live="polite">'+(quizChoice===null?'Choose an answer.':(quizChoice===q[2]?'<b class="good">Correct!</b> ':'<b class="bad">Not quite.</b> ')+q[3])+'</div>'+btn('quiznext',quizIndex===quizzes.length-1?'Start again':'Next example','class="primary" '+(quizChoice===null?'disabled':''));}
 
-/* One animation controller, cancelled whenever the scene changes. */
+
+/* Single requestAnimationFrame clock; pause, seek, replay and reduced-motion use identical state. */
 let activeMotion=null,motionRaf=0,motionSpeed=1;
-const clamp01=v=>Math.max(0,Math.min(1,v));
-const easeMotion=v=>v*v*(3-2*v);
+const clamp01=v=>Math.max(0,Math.min(1,v)),easeMotion=v=>v*v*(3-2*v),norm=(t,a,b)=>clamp01((t-a)/Math.max(1,b-a)),lerp=(a,b,t)=>a+(b-a)*t;
 function stopMotion(){if(motionRaf&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(motionRaf);motionRaf=0;activeMotion=null;}
-function motionControls(){
- return '<div class="motion-controls" aria-label="Animation playback"><div class="motion-phase-list"><span data-phase="0">01 · INPUT</span><span data-phase="1">02 · PROCESS</span><span data-phase="2">03 · RESULT</span></div><div class="motion-now" id="motion-now" aria-live="off"></div><input id="motion-seek" type="range" min="0" max="'+MOTION_END+'" step="50" value="0" aria-label="Animation timeline"><div class="motion-actions"><button type="button" data-act="motionpause" id="motion-pause" aria-label="Pause animation">Pause</button><button type="button" data-act="motionrestart">Replay</button><button type="button" data-act="motionspeed" id="motion-speed" aria-label="Change playback speed">'+motionSpeed+'× speed</button><span id="motion-time" class="mono">0.0 / 7.2 s</span></div></div>';
+function motionControls(){return '<div class="motion-controls" aria-label="Animation playback"><div class="motion-phase-list"><span data-phase="0">01 · Observe</span><span data-phase="1">02 · Explore</span><span data-phase="2">03 · Connect</span><span data-phase="3">04 · Understand</span></div><div class="motion-now" id="motion-now"></div><input id="motion-seek" type="range" min="0" max="'+MOTION_END+'" step="50" value="0" aria-label="Animation timeline"><div class="motion-actions"><button type="button" data-act="motionpause" id="motion-pause">Pause</button><button type="button" data-act="motionrestart">Replay</button><button type="button" data-act="motionback" aria-label="Previous animation moment">← Moment</button><button type="button" data-act="motionnext" aria-label="Next animation moment">Moment →</button><button type="button" data-act="motionspeed" id="motion-speed">'+motionSpeed+'× speed</button><button type="button" data-act="motionfull">Expand</button><span id="motion-time" class="mono">0.0 / 12.0 s</span></div></div>';}
+function fadeAt(t,a,b,span){return easeMotion(norm(t,a,a+span))*(b<0?1:1-easeMotion(norm(t,b-span,b)));}
+function paintArt(m,p){
+ m.layers.forEach(({el,v})=>el.setAttribute('opacity',String(fadeAt(p,...v))));
+ m.tweens.forEach(({el,v,fade})=>{const f=easeMotion(norm(p,v[0],v[1]));el.setAttribute('transform','translate('+lerp(v[2],v[5],f).toFixed(2)+' '+lerp(v[3],v[6],f).toFixed(2)+') scale('+lerp(v[4],v[7],f).toFixed(4)+')');if(fade)el.setAttribute('opacity',String(fadeAt(p,...fade)));});
+ m.draws.forEach(({el,v})=>{const f=norm(p,v[0],v[1]);el.setAttribute('stroke-dasharray','1');el.setAttribute('stroke-dashoffset',String(1-f));el.setAttribute('opacity',f===0?'0':'1');});
+ m.pulses.forEach(({el,v})=>{const f=norm(p,v[0],v[1]);el.setAttribute('opacity',p>v[0]&&p<v[1]?String(Math.sin(Math.PI*f)*.9):'0');el.setAttribute('transform','translate('+v[2]+' '+v[3]+') scale('+(1+f*.55).toFixed(3)+') translate('+(-v[2])+' '+(-v[3])+')');});
 }
-function paintMotion(m,t){
- m.time=Math.max(0,Math.min(MOTION_END,t));
- const p=m.time;
- m.layers.forEach(({el,at,span,mode})=>{
-  const f=easeMotion(clamp01((p-at)/span));
-  el.setAttribute('opacity',String(f));el.setAttribute('transform',mode==='rise'?'translate(0 '+((1-f)*9).toFixed(2)+')':'translate(0 0)');
- });
- m.paths.forEach(({el,coords,from,to,scan})=>{
-  const f=clamp01((p-from)/(to-from)),on=p>=from&&p<to,alpha=on?Math.min(1,f*8,(1-f)*8):0;
-  el.setAttribute('opacity',String(alpha));
-  if(scan)el.setAttribute('transform','translate(0 '+(coords[3]*f).toFixed(2)+')');
-  else el.setAttribute('transform','translate('+(coords[0]+(coords[2]-coords[0])*f).toFixed(2)+' '+(coords[1]+(coords[3]-coords[1])*f).toFixed(2)+')');
- });
- const i=p<2400?0:p<4900?1:2;
- if(m.phase!==i){
-  m.phase=i;
-  m.phaseNodes.forEach((el,k)=>{el.classList.toggle('motion-current',k===i);el.classList.toggle('motion-done',k<i)});
-  if(m.now)m.now.textContent=m.labels[i]||'';
- }
- if(m.seek){m.seek.value=String(Math.round(p/50)*50);m.seek.setAttribute('aria-valuetext',(p/1000).toFixed(1)+' seconds: '+m.labels[i]);}
- if(m.timeLabel)m.timeLabel.textContent=(p/1000).toFixed(1)+' / '+(MOTION_END/1000).toFixed(1)+' s';
- if(m.feedback)m.feedback.classList.toggle('motion-waiting',p<5400);
-}
-function motionButton(m){if(!m.pause)return;m.pause.textContent=m.playing?'Pause':m.time>=MOTION_END?'Play again':'Play';m.pause.setAttribute('aria-label',m.playing?'Pause animation':m.time>=MOTION_END?'Play animation again':'Resume animation');}
+const nums=s=>s.split(',').map(Number);
+function readArt(art){const list=(sel,key)=>[...art.querySelectorAll(sel)].map(el=>({el,v:nums(el.getAttribute(key))}));return {layers:list('[data-film-layer]','data-film-layer'),tweens:list('[data-film-tween]','data-film-tween').map(o=>({...o,fade:o.el.hasAttribute('data-film-fade')?nums(o.el.getAttribute('data-film-fade')):null})),draws:list('[data-film-draw]','data-film-draw'),pulses:list('[data-film-pulse]','data-film-pulse')};}
+function paintMotion(m,t){m.time=Math.max(0,Math.min(MOTION_END,t));const p=m.time;paintArt(m,p);let i=0;for(let k=1;k<m.beats.length;k++)if(p>=m.beats[k][0])i=k;if(m.phase!==i){m.phase=i;m.phaseNodes.forEach((el,k)=>{el.classList.toggle('motion-current',k===i);el.classList.toggle('motion-done',k<i);});if(m.now)m.now.textContent=m.beats[i][2];}if(m.seek){m.seek.value=String(Math.round(p/50)*50);m.seek.setAttribute('aria-valuetext',(p/1000).toFixed(1)+' seconds: '+m.beats[i][2]);}if(m.timeLabel)m.timeLabel.textContent=(p/1000).toFixed(1)+' / 12.0 s';if(m.feedback)m.feedback.classList.toggle('motion-waiting',p<9500);}
+function motionButton(m){if(m.pause){m.pause.textContent=m.playing?'Pause':m.time>=MOTION_END?'Play again':'Play';m.pause.setAttribute('aria-label',m.playing?'Pause animation':'Play animation');}}
 function queueMotion(m){if(motionRaf||!m.playing||typeof requestAnimationFrame!=='function')return;motionRaf=requestAnimationFrame(ts=>{motionRaf=0;if(activeMotion!==m||!m.playing)return;const dt=m.last===null?0:Math.min(100,ts-m.last);m.last=ts;paintMotion(m,m.time+dt*motionSpeed);if(m.time>=MOTION_END){m.playing=false;motionButton(m);}else queueMotion(m);});}
 function pauseMotion(m){m.playing=false;m.last=null;if(motionRaf&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(motionRaf);motionRaf=0;motionButton(m);}
 function playMotion(m,reset=false){if(!m)return;if(reset||m.time>=MOTION_END)paintMotion(m,0);m.last=null;m.playing=true;motionButton(m);queueMotion(m);}
-function mountMotion(){
- stopMotion();const host=$('stage');if(!host||!host.querySelector)return;
- const art=host.querySelector('.motion-scene');if(!art)return;
- const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
- const m={time:0,last:null,playing:false,phase:-1,labels:JSON.parse(art.dataset.phases),layers:[...art.querySelectorAll('[data-enter]')].map(el=>({el,at:Number(el.dataset.enter),span:Number(el.dataset.span),mode:el.dataset.mode})),paths:[...art.querySelectorAll('[data-path],[data-scan]')].map(el=>({el,coords:(el.dataset.path||el.dataset.scan).split(',').map(Number),from:Number(el.dataset.from),to:Number(el.dataset.to),scan:!!el.dataset.scan})),phaseNodes:[...host.querySelectorAll('[data-phase]')],now:host.querySelector('#motion-now'),seek:host.querySelector('#motion-seek'),timeLabel:host.querySelector('#motion-time'),pause:host.querySelector('#motion-pause'),feedback:host.querySelector('.motion-feedback'),reduced};
- activeMotion=m;
- paintMotion(m,reduced?MOTION_END:0);
- if(m.seek)m.seek.addEventListener('input',()=>{pauseMotion(m);paintMotion(m,Number(m.seek.value));motionButton(m);});
- if(reduced)motionButton(m);else playMotion(m);
-}
-function replayMotion(){if(activeMotion){if(activeMotion.reduced){pauseMotion(activeMotion);paintMotion(activeMotion,MOTION_END);motionButton(activeMotion);}else playMotion(activeMotion,true);}else refresh();}
+function mountMotion(){stopMotion();const host=$('stage');if(!host||!host.querySelector)return;const art=host.querySelector('.motion-scene');if(!art)return;const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;const m={...readArt(art),time:0,last:null,playing:false,phase:-1,beats:JSON.parse(art.dataset.beats),phaseNodes:[...host.querySelectorAll('[data-phase]')],now:host.querySelector('#motion-now'),seek:host.querySelector('#motion-seek'),timeLabel:host.querySelector('#motion-time'),pause:host.querySelector('#motion-pause'),feedback:host.querySelector('.motion-feedback'),reduced};activeMotion=m;paintMotion(m,reduced?MOTION_END:0);if(m.seek)m.seek.addEventListener('input',()=>{const v=Number(m.seek.value);pauseMotion(m);paintMotion(m,v);motionButton(m);});if(reduced)motionButton(m);else playMotion(m);}
+function replayMotion(){const m=activeMotion;if(!m){refresh();return;}if(m.reduced){pauseMotion(m);paintMotion(m,MOTION_END);motionButton(m);}else playMotion(m,true);}
 function toggleMotion(){const m=activeMotion;if(!m)return;if(m.playing)pauseMotion(m);else if(m.reduced){paintMotion(m,m.time>=MOTION_END?0:MOTION_END);motionButton(m);}else playMotion(m);}
+function jumpMotion(delta){const m=activeMotion;if(!m)return;pauseMotion(m);let times=m.beats.map(b=>b[0]).concat(MOTION_END),v=delta>0?(times.find(t=>t>m.time+50)??MOTION_END):([...times].reverse().find(t=>t<m.time-50)??0);paintMotion(m,v);motionButton(m);}
 function speedMotion(){motionSpeed=motionSpeed===1?.5:motionSpeed===.5?1.5:motionSpeed===1.5?2:1;const b=$('motion-speed');if(b)b.textContent=motionSpeed+'× speed';}
+function fullscreenMotion(){const host=$('stage');if(document.fullscreenElement===host)document.exitFullscreen?.();else if(host?.requestFullscreen)host.requestFullscreen().catch(()=>{});}
+function staticFilm(host){if(!host?.querySelector)return;const art=host.querySelector('.motion-scene');if(art)paintArt(readArt(art),MOTION_END);}
 
 function stage(s){let content=s.kind==='lab'?lab():s.kind==='mistake'?mistakes():s.kind==='life'?lifeStage():s.kind==='quiz'?quiz():scene(s.kind,s.n);return '<div class="mono meta">VISUAL EXPLANATION</div>'+content+(content.includes('motion-scene')?motionControls():'')+'<div class="cap">'+s.cap+'</div>';}
 function notes(){return '<section class="notes"><div class="mono meta">NOTEBOOK · REVIEW</div><h2>What is Artificial Intelligence?</h2><p><b>1. '+T('intelligence')+':</b> Ability to learn, understand and solve problems.</p><p><b>2. '+T('artificial')+':</b> Made by people. Example: a plastic mango.</p><p><b>3. '+T('AI','Artificial Intelligence (AI)')+':</b> Technology that helps computers do tasks that usually need human intelligence.</p><p><b>4. '+T('data')+':</b> Information such as pictures, words or sounds. A '+T('label','label')+' gives the correct name.</p><p><b>5. '+T('training')+':</b> Learning from examples. A '+T('prediction','prediction')+' is an answer based on learning.</p><table><thead><tr><th>Fixed rules</th><th>Learning from examples</th></tr></thead><tbody><tr><td>Follows given instructions.</td><td>Finds useful '+T('pattern','patterns')+' in data.</td></tr><tr><td>If yellow, say mango.</td><td>Learn from many named fruit pictures.</td></tr></tbody></table><p><b>Example:</b> A computer learns to recognize mangoes from different labelled pictures.</p><p><b>Remember:</b> AI can make mistakes. Not every automatic machine uses AI.</p></section>';}
@@ -310,7 +345,7 @@ function chapterReading(){
 
 function render(){stopMotion();let d=slides[page],s=d.steps[step];$('jump').innerHTML=slides.map((x,i)=>'<option value="'+i+'" '+(page===i?'selected':'')+'>'+String(i+1).padStart(2,'0')+' · '+x.short+'</option>').join('');$('prev').disabled=page===0;$('next').disabled=page===slides.length-1;$('progress').textContent='Chapter '+(page+1)+' / '+slides.length;$main.innerHTML='<div class="mono meta">FIG. '+String(page+1).padStart(2,'0')+' / '+slides.length+' · SELF-PACED</div><h1>'+d.title+'</h1>'+(s?'<div class="steps" aria-label="Explanation steps">'+d.steps.map((a,i)=>'<button data-step="'+i+'" aria-current="'+(i===step)+'">'+a.h.split(' · ')[0]+' · '+(i+1)+'/'+d.steps.length+'</button>').join('')+'</div><div class="layout"><section class="panel copy"><div class="mono meta">EXPLANATION '+(step+1)+' / '+d.steps.length+'</div><h2>'+s.h+'</h2><p>'+s.p+'</p><div class="example"><b>Read and discuss:</b> Explore the five named-character stories after this illustration. Try the five Think Together questions before revealing the answers.</div><div class="controls">'+btn('replay','Replay animation',s.kind==='quiz'?'disabled title="Choose an answer in the quiz"':'')+btn('stepback','← Step',''+(step===0?'disabled':''))+btn('advance',step<d.steps.length-1?'Next explanation →':'Next slide →','class="primary"')+'</div></section><section class="panel stage" id="stage">'+stage(s)+'</section></div>':notes())+chapterReading();$main.scrollTop=0;mountMotion();}
 function refresh(){stopMotion();let s=slides[page].steps[step];$('stage').innerHTML=stage(s);mountMotion()}function go(i){page=Math.max(0,Math.min(slides.length-1,i));step=0;storyIndex=0;lifeChoice=0;render()}function advance(){if(step<slides[page].steps.length-1){step++;render()}else go(page+1)}
-function glossary(k){let a=terms[k];$('word').textContent=a[0];$('meaning').textContent=a[1];$('example').textContent='Example: '+a[2];$('wordart').innerHTML=scene(a[3],a[3]==='clock'?0:2);if(!$('gloss').open)$('gloss').showModal();}function dictionary(){$('word').textContent='Tap a word';$('wordart').innerHTML='<div class="dictionary">'+Object.keys(terms).map(k=>T(k)).join('')+'</div>';$('meaning').textContent='';$('example').textContent='';if(!$('gloss').open)$('gloss').showModal();}
-document.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;if(b.dataset.word){glossary(b.dataset.word);return}if(b.dataset.step!==undefined){step=Number(b.dataset.step);render();return}let i=Number(b.dataset.i);switch(b.dataset.act){case'story':storyIndex=i;lifeChoice=i;$('story-panel').innerHTML=storyPanel();if(page===8&&slides[page].steps[step].kind==='life')refresh();break;case'replay':case'motionrestart':replayMotion();break;case'motionpause':toggleMotion();break;case'motionspeed':speedMotion();break;case'stepback':if(step>0){step--;render()}break;case'advance':advance();break;case'reveal':{let a=$('answer');a.hidden=!a.hidden;b.setAttribute('aria-expanded',String(!a.hidden));b.textContent=a.hidden?'Reveal why':'Hide answer';if(!a.hidden)a.scrollIntoView({block:'nearest'});break}case'teach':{let j=trainingIds[training.length];if(j===undefined)break;if(F[j][1]!==['mango','apple'][i]){$('feedback').textContent='Not quite. Look at the fruit shape and choose its correct name.';break}training.push(j);refresh();$('feedback').textContent='Correct label saved! '+training.length+' / 4 examples.';break}case'reset':training=[];tested=null;refresh();break;case'backtrain':step=0;render();break;case'test':tested=i;refresh();break;case'resettest':tested=null;refresh();break;case'mistake':mistakeMode=step;refresh();break;case'clearMistake':mistakeMode=null;refresh();break;case'life':lifeChoice=i;storyIndex=i;refresh();if($('story-panel'))$('story-panel').innerHTML=storyPanel();break;case'quiz':quizChoice=i;refresh();break;case'quiznext':quizIndex=(quizIndex+1)%quizzes.length;quizChoice=null;refresh();break;}});
+function glossary(k){let a=terms[k];$('word').textContent=a[0];$('meaning').textContent=a[1];$('example').textContent='Example: '+a[2];$('wordart').innerHTML=scene(a[3],a[3]==='clock'?0:2);staticFilm($('wordart'));if(!$('gloss').open)$('gloss').showModal();}function dictionary(){$('word').textContent='Tap a word';$('wordart').innerHTML='<div class="dictionary">'+Object.keys(terms).map(k=>T(k)).join('')+'</div>';$('meaning').textContent='';$('example').textContent='';if(!$('gloss').open)$('gloss').showModal();}
+document.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;if(b.dataset.word){glossary(b.dataset.word);return}if(b.dataset.step!==undefined){step=Number(b.dataset.step);render();return}let i=Number(b.dataset.i);switch(b.dataset.act){case'story':storyIndex=i;lifeChoice=i;$('story-panel').innerHTML=storyPanel();if(page===8&&slides[page].steps[step].kind==='life')refresh();break;case'replay':case'motionrestart':replayMotion();break;case'motionpause':toggleMotion();break;case'motionspeed':speedMotion();break;case'motionback':jumpMotion(-1);break;case'motionnext':jumpMotion(1);break;case'motionfull':fullscreenMotion();break;case'stepback':if(step>0){step--;render()}break;case'advance':advance();break;case'reveal':{let a=$('answer');a.hidden=!a.hidden;b.setAttribute('aria-expanded',String(!a.hidden));b.textContent=a.hidden?'Reveal why':'Hide answer';if(!a.hidden)a.scrollIntoView({block:'nearest'});break}case'teach':{let j=trainingIds[training.length];if(j===undefined)break;if(F[j][1]!==['mango','apple'][i]){$('feedback').textContent='Not quite. Look at the fruit shape and choose its correct name.';break}training.push(j);refresh();$('feedback').textContent='Correct label saved! '+training.length+' / 4 examples.';break}case'reset':training=[];tested=null;refresh();break;case'backtrain':step=0;render();break;case'test':tested=i;refresh();break;case'resettest':tested=null;refresh();break;case'mistake':mistakeMode=step;refresh();break;case'clearMistake':mistakeMode=null;refresh();break;case'life':lifeChoice=i;storyIndex=i;refresh();if($('story-panel'))$('story-panel').innerHTML=storyPanel();break;case'quiz':quizChoice=i;refresh();break;case'quiznext':quizIndex=(quizIndex+1)%quizzes.length;quizChoice=null;refresh();break;}});
 $('jump').onchange=e=>go(Number(e.target.value));$('prev').onclick=()=>go(page-1);$('next').onclick=()=>go(page+1);$('dictionary').onclick=dictionary;$('allwords').onclick=dictionary;$('close').onclick=()=>$('gloss').close();$('full').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.().catch(()=>{});};document.addEventListener('keydown',e=>{if($('gloss').open||['SELECT','BUTTON','INPUT','TEXTAREA'].includes(document.activeElement.tagName))return;if(e.key==='ArrowRight')go(page+1);if(e.key==='ArrowLeft')go(page-1);if(e.key===' '){e.preventDefault();advance()}if(e.key==='/')location.href='../';});render();
 </script></body></html>
